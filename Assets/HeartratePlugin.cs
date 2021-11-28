@@ -47,6 +47,10 @@ public class HeartratePlugin : VTSPlugin
             });
     }
 
+    public void SetHeartRate(int rate){
+        this._heartRate = rate;
+    }
+
     public void SetRed(string value){
         this._color = new Color32(
             StringToByte(value), 
@@ -89,6 +93,7 @@ public class HeartratePlugin : VTSPlugin
         try{
             return Convert.ToByte(value);
         }catch(Exception e){
+            Debug.LogWarning(e);
             return 0;
         }
     }
