@@ -6,10 +6,13 @@ using VTS;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.IO;
 public class HeartratePlugin : VTSPlugin
 {
-    private Color32 _color = Color.white;
-    private string[] _matchers = new string[0];
+    private string SAVE_PATH = "";
+
+    [SerializeField]
+    private List<ColorInputModule> _colors = new List<ColorInputModule>();
 
     [SerializeField]
     [Range(50, 120)]
@@ -18,8 +21,10 @@ public class HeartratePlugin : VTSPlugin
     private int _minRate = 70;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
+        this.SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
+        Load(); 
         // Everything you need to get started!
         Initialize(
             new WebSocketImpl(),
@@ -30,71 +35,60 @@ public class HeartratePlugin : VTSPlugin
             () => {Debug.LogError("Error!");});
     }
 
+    private void OnApplicationQuit(){
+        Save();
+    }
+
     private void FixedUpdate(){
-        ArtMeshMatcher matcher = new ArtMeshMatcher();
-        matcher.tintAll = false;
-        matcher.nameContains = this._matchers;
-        this.TintArtMesh(
-            Color32.Lerp(Color.white, this._color, 
-            ((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate))),  
-            0.5f, 
-            matcher,
-            (success) => {
+        foreach(ColorInputModule module in this._colors){
+            ArtMeshMatcher matcher = new ArtMeshMatcher();
+            matcher.tintAll = false;
+            matcher.nameContains = module.ModuleMatchers;
+            this.TintArtMesh(
+                Color32.Lerp(Color.white, module.ModuleColor, 
+                ((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate))),  
+                0.5f, 
+                matcher,
+                (success) => {
 
-            },
-            (error) => {
+                },
+                (error) => {
 
-            });
+                });
+        }
     }
 
     public void SetHeartRate(int rate){
         this._heartRate = rate;
     }
 
-    public void SetRed(string value){
-        this._color = new Color32(
-            StringToByte(value), 
-            this._color.g, 
-            this._color.b, 
-            this._color.a);
+    private void Save(){
+        SaveData data = new SaveData();
+        foreach(ColorInputModule module in this._colors){
+            data.modules.Add(module.ToSaveData());
+        }
+        File.WriteAllText(this.SAVE_PATH, data.ToString());
     }
 
-    public void SetGreen(string value){
-        this._color = new Color32(
-            this._color.r, 
-            StringToByte(value), 
-            this._color.b,
-            this._color.a);
+    private void Load(){
+        if(File.Exists(this.SAVE_PATH)){
+            string text = File.ReadAllText(this.SAVE_PATH);
+            SaveData data = JsonUtility.FromJson<SaveData>(text);
+            foreach(ColorInputModule.SaveData module in data.modules){
+                // TODO instantiate from prefab, and populate
+                this._colors[0].FromSaveData(module);
+                // Load data
+            }
+        }
     }
 
-    public void SetBlue(string value){
-        this._color = new Color32(
-            this._color.r, 
-            this._color.g, 
-            StringToByte(value), 
-            this._color.a);
-    }
+    [System.Serializable]
+    public class SaveData{
+        public List<ColorInputModule.SaveData> modules = new List<ColorInputModule.SaveData>();
 
-    public void SetAlpha(string value){
-        this._color = new Color32(
-            this._color.r, 
-            this._color.g, 
-            this._color.b,
-            StringToByte(value));
-    }
-
-    public void SetMatchers(string value){
-        String[] sanitized = value.Trim().Split(' ', ',');
-        this._matchers = sanitized;
-    }
-
-
-    private byte StringToByte(string value){
-        try{
-            return Convert.ToByte(value);
-        }catch(Exception e){
-            Debug.LogWarning(e);
-            return 0;
+        public override string ToString()
+        {
+            return JsonUtility.ToJson(this);
         }
     }
 }
