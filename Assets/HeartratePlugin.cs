@@ -12,6 +12,10 @@ public class HeartratePlugin : VTSPlugin
     private string SAVE_PATH = "";
 
     [SerializeField]
+    private ColorInputModule _colorPrefab = null;
+    [SerializeField]
+    private RectTransform _colorListParent = null;
+    [SerializeField]
     private List<ColorInputModule> _colors = new List<ColorInputModule>();
 
     [SerializeField]
@@ -75,9 +79,10 @@ public class HeartratePlugin : VTSPlugin
             string text = File.ReadAllText(this.SAVE_PATH);
             SaveData data = JsonUtility.FromJson<SaveData>(text);
             foreach(ColorInputModule.SaveData module in data.modules){
-                // TODO instantiate from prefab, and populate
-                this._colors[0].FromSaveData(module);
                 // Load data
+                ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
+                instance.FromSaveData(module);
+                this._colors.Add(instance);
             }
         }
     }

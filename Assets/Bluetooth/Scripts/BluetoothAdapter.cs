@@ -165,16 +165,18 @@ public class BluetoothAdapter : MonoBehaviour
         }
     }
 
-    // public void StartCharacteristicScan(BleDevice, )
-    // {
-    //     if (!this._isScanningCharacteristics)
-    //     {
-    //         // start new scan
-    //         BleApi.ScanCharacteristics(selectedDeviceId, selectedServiceId);
-    //         this._isScanningCharacteristics = true;;
-    //     }
-    // }
+    public void StartCharacteristicScan(BleDevice device, BleService service)
+    {
+        if (!this._isScanningCharacteristics)
+        {
+            // start new scan
+            BleApi.ScanCharacteristics(device.id, service.id);
+            this._isScanningCharacteristics = true;
+            Debug.Log("Starting characteristic scan...");
+        }
+    }
 
+    [System.Serializable]
     public class BleDevice{
         public string name;
         public string id;
@@ -186,6 +188,7 @@ public class BluetoothAdapter : MonoBehaviour
         }
     }
 
+    [System.Serializable]
     public class BleService{
         public BleDevice device;
         public string id;
@@ -196,6 +199,7 @@ public class BluetoothAdapter : MonoBehaviour
         }
     }
 
+    [System.Serializable]
     public class BleCharacteristic{
         public BleDevice device;
         public BleService service;
