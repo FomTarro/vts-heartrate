@@ -66,6 +66,21 @@ public class HeartratePlugin : VTSPlugin
         this._heartRate = rate;
     }
 
+    public void CreateColorInputModule(ColorInputModule.SaveData module){
+        ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
+        this._colors.Add(instance);
+        if(module != null){
+            instance.FromSaveData(module);
+        }
+    }
+
+    public void DestroyColorInputModule(ColorInputModule module){
+        if(this._colors.Contains(module)){
+            this._colors.Remove(module);
+            Destroy(module.gameObject);
+        }
+    }
+
     private void Save(){
         SaveData data = new SaveData();
         foreach(ColorInputModule module in this._colors){
@@ -80,9 +95,7 @@ public class HeartratePlugin : VTSPlugin
             SaveData data = JsonUtility.FromJson<SaveData>(text);
             foreach(ColorInputModule.SaveData module in data.modules){
                 // Load data
-                ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
-                instance.FromSaveData(module);
-                this._colors.Add(instance);
+                CreateColorInputModule(module);
             }
         }
     }
