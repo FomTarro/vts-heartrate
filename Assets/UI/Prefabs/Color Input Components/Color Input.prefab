@@ -170,8 +170,8 @@ GameObject:
   - component: {fileID: 8602950260150861640}
   - component: {fileID: 5165754426634901268}
   - component: {fileID: 8466445781332567372}
-  - component: {fileID: 7541492775142398976}
   - component: {fileID: 809053635659501841}
+  - component: {fileID: 4851159047303234380}
   m_Layer: 5
   m_Name: InputField
   m_TagString: Untagged
@@ -301,7 +301,7 @@ MonoBehaviour:
   m_CaretWidth: 1
   m_ReadOnly: 0
   m_ShouldActivateOnSelect: 1
---- !u!114 &7541492775142398976
+--- !u!114 &809053635659501841
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -310,13 +310,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 8081520803066846703}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
-  m_EffectDistance: {x: 2, y: 2}
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: -2, y: -2}
   m_UseGraphicAlpha: 1
---- !u!114 &809053635659501841
+--- !u!114 &4851159047303234380
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -325,12 +325,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8081520803066846703}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Script: {fileID: 11500000, guid: 23535f2433cade846b3037275f1fb183, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
-  m_EffectDistance: {x: -2, y: -2}
+  shadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+  shadowDistance: {x: -2, y: -2}
   m_UseGraphicAlpha: 1
+  iterations: 5
+  shadowSpread: {x: 1, y: 1}
 --- !u!1 &8862045443099933357
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,13 +21,20 @@ public class HeartratePlugin : VTSPlugin
     [SerializeField]
     [Range(50, 120)]
     private int _heartRate = 70;
+    public int HeartRate { get { return this._heartRate; } }
     private int _maxRate = 100;
     private int _minRate = 70;
+
+    [Header("Input Modules")]
+    [SerializeField]
+    private List<HeartrateInputModule> _heartrateInputs = new List<HeartrateInputModule>();
+
 
     // Start is called before the first frame update
     private void Start()
     {
         this.SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
+        SetActiveHeartrateInput(this._heartrateInputs[0]);
         Load(); 
         // Everything you need to get started!
         Initialize(
@@ -44,6 +51,13 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private void FixedUpdate(){
+
+        foreach(HeartrateInputModule module in this._heartrateInputs){
+            if(module.IsActive){
+                this._heartRate = module.GetHeartrate();
+            }
+        }
+
         foreach(ColorInputModule module in this._colors){
             ArtMeshMatcher matcher = new ArtMeshMatcher();
             matcher.tintAll = false;
@@ -62,10 +76,6 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    public void SetHeartRate(int rate){
-        this._heartRate = rate;
-    }
-
     public void CreateColorInputModule(ColorInputModule.SaveData module){
         ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
         this._colors.Add(instance);
@@ -78,6 +88,14 @@ public class HeartratePlugin : VTSPlugin
         if(this._colors.Contains(module)){
             this._colors.Remove(module);
             Destroy(module.gameObject);
+        }
+    }
+
+    public void SetActiveHeartrateInput(HeartrateInputModule module){
+        foreach(HeartrateInputModule m in this._heartrateInputs){
+            if(!m.Equals(module)){
+                m.Deactivate();
+            }
         }
     }
 

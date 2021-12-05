@@ -39,6 +39,14 @@ public class ColorInputModule : MonoBehaviour
         _background.color = this._color;
     }
 
+    public void Clone(){
+        HeartrateManager.Instance.Plugin.CreateColorInputModule(this.ToSaveData());
+    }
+
+    public void Delete(){
+        HeartrateManager.Instance.Plugin.DestroyColorInputModule(this);
+    }
+
     public void SetRed(string value){
         byte v = StringToByte(value);
         this._color = new Color32(
@@ -96,8 +104,8 @@ public class ColorInputModule : MonoBehaviour
 
     [System.Serializable]
     public class SaveData{
-        public Color32 color;
-        public string[] matchers;
+        public Color32 color = Color.white;
+        public string[] matchers = new string[0];
 
         public override string ToString()
         {

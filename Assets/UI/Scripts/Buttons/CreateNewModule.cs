@@ -4,15 +4,7 @@ using UnityEngine;
 
 public class CreateNewModule : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public void CreateModule(){
+        HeartrateManager.Instance.Plugin.CreateColorInputModule(new ColorInputModule.SaveData());
     }
 }
