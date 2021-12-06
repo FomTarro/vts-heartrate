@@ -10,6 +10,10 @@ public abstract class HeartrateInputModule : MonoBehaviour
 
     public bool IsActive { get { return this._toggle.isOn; }} 
 
+    public void Start(){
+        this._toggle.onValueChanged.AddListener(OnToggle);
+    }
+
     public void OnToggle(bool value){
         if(value){
             Activate();

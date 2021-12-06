@@ -93,7 +93,7 @@ public class HeartratePlugin : VTSPlugin
 
     public void SetActiveHeartrateInput(HeartrateInputModule module){
         foreach(HeartrateInputModule m in this._heartrateInputs){
-            if(!m.Equals(module)){
+            if(!m.name.Equals(module.name)){
                 m.Deactivate();
             }
         }
