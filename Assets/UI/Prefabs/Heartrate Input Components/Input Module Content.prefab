@@ -25,7 +25,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7237284858492441814}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -54,10 +54,10 @@ MonoBehaviour:
   m_Padding:
     m_Left: 0
     m_Right: 0
-    m_Top: 25
+    m_Top: 100
     m_Bottom: 50
-  m_ChildAlignment: 1
-  m_Spacing: 20
+  m_ChildAlignment: 0
+  m_Spacing: 10
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -123,12 +123,12 @@ PrefabInstance:
     - target: {fileID: 7432733188862503524, guid: 0b407c47cc4c0b8468c831aa3b719d5b,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 320
+      value: 350
       objectReference: {fileID: 0}
     - target: {fileID: 7432733188862503524, guid: 0b407c47cc4c0b8468c831aa3b719d5b,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 150
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 7432733188862503524, guid: 0b407c47cc4c0b8468c831aa3b719d5b,
         type: 3}
@@ -253,12 +253,12 @@ PrefabInstance:
     - target: {fileID: 2805666901923603297, guid: 97e132c820f58a946b2b3a3cdbcfbc53,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 320
+      value: 350
       objectReference: {fileID: 0}
     - target: {fileID: 2805666901923603297, guid: 97e132c820f58a946b2b3a3cdbcfbc53,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 75
       objectReference: {fileID: 0}
     - target: {fileID: 2805666901923603297, guid: 97e132c820f58a946b2b3a3cdbcfbc53,
         type: 3}
