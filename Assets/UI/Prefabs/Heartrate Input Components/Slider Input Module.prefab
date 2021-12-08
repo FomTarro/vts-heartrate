@@ -184,6 +184,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6160d685ce7ade44292efbf7f975b2dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _type: 1
   _toggle: {fileID: 2142690360740855210}
   _slider: {fileID: 5157065464716666882}
 --- !u!225 &5148216402839809776

@@ -12,23 +12,25 @@ public class HeartratePlugin : VTSPlugin
     private string SAVE_PATH = "";
 
     [SerializeField]
-    private ColorInputModule _colorPrefab = null;
-    [SerializeField]
-    private RectTransform _colorListParent = null;
-    [SerializeField]
-    private List<ColorInputModule> _colors = new List<ColorInputModule>();
-
-    [SerializeField]
     [Range(50, 120)]
     private int _heartRate = 70;
     public int HeartRate { get { return this._heartRate; } }
     private int _maxRate = 100;
     private int _minRate = 70;
 
-    // [Header("Input Modules")]
+    [Header("Colors")]
+    [SerializeField]
+    private ColorInputModule _colorPrefab = null;
+    [SerializeField]
+    private RectTransform _colorListParent = null;
+    [SerializeField]
+    private List<ColorInputModule> _colors = new List<ColorInputModule>();
+
+    [Header("Input Modules")]
     [SerializeField]
     private List<HeartrateInputModule> _heartrateInputs = new List<HeartrateInputModule>();
 
+    [Header("Navbar")]
     [SerializeField]
     private Navbar _navbar = null;
     
@@ -44,9 +46,9 @@ public class HeartratePlugin : VTSPlugin
             new WebSocketImpl(),
             new JsonUtilityImpl(),
             new TokenStorageImpl(),
-            () => {Debug.Log("Connected!");},
-            () => {Debug.LogWarning("Disconnected!");},
-            () => {Debug.LogError("Error!");});
+            () => {LoggingManager.Instance.Log("Connected!");},
+            () => {LoggingManager.Instance.Log("Disconnected!");},
+            () => {LoggingManager.Instance.Log("Error!");});
     }
 
     private void OnValidate(){
@@ -70,6 +72,7 @@ public class HeartratePlugin : VTSPlugin
         foreach(HeartrateInputModule module in this._heartrateInputs){
             if(module.IsActive){
                 this._heartRate = module.GetHeartrate();
+                break;
             }
         }
 
@@ -93,6 +96,7 @@ public class HeartratePlugin : VTSPlugin
 
     public void CreateColorInputModule(ColorInputModule.SaveData module){
         ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
+        instance.transform.SetSiblingIndex(1);
         this._colors.Add(instance);
         if(module != null){
             instance.FromSaveData(module);
@@ -119,7 +123,10 @@ public class HeartratePlugin : VTSPlugin
         data.maxRate = this._maxRate;
         data.minRate = this._minRate;
         foreach(ColorInputModule module in this._colors){
-            data.modules.Add(module.ToSaveData());
+            data.colors.Add(module.ToSaveData());
+        }
+        foreach(HeartrateInputModule module in this._heartrateInputs){
+            data.inputs.Add(module.ToSaveData());
         }
         File.WriteAllText(this.SAVE_PATH, data.ToString());
     }
@@ -132,9 +139,15 @@ public class HeartratePlugin : VTSPlugin
             this._navbar.SetMaxRate(this._maxRate.ToString());
             this._minRate = data.minRate;
             this._navbar.SetMinRate(this._minRate.ToString());
-            foreach(ColorInputModule.SaveData module in data.modules){
-                // Load data
+            foreach(ColorInputModule.SaveData module in data.colors){
                 CreateColorInputModule(module);
+            }
+            foreach(HeartrateInputModule.SaveData module in data.inputs){
+                foreach(HeartrateInputModule m in this._heartrateInputs){
+                    if(m.Type == module.type){
+                        m.FromSaveData(module);
+                    }
+                }
             }
         }
     }
@@ -143,7 +156,8 @@ public class HeartratePlugin : VTSPlugin
     public class SaveData {
         public int minRate = 0;
         public int maxRate = 0;
-        public List<ColorInputModule.SaveData> modules = new List<ColorInputModule.SaveData>();
+        public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
+        public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>(); 
 
         public override string ToString()
         {
