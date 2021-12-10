@@ -29,10 +29,12 @@ public class HeartratePlugin : VTSPlugin
     [Header("Input Modules")]
     [SerializeField]
     private List<HeartrateInputModule> _heartrateInputs = new List<HeartrateInputModule>();
-
-    [Header("Navbar")]
     [SerializeField]
-    private Navbar _navbar = null;
+    private HeartrateRangesInputModule _heartrateRanges = null;
+
+    [Header("Misc.")]
+    [SerializeField]
+    private VTSConnectionStatus _connectionStatus = null;
     
     // Start is called before the first frame update
     private void Start()
@@ -46,9 +48,18 @@ public class HeartratePlugin : VTSPlugin
             new WebSocketImpl(),
             new JsonUtilityImpl(),
             new TokenStorageImpl(),
-            () => {LoggingManager.Instance.Log("Connected!");},
-            () => {LoggingManager.Instance.Log("Disconnected!");},
-            () => {LoggingManager.Instance.Log("Error!");});
+            () => {
+                this._connectionStatus.SetStatus(VTSConnectionStatus.ConnectionStatus.CONNECTED);
+                LoggingManager.Instance.Log("Connected!");
+            },
+            () => {
+                this._connectionStatus.SetStatus(VTSConnectionStatus.ConnectionStatus.DISCONNECTED);
+                LoggingManager.Instance.Log("Disconnected!");
+            },
+            () => {
+                this._connectionStatus.SetStatus(VTSConnectionStatus.ConnectionStatus.ERROR);
+                LoggingManager.Instance.Log("Error!");
+            });
     }
 
     private void OnValidate(){
@@ -136,9 +147,9 @@ public class HeartratePlugin : VTSPlugin
             string text = File.ReadAllText(this.SAVE_PATH);
             SaveData data = JsonUtility.FromJson<SaveData>(text);
             this._maxRate = data.maxRate;
-            this._navbar.SetMaxRate(this._maxRate.ToString());
+            this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
             this._minRate = data.minRate;
-            this._navbar.SetMinRate(this._minRate.ToString());
+            this._heartrateRanges.SetMinRate(this._minRate.ToString());
             foreach(ColorInputModule.SaveData module in data.colors){
                 CreateColorInputModule(module);
             }

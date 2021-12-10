@@ -39,3 +39,6 @@ sysinfo.txt
 *.zip
 
 /Exclude
+/Assets/Exclude
+/Assets/Exclude.meta
+/Assets/Plugins

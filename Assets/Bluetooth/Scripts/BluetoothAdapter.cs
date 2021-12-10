@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class BluetoothAdapter : MonoBehaviour
+public class BluetoothAdapter : Singleton<BluetoothAdapter>
 {
     #region Scan Status
     //devices
@@ -25,39 +25,53 @@ public class BluetoothAdapter : MonoBehaviour
     //characteristics
     private bool _isScanningCharacteristics = false;
     private BleApi.ScanStatus _characteristicsScanStatus = BleApi.ScanStatus.AVAILABLE;
+    [System.Serializable]
+    public class CharacteristicScanCompleteEvent : UnityEvent<List<string>>{}
+    public CharacteristicScanCompleteEvent onCharacteristicScanComplete;
 
     #endregion
 
 
     private Dictionary<string, BleDevice> _devices = new Dictionary<string, BleDevice>();
     private List<string> _services = new List<string>();
-    Dictionary<string, string> characteristicNames = new Dictionary<string, string>();
+    Dictionary<string, string> _characteristicNames = new Dictionary<string, string>();
 
-    [SerializeField]
-    private UnityEngine.UI.Text _debugText = null;
+    // [SerializeField]
+    // private UnityEngine.UI.Text _debugText = null;
+
+    private BleDevice _selectedDevice = null;
 
 
     // Start is called before the first frame update
     private void Start()
     {
-        this.onDeviceScanComplete.AddListener((list) => {
-            string names = "";
-            foreach(BleDevice device in list){
-                names += device.ToString() + "\n";
-            }
-            this._debugText.text = names; 
-            StartServiceScan(list[0]);
-        });
-        this.onServiceScanComplete.AddListener((list) => {
-            string names = "";
-            foreach(string uuid in list){
-                Debug.Log(uuid);
-                if(uuid.ToLower().Contains("180d-")){
-                    names += uuid + "\n";
-                }
-            }
-            this._debugText.text = names; 
-        });
+        // this.onDeviceScanComplete.AddListener((list) => {
+        //     string names = "";
+        //     foreach(BleDevice device in list){
+        //         names += device.ToString() + "\n";
+        //     }
+        //     // this._debugText.text = names; 
+        //     _selectedDevice = list.Find((i) => {return i.name.Contains("H6");});
+        //     Debug.Log(_selectedDevice.name);
+        // });
+        // this.onServiceScanComplete.AddListener((list) => {
+        //     string names = "";
+        //     foreach(string uuid in list){
+        //         Debug.Log(uuid);
+        //         if(uuid.ToLower().Contains("180d-")){
+        //             names += uuid + "\n";
+        //         }
+        //     }
+        //     // this._debugText.text = names; 
+        // });
+        // this.onCharacteristicScanComplete.AddListener((list) => {
+        //     string names = "";
+        //     foreach(string uuid in list){
+        //         Debug.Log(uuid);
+        //         names += uuid + "\n";;
+        //     }
+        //     this._debugText.text = names; 
+        // });
         ToggleDeviceScan();
     }
 
@@ -109,7 +123,9 @@ public class BluetoothAdapter : MonoBehaviour
             this._serviceScanStatus = BleApi.PollService(out res, false);
             if(this._serviceScanStatus == BleApi.ScanStatus.AVAILABLE)
             {
-                this._services.Add(res.uuid);
+                if(res.uuid.ToLower().Contains("180d-")){
+                    this._services.Add(res.uuid);
+                }
             }
             else if (this._serviceScanStatus == BleApi.ScanStatus.FINISHED)
             {
@@ -127,15 +143,18 @@ public class BluetoothAdapter : MonoBehaviour
             if (this._characteristicsScanStatus == BleApi.ScanStatus.AVAILABLE)
             {
                 string name = res.userDescription != "no description available" ? res.userDescription : res.uuid;
-                characteristicNames[name] = res.uuid;
+                _characteristicNames[name] = res.uuid;
             }
             else if (this._characteristicsScanStatus == BleApi.ScanStatus.FINISHED)
             {
                 this._isScanningCharacteristics = false;
+                if(this.onCharacteristicScanComplete != null){
+                    this.onCharacteristicScanComplete.Invoke(new List<string>(this._characteristicNames.Values));
+                    Debug.Log("Finished service scan!");
+                }
             }
         }
     }
-
 
     public void ToggleDeviceScan(){
         if(!this._isScanningDevices){
@@ -153,27 +172,31 @@ public class BluetoothAdapter : MonoBehaviour
         }
     }
 
-    public void StartServiceScan(BleDevice device)
+    public void StartServiceScan(string deviceId)
     {
         if(!this._isScanningServices)
         {
             this._services.Clear();
             // start new scan
             this._isScanningServices = true;
-            BleApi.ScanServices(device.id);
+            BleApi.ScanServices(deviceId);
             Debug.Log("Starting service scan...");
         }
     }
 
-    public void StartCharacteristicScan(BleDevice device, BleService service)
+    public void StartCharacteristicScan(string deviceId, string serviceId)
     {
         if (!this._isScanningCharacteristics)
         {
             // start new scan
-            BleApi.ScanCharacteristics(device.id, service.id);
+            BleApi.ScanCharacteristics(deviceId, serviceId);
             this._isScanningCharacteristics = true;
             Debug.Log("Starting characteristic scan...");
         }
+    }
+
+    public override void Initialize()
+    {
     }
 
     [System.Serializable]

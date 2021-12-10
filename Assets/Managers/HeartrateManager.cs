@@ -9,16 +9,4 @@ public class HeartrateManager : Singleton<HeartrateManager>
     public HeartratePlugin Plugin { get { return this._plugin;} }
 
     public override void Initialize(){}
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
