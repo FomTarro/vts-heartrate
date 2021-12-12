@@ -7,20 +7,25 @@ public class BluetoothDirectInputModule : HeartrateInputModule
 {
     [SerializeField]
     private Dropdown _devices = null;
-    [SerializeField]
-    private Dropdown _services = null;
+
+    private List<BluetoothAdapter.BleDevice> _devicesList = new List<BluetoothAdapter.BleDevice>();
 
     private void Awake(){
         BluetoothAdapter.Instance.onDeviceScanComplete.AddListener(PopulateDropdown);
     }
 
     public void PopulateDropdown(List<BluetoothAdapter.BleDevice> list){
+        this._devicesList = list;
         List<string> devices = new List<string>();
         foreach(BluetoothAdapter.BleDevice device in list){
             devices.Add(device.name);
         }
         this._devices.ClearOptions ();
         this._devices.AddOptions(devices);
+    }
+
+    public void SelectDevice(){
+        BluetoothAdapter.Instance.ScanDeviceForData(this._devicesList[this._devices.value]);
     }
 
     public override int GetHeartrate()
@@ -37,5 +42,10 @@ public class BluetoothDirectInputModule : HeartrateInputModule
     {
         SaveData.Values values = new SaveData.Values();
         return values;
+    }
+
+    protected override void OnStatusChange(bool isActive)
+    {
+
     }
 }

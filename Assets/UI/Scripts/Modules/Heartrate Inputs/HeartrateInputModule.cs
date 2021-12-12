@@ -15,22 +15,33 @@ public abstract class HeartrateInputModule : MonoBehaviour
     public bool IsActive { get { return this._toggle.isOn; } } 
 
     public void Start(){
-        this._toggle.onValueChanged.AddListener(OnToggle);
+        this._toggle.onValueChanged.AddListener(SetStatus);
     }
 
-    public void OnToggle(bool value){
+    /// <summary>
+    /// Sets the active status of the input module. 
+    /// </summary>
+    /// <param name="value"></param>
+    public void SetStatus(bool value){
         if(value){
             Activate();
+        }else{
+            Deactivate();
         }
     }
 
-    public void Activate(){
+    protected void Activate(){
         HeartrateManager.Instance.Plugin.SetActiveHeartrateInput(this);
+        this._toggle.isOn = true;
+        OnStatusChange(true);
     }
 
-    public void Deactivate(){
+    protected void Deactivate(){
         this._toggle.isOn = false;
+        OnStatusChange(false);
     }
+
+    protected abstract void OnStatusChange(bool isActive);
 
     public abstract int GetHeartrate();
 
@@ -40,7 +51,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
         FILE = 2,
         DEVICE = 3,
         PULSOID = 4,
-        WEB = 5
+        PULSOID_RSS = 5
     }
 
     [System.Serializable]
@@ -58,6 +69,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
         public class Values { 
             public float value;
             public string path;
+            public string authToken;
 
             public override string ToString()
             {
@@ -79,9 +91,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
     }
 
     public void FromSaveData(SaveData data){
-        if(data.isActive){
-            this._toggle.isOn = true;
-        }
         FromValues(data.values);
+        SetStatus(data.isActive);
     }
 }

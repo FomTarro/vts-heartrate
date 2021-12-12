@@ -22,4 +22,9 @@ public class TestSliderInputModule : HeartrateInputModule
         values.value = this._slider.value;
         return values;
     }
+
+    protected override void OnStatusChange(bool isActive)
+    {
+
+    }
 }

@@ -39,4 +39,9 @@ public class ReadFromFileInputModule : HeartrateInputModule
             this._input.text = this._path;
         }
     }
+
+    protected override void OnStatusChange(bool isActive)
+    {
+
+    }
 }

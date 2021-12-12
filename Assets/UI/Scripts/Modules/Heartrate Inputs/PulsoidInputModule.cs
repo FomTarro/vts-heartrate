@@ -3,23 +3,36 @@ using UnityEngine.UI;
 
 public class PulsoidInputModule : HeartrateInputModule
 {
+    [SerializeField]
+    private InputField _input = null;
+    public void Login(){
+        PulsoidManager.Instance.Login();
+    }
+
+    public void SetAuthToken(string token){
+        PulsoidManager.Instance.SetAuthToken(token);
+    }
+
     public override int GetHeartrate()
     {
-        return 0;
+        return PulsoidManager.Instance.AppHeartrate;
     }
 
     protected override void FromValues(SaveData.Values values)
     {
-        
+        this._input.text = values.authToken;
+        SetAuthToken(values.authToken);
     }
 
     protected override SaveData.Values ToValues()
     {
         SaveData.Values values = new SaveData.Values();
+        values.authToken = this._input.text;
         return values;
     }
 
-    public void Login(){
-        PulsoidManager.Instance.Login();
+    protected override void OnStatusChange(bool isActive)
+    {
+        PulsoidManager.Instance.ToggleAppRequestLoop(isActive);
     }
 }

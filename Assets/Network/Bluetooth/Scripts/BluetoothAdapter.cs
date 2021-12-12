@@ -45,34 +45,7 @@ public class BluetoothAdapter : Singleton<BluetoothAdapter>
     // Start is called before the first frame update
     private void Start()
     {
-        // this.onDeviceScanComplete.AddListener((list) => {
-        //     string names = "";
-        //     foreach(BleDevice device in list){
-        //         names += device.ToString() + "\n";
-        //     }
-        //     // this._debugText.text = names; 
-        //     _selectedDevice = list.Find((i) => {return i.name.Contains("H6");});
-        //     Debug.Log(_selectedDevice.name);
-        // });
-        // this.onServiceScanComplete.AddListener((list) => {
-        //     string names = "";
-        //     foreach(string uuid in list){
-        //         Debug.Log(uuid);
-        //         if(uuid.ToLower().Contains("180d-")){
-        //             names += uuid + "\n";
-        //         }
-        //     }
-        //     // this._debugText.text = names; 
-        // });
-        // this.onCharacteristicScanComplete.AddListener((list) => {
-        //     string names = "";
-        //     foreach(string uuid in list){
-        //         Debug.Log(uuid);
-        //         names += uuid + "\n";;
-        //     }
-        //     this._debugText.text = names; 
-        // });
-        ToggleDeviceScan();
+
     }
 
     private void OnApplicationQuit()
@@ -96,7 +69,7 @@ public class BluetoothAdapter : Singleton<BluetoothAdapter>
                     this._devices[res.id].id = res.id;
                 }
                 if (res.nameUpdated){
-                    this._devices[res.id].name = res.name;
+                    this._devices[res.id].name = string.IsNullOrEmpty(res.name) ? "Unknown device" : res.name;
                 }
                 if (res.isConnectableUpdated){
                     this._devices[res.id].isConnectable = res.isConnectable;
@@ -113,6 +86,7 @@ public class BluetoothAdapter : Singleton<BluetoothAdapter>
                 // deviceScanStatusText.text = "finished";
                 if(this.onDeviceScanComplete != null){
                     onDeviceScanComplete.Invoke(new List<BleDevice>(this._devices.Values));
+                    Debug.Log("Finished device scan!");
                 }
             }
         }
@@ -121,8 +95,10 @@ public class BluetoothAdapter : Singleton<BluetoothAdapter>
         {
             BleApi.Service res = new BleApi.Service();
             this._serviceScanStatus = BleApi.PollService(out res, false);
+            Debug.Log(res.uuid);
             if(this._serviceScanStatus == BleApi.ScanStatus.AVAILABLE)
             {
+                // Debug.Log(res.uuid);
                 if(res.uuid.ToLower().Contains("180d-")){
                     this._services.Add(res.uuid);
                 }
@@ -180,7 +156,7 @@ public class BluetoothAdapter : Singleton<BluetoothAdapter>
             // start new scan
             this._isScanningServices = true;
             BleApi.ScanServices(deviceId);
-            Debug.Log("Starting service scan...");
+            Debug.Log("Starting service scan for device " + deviceId);
         }
     }
 
@@ -195,8 +171,20 @@ public class BluetoothAdapter : Singleton<BluetoothAdapter>
         }
     }
 
+    public void ScanDeviceForData(BleDevice device){
+        this._selectedDevice = device;
+        StartServiceScan(this._selectedDevice.id);
+    }
+
     public override void Initialize()
     {
+        this.onServiceScanComplete.AddListener((list) => {
+            foreach(string uuid in list){
+                Debug.Log(uuid);
+                StartCharacteristicScan(this._selectedDevice.id, uuid);
+                return;
+            }
+        });
     }
 
     [System.Serializable]

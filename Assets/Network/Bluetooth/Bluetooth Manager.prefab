@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7141433772724007047
 Transform:
   m_ObjectHideFlags: 0
@@ -43,10 +43,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17b69386772dc1a4991f9b13e9fd2db4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _initializationOrder: 0
   onDeviceScanComplete:
     m_PersistentCalls:
       m_Calls: []
   onServiceScanComplete:
     m_PersistentCalls:
       m_Calls: []
-  _debugText: {fileID: 0}
+  onCharacteristicScanComplete:
+    m_PersistentCalls:
+      m_Calls: []

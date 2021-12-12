@@ -41,7 +41,6 @@ public class HeartratePlugin : VTSPlugin
     {
         this.SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
         Application.OpenURL(Application.persistentDataPath);
-        SetActiveHeartrateInput(this._heartrateInputs[0]);
         Load(); 
         // Everything you need to get started!
         Initialize(
@@ -49,16 +48,17 @@ public class HeartratePlugin : VTSPlugin
             new JsonUtilityImpl(),
             new TokenStorageImpl(),
             () => {
+                Debug.Log("connected");
                 this._connectionStatus.SetStatus(VTSConnectionStatus.ConnectionStatus.CONNECTED);
-                LoggingManager.Instance.Log("Connected!");
+                LoggingManager.Instance.Log("Connected to VTube Studio!");
             },
             () => {
                 this._connectionStatus.SetStatus(VTSConnectionStatus.ConnectionStatus.DISCONNECTED);
-                LoggingManager.Instance.Log("Disconnected!");
+                LoggingManager.Instance.Log("Disconnected from VTube Studio!");
             },
             () => {
                 this._connectionStatus.SetStatus(VTSConnectionStatus.ConnectionStatus.ERROR);
-                LoggingManager.Instance.Log("Error!");
+                LoggingManager.Instance.Log("Error connecting to VTube Studio!");
             });
     }
 
@@ -86,22 +86,23 @@ public class HeartratePlugin : VTSPlugin
                 break;
             }
         }
+        float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
+        if(this.IsAuthenticated){
+            foreach(ColorInputModule module in this._colors){
+                ArtMeshMatcher matcher = new ArtMeshMatcher();
+                matcher.tintAll = false;
+                matcher.nameContains = module.ModuleMatchers;
+                this.TintArtMesh(
+                    Color32.Lerp(Color.white, module.ModuleColor, interpolation),  
+                    0.5f, 
+                    matcher,
+                    (success) => {
 
-        foreach(ColorInputModule module in this._colors){
-            ArtMeshMatcher matcher = new ArtMeshMatcher();
-            matcher.tintAll = false;
-            matcher.nameContains = module.ModuleMatchers;
-            this.TintArtMesh(
-                Color32.Lerp(Color.white, module.ModuleColor, 
-                ((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate))),  
-                0.5f, 
-                matcher,
-                (success) => {
+                    },
+                    (error) => {
 
-                },
-                (error) => {
-
-                });
+                    });
+            }
         }
     }
 
@@ -124,7 +125,7 @@ public class HeartratePlugin : VTSPlugin
     public void SetActiveHeartrateInput(HeartrateInputModule module){
         foreach(HeartrateInputModule m in this._heartrateInputs){
             if(!m.name.Equals(module.name)){
-                m.Deactivate();
+                m.SetStatus(false);
             }
         }
     }
@@ -146,13 +147,16 @@ public class HeartratePlugin : VTSPlugin
         if(File.Exists(this.SAVE_PATH)){
             string text = File.ReadAllText(this.SAVE_PATH);
             SaveData data = JsonUtility.FromJson<SaveData>(text);
+
             this._maxRate = data.maxRate;
             this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
             this._minRate = data.minRate;
             this._heartrateRanges.SetMinRate(this._minRate.ToString());
+
             foreach(ColorInputModule.SaveData module in data.colors){
                 CreateColorInputModule(module);
             }
+
             foreach(HeartrateInputModule.SaveData module in data.inputs){
                 foreach(HeartrateInputModule m in this._heartrateInputs){
                     if(m.Type == module.type){

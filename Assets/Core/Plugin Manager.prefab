@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8987925111482354572
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8987925111482354569}
+  - component: {fileID: 8987925111482354570}
+  - component: {fileID: 8987925111482354571}
+  - component: {fileID: 8987925111482354568}
+  m_Layer: 0
+  m_Name: Plugin Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8987925111482354569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8987925111482354572}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8987925111482354570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8987925111482354572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20d9f0e2e9942a849a1829a20cc58c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8987925111482354571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8987925111482354572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 628b200b302f94a459af3211bac15a68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pluginName: VTS-Heartrate
+  _pluginAuthor: Tom "Skeletom" Farro
+  _pluginIcon: {fileID: 0}
+  _heartRate: 66
+  _colorPrefab: {fileID: 1719934845639939419, guid: 83c6fddd392fcad42ba2526064060ef9,
+    type: 3}
+  _colorListParent: {fileID: 0}
+  _colors: []
+  _heartrateInputs:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _heartrateRanges: {fileID: 0}
+  _connectionStatus: {fileID: 0}
+--- !u!114 &8987925111482354568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8987925111482354572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92e652a7256e7349addbf34d8efc23e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _initializationOrder: 1
+  _plugin: {fileID: 8987925111482354571}

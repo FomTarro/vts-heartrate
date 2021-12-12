@@ -128,7 +128,7 @@ namespace VTS.Networking.Impl{
 
         private async void RunSend(ClientWebSocket socket, CancellationToken token)
         {
-            LoggingManager.Instance.Log("WebSocket Message Sender looping.");
+            Debug.Log("WebSocket Message Sender looping.");
             ArraySegment<byte> msg;
             // int counter = 0;
             while(!token.IsCancellationRequested)
