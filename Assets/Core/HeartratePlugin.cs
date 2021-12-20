@@ -34,7 +34,7 @@ public class HeartratePlugin : VTSPlugin
 
     [Header("Misc.")]
     [SerializeField]
-    private VTSConnectionStatus _connectionStatus = null;
+    private StatusIndicator _connectionStatus = null;
     
     // Start is called before the first frame update
     private void Start()
@@ -48,16 +48,21 @@ public class HeartratePlugin : VTSPlugin
             new JsonUtilityImpl(),
             new TokenStorageImpl(),
             () => {
-                Debug.Log("connected");
-                this._connectionStatus.SetStatus(VTSConnectionStatus.ConnectionStatus.CONNECTED);
+                HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+                status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
+                this._connectionStatus.SetStatus(status);
                 LoggingManager.Instance.Log("Connected to VTube Studio!");
             },
             () => {
-                this._connectionStatus.SetStatus(VTSConnectionStatus.ConnectionStatus.DISCONNECTED);
+                HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+                status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
+                this._connectionStatus.SetStatus(status);
                 LoggingManager.Instance.Log("Disconnected from VTube Studio!");
             },
             () => {
-                this._connectionStatus.SetStatus(VTSConnectionStatus.ConnectionStatus.ERROR);
+                HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+                status.status = HttpUtils.ConnectionStatus.Status.ERROR;
+                this._connectionStatus.SetStatus(status);
                 LoggingManager.Instance.Log("Error connecting to VTube Studio!");
             });
     }

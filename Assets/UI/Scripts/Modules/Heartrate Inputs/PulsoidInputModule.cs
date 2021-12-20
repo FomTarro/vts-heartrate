@@ -5,6 +5,10 @@ public class PulsoidInputModule : HeartrateInputModule
 {
     [SerializeField]
     private InputField _input = null;
+
+    [SerializeField]
+    private StatusIndicator _status = null;
+
     public void Login(){
         PulsoidManager.Instance.Login();
     }
@@ -33,6 +37,6 @@ public class PulsoidInputModule : HeartrateInputModule
 
     protected override void OnStatusChange(bool isActive)
     {
-        PulsoidManager.Instance.ToggleAppRequestLoop(isActive);
+        PulsoidManager.Instance.ToggleAppRequestLoop(isActive, this._status.SetStatus);
     }
 }

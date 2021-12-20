@@ -38,30 +38,45 @@ public class PulsoidManager : Singleton<PulsoidManager>
     [SerializeField]
     private float _appRefreshInterval = 0.5f;
     private Coroutine _appRequestLoop = null;
+    private bool _appRequestIsLooping = false;
 
     public void SetAuthToken(string token){
         this._appToken = token;
     }
 
-    public void ToggleAppRequestLoop(bool toggle){
+    public void ToggleAppRequestLoop(bool toggle, System.Action<HttpUtils.ConnectionStatus> onStatus){
         if(this._appRequestLoop != null){
-            StopCoroutine(this._appRequestLoop);
+            this._appRequestIsLooping = false;
         }
         if(toggle == true){
-            this._appRequestLoop = StartCoroutine(GetAppData());
+            HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+            status.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
+            onStatus.Invoke(status);
+            this._appRequestIsLooping = true;
+            this._appRequestLoop = StartCoroutine(GetAppData(onStatus));
         }
     }
 
-    IEnumerator GetAppData()
-    {
-        while(true){
+    IEnumerator GetAppData(System.Action<HttpUtils.ConnectionStatus> onStatus){
+        while(this._appRequestIsLooping){
             yield return HttpUtils.GetRequest(PULSOID_APP_URL, 
             (e) => { 
                 // TODO: error handling on the UI
+                HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+                status.status = HttpUtils.ConnectionStatus.Status.ERROR;
+                if(e.statusCode == 403 || e.statusCode == 401){
+                    status.message = "Invalid token";
+                }else{
+                    status.message = e.message;
+                }
+                onStatus.Invoke(status);
             }, 
             (s) => {
                 PulsoidAppResult result = JsonUtility.FromJson<PulsoidAppResult>(s);
                 this._appHeartrate = result.data.heart_rate;
+                HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+                status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
+                onStatus.Invoke(status);
             },
             this._appToken);
             float t = 0;
@@ -70,6 +85,9 @@ public class PulsoidManager : Singleton<PulsoidManager>
                 yield return null;
             } 
         }
+        HttpUtils.ConnectionStatus exitStatus = new HttpUtils.ConnectionStatus();
+        exitStatus.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
+        onStatus.Invoke(exitStatus);
     }
 
     [System.Serializable]
@@ -78,7 +96,7 @@ public class PulsoidManager : Singleton<PulsoidManager>
         public Data data;
 
         [System.Serializable]
-        public class Data {
+        public class Data{
             public int heart_rate;
         }
     }
@@ -93,31 +111,39 @@ public class PulsoidManager : Singleton<PulsoidManager>
     [SerializeField]
     private float _feedRefreshInterval = 0.5f;
     private Coroutine _feedRequestLoop = null;
+    private bool _feedRequestIsLooping = false;
 
     public void SetFeedURL(string url){
         //do a regex to validate pattern
         this._feedURL = url;
     }
 
-    public void ToggleFeedRequestLoop(bool toggle){
+    public void ToggleFeedRequestLoop(bool toggle, System.Action<HttpUtils.ConnectionStatus> onStatus){
         if(this._feedRequestLoop != null){
-            StopCoroutine(this._feedRequestLoop);
+            this._feedRequestIsLooping = false;
         }
         if(toggle == true){
-            this._feedRequestLoop = StartCoroutine(GetFeedData());
+            this._feedRequestIsLooping = true;
+            this._feedRequestLoop = StartCoroutine(GetFeedData(onStatus));
         }
     }
 
-    IEnumerator GetFeedData()
-    {
-        while(true){
+    IEnumerator GetFeedData(System.Action<HttpUtils.ConnectionStatus> onStatus){
+        while(this._feedRequestIsLooping){
             yield return HttpUtils.GetRequest(this._feedURL, 
             (e) => { 
                 // TODO: error handling on the UI
+                HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+                status.status = HttpUtils.ConnectionStatus.Status.ERROR;
+                status.message = e.message;
+                onStatus.Invoke(status);
             }, 
             (s) => {
                 PulsoidFeedResult result = JsonUtility.FromJson<PulsoidFeedResult>(s);
                 this._feedHeartrate = result.bpm;
+                HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+                status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
+                onStatus.Invoke(status);
             },
             null);
             float t = 0;
@@ -126,10 +152,13 @@ public class PulsoidManager : Singleton<PulsoidManager>
                 yield return null;
             } 
         }
+        HttpUtils.ConnectionStatus exitStatus = new HttpUtils.ConnectionStatus();
+        exitStatus.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
+        onStatus.Invoke(exitStatus);
     }
 
     [System.Serializable]
-    public class PulsoidFeedResult {
+    public class PulsoidFeedResult{
         public int bpm;
         public string measured_at;
     }

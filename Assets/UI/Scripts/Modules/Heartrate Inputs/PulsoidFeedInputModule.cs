@@ -8,6 +8,9 @@ public class PulsoidFeedInputModule : HeartrateInputModule
     [SerializeField]
     private InputField _input = null;
 
+    [SerializeField]
+    private StatusIndicator _status = null;
+
     public void SetURL(string url){
         PulsoidManager.Instance.SetFeedURL(url);
     }
@@ -32,6 +35,6 @@ public class PulsoidFeedInputModule : HeartrateInputModule
 
     protected override void OnStatusChange(bool isActive)
     {
-        PulsoidManager.Instance.ToggleFeedRequestLoop(isActive);
+        PulsoidManager.Instance.ToggleFeedRequestLoop(isActive, this._status.SetStatus);
     }
 }
