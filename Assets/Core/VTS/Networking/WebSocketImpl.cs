@@ -70,7 +70,7 @@ namespace VTS.Networking.Impl{
                 while(IsConnecting())
                 {
                     Debug.Log("Waiting to connect...");
-                    await Task.Delay(10);
+                    await Task.Delay(2);
                 }
                 Debug.Log("Connect status: " + this._ws.State);
                 if(this._ws.State == WebSocketState.Open){

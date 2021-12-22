@@ -18,6 +18,14 @@ public class HeartratePlugin : VTSPlugin
     private int _maxRate = 100;
     private int _minRate = 70;
 
+    private const string PARAMETER_LINEAR = "vts_heartrate_linear";
+    private const string PARAMETER_SINE = "vts_heartrate_bounce";
+    private const string PARAMETER_SINE_REALTIME = "vts_heartrate_bounce_realtime";
+    private List<VTSParameterInjectionValue> _paramValues = new List<VTSParameterInjectionValue>();
+    private VTSParameterInjectionValue _linear = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _sine = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _realtime = new VTSParameterInjectionValue();
+
     [Header("Colors")]
     [SerializeField]
     private ColorInputModule _colorPrefab = null;
@@ -52,6 +60,36 @@ public class HeartratePlugin : VTSPlugin
                 status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
                 this._connectionStatus.SetStatus(status);
                 LoggingManager.Instance.Log("Connected to VTube Studio!");
+                CreateNewParameter(PARAMETER_LINEAR, 
+                (s) => {
+                    // confirm param created with bool
+                    _linear.id = PARAMETER_LINEAR;
+                    _linear.value = 0;
+                    _paramValues.Add(_linear);
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
+                CreateNewParameter(PARAMETER_SINE, 
+                (s) => {
+                    // confirm param created with bool
+                    _sine.id = PARAMETER_SINE;
+                    _sine.value = 0;
+                    _paramValues.Add(_sine);
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
+                CreateNewParameter(PARAMETER_SINE_REALTIME, 
+                (s) => {
+                    // confirm param created with bool
+                    _realtime.id = PARAMETER_SINE_REALTIME;
+                    _realtime.value = 0;
+                    _paramValues.Add(_realtime);
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
             },
             () => {
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
@@ -108,6 +146,21 @@ public class HeartratePlugin : VTSPlugin
 
                     });
             }
+
+            _linear.value = interpolation;
+            _sine.value = 0.5f * (1 + Mathf.Sin((1+interpolation) * Time.time));
+            float freq = ((float)this.HeartRate) / 60f;
+            _realtime.value = 0.5f * (1 + Mathf.Sin(2 * Mathf.PI * freq * Time.time));
+            if(_paramValues.Count > 0){
+                this.InjectParameterValues(_paramValues.ToArray(),
+                (s) => {
+
+                },
+                (e) => {
+                    Debug.Log(JsonUtility.ToJson(e));
+                }
+                );
+            }
         }
     }
 
@@ -133,6 +186,18 @@ public class HeartratePlugin : VTSPlugin
                 m.SetStatus(false);
             }
         }
+    }
+
+    private void CreateNewParameter(string paramName, System.Action<VTSParameterCreationData> onSuccess, System.Action<VTSErrorData> onError){
+        VTSCustomParameter newParam = new VTSCustomParameter();
+        newParam.defaultValue = 0;
+        newParam.min = 0;
+        newParam.max = 1;
+        newParam.parameterName = paramName;
+        this.AddCustomParameter(
+            newParam,
+            onSuccess,
+            onError);
     }
 
     private void Save(){

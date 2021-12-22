@@ -117,7 +117,6 @@ namespace VTS {
         #region Authentication
 
         private void Authenticate(Action<VTSAuthData> onSuccess, Action<VTSErrorData> onError){
-            Debug.Log("authenticating...");
             this._isAuthenticated = false;
             if(this._tokenStorage != null){
                 this._token = this._tokenStorage.LoadToken();

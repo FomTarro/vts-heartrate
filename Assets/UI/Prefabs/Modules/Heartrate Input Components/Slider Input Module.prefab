@@ -831,7 +831,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 330, y: 20}
+  m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2142690360740855210
 MonoBehaviour:
@@ -927,6 +927,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Info Button
+      objectReference: {fileID: 0}
+    - target: {fileID: 962458275087625335, guid: ec87477ba8f0cb84ea2ce49639efc59e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6662961102820919892, guid: ec87477ba8f0cb84ea2ce49639efc59e,
         type: 3}

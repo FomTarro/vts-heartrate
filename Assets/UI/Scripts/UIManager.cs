@@ -29,7 +29,7 @@ public class UIManager : Singleton<UIManager>
 
     public override void Initialize()
     {
-        throw new System.NotImplementedException();
+        
     }
 
     public void GoTo(Tabs tab){
