@@ -52,14 +52,14 @@ public class HeartratePlugin : VTSPlugin
         Load(); 
         // Everything you need to get started!
         Initialize(
-            new WebSocketImpl(),
+            new WebSocketSharpImpl(),
             new JsonUtilityImpl(),
             new TokenStorageImpl(),
             () => {
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
                 status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
                 this._connectionStatus.SetStatus(status);
-                LoggingManager.Instance.Log("Connected to VTube Studio!");
+                // LoggingManager.Instance.Log("Connected to VTube Studio!");
                 CreateNewParameter(PARAMETER_LINEAR, 
                 (s) => {
                     // confirm param created with bool
@@ -95,13 +95,13 @@ public class HeartratePlugin : VTSPlugin
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
                 status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
                 this._connectionStatus.SetStatus(status);
-                LoggingManager.Instance.Log("Disconnected from VTube Studio!");
+                //LoggingManager.Instance.Log("Disconnected from VTube Studio!");
             },
             () => {
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
                 status.status = HttpUtils.ConnectionStatus.Status.ERROR;
                 this._connectionStatus.SetStatus(status);
-                LoggingManager.Instance.Log("Error connecting to VTube Studio!");
+                // LoggingManager.Instance.Log("Error connecting to VTube Studio!");
             });
     }
 
@@ -121,7 +121,7 @@ public class HeartratePlugin : VTSPlugin
         this._maxRate = rate;
     }
 
-    private void FixedUpdate(){
+    private void Update(){
 
         foreach(HeartrateInputModule module in this._heartrateInputs){
             if(module.IsActive){
