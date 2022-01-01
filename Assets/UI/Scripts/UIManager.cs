@@ -52,5 +52,6 @@ public class UIManager : Singleton<UIManager>
         HEARTRATE_INPUTS = 1,
         COLOR_INPUTS = 2,
         DEBUG_LOGS = 3,
+        SETTINGS = 4,
     }
 }

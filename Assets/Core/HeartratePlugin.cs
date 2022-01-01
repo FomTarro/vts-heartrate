@@ -10,6 +10,7 @@ using System.IO;
 public class HeartratePlugin : VTSPlugin
 {
     private string SAVE_PATH = "";
+    public string SavePath { get { return this.SAVE_PATH; } }
 
     [SerializeField]
     [Range(50, 120)]
@@ -18,9 +19,9 @@ public class HeartratePlugin : VTSPlugin
     private int _maxRate = 100;
     private int _minRate = 70;
 
-    private const string PARAMETER_LINEAR = "vts_heartrate_linear";
-    private const string PARAMETER_SINE = "vts_heartrate_bounce";
-    private const string PARAMETER_SINE_REALTIME = "vts_heartrate_bounce_realtime";
+    private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
+    private const string PARAMETER_SINE = "VTS_Heartrate_Pulse";
+    private const string PARAMETER_SINE_REALTIME = "VTS_Heartrate_Pulse_Realtime";
     private List<VTSParameterInjectionValue> _paramValues = new List<VTSParameterInjectionValue>();
     private VTSParameterInjectionValue _linear = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _sine = new VTSParameterInjectionValue();
@@ -51,6 +52,11 @@ public class HeartratePlugin : VTSPlugin
         Application.OpenURL(Application.persistentDataPath);
         Load(); 
         // Everything you need to get started!
+        Connect();
+        
+    }
+
+    public void Connect(){
         Initialize(
             new WebSocketSharpImpl(),
             new JsonUtilityImpl(),
@@ -103,6 +109,9 @@ public class HeartratePlugin : VTSPlugin
                 this._connectionStatus.SetStatus(status);
                 // LoggingManager.Instance.Log("Error connecting to VTube Studio!");
             });
+            HttpUtils.ConnectionStatus connect = new HttpUtils.ConnectionStatus();
+            connect.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
+            this._connectionStatus.SetStatus(connect);
     }
 
     private void OnValidate(){
@@ -246,7 +255,7 @@ public class HeartratePlugin : VTSPlugin
 
         public override string ToString()
         {
-            return JsonUtility.ToJson(this);
+            return JsonUtility.ToJson(this, true);
         }
     }
 }

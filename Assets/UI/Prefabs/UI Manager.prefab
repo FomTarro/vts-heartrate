@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2332643205868092403}
   - component: {fileID: 7311080656055107048}
+  - component: {fileID: 2310369811408829692}
   m_Layer: 0
   m_Name: UI Manager
   m_TagString: Untagged
@@ -51,4 +52,18 @@ MonoBehaviour:
     element: {fileID: 0}
   - tab: 3
     element: {fileID: 0}
+  - tab: 4
+    element: {fileID: 0}
   _scroll: {fileID: 0}
+--- !u!114 &2310369811408829692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567036553119360775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 924ffe1fce7d56e4d9da2e3b748b039d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
