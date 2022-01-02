@@ -14,6 +14,9 @@ public class UIManager : Singleton<UIManager>
 
     private RectTransform _selected = null;
 
+    [SerializeField]
+    private PopUp _popUp = null; 
+
 
     // Start is called before the first frame update
     void Start()
@@ -39,6 +42,14 @@ public class UIManager : Singleton<UIManager>
                 _selected = entry.element;
             }
         }
+    }
+
+    public void ShowPopUp(string title, string body, params PopUp.PopUpOption[] options){
+        this._popUp.Show(title, body, options);
+    }
+
+    public void HidePopUp(){
+        this._popUp.Hide();
     }
 
     [System.Serializable]

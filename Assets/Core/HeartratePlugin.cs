@@ -158,8 +158,8 @@ public class HeartratePlugin : VTSPlugin
 
             _linear.value = interpolation;
             _sine.value = 0.5f * (1 + Mathf.Sin((1+interpolation) * Time.time));
-            float freq = ((float)this.HeartRate) / 60f;
-            _realtime.value = 0.5f * (1 + Mathf.Sin(2 * Mathf.PI * freq * Time.time));
+            _freq = _realtime.value < 0.01f ? ((float)this.HeartRate) / 60f : _freq;
+            _realtime.value = 0.5f * (1 + Mathf.Sin(2 * Mathf.PI * _freq * Time.time));
             if(_paramValues.Count > 0){
                 this.InjectParameterValues(_paramValues.ToArray(),
                 (s) => {
@@ -172,6 +172,8 @@ public class HeartratePlugin : VTSPlugin
             }
         }
     }
+
+    private float _freq = 0f;
 
     public void CreateColorInputModule(ColorInputModule.SaveData module){
         ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);

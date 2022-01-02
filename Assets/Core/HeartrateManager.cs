@@ -22,7 +22,17 @@ public class HeartrateManager : Singleton<HeartrateManager>
             },
             (s) => {
                 VersionInfo info = JsonUtility.FromJson<VersionInfo>(s);
-                Debug.Log(CompareVersion(info) ? "Never version needed: " + info.url : "Up to date.");
+                Debug.Log(CompareVersion(info) ? "Newer version needed: " + info.url : "Up to date.");
+                if(CompareVersion(info)){
+                    UIManager.Instance.ShowPopUp(
+                        "New Version Available!",
+                        string.Format("A newer version of this Plugin is now available. You can download it at: {0}", info.url),
+                        new PopUp.PopUpOption(
+                            "Download", 
+                            Color.white, 
+                            () => { Application.OpenURL(info.url); })
+                        );
+                }
             },
             null
         ));
