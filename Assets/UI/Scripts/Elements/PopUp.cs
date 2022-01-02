@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UI.InputTools;
+using UI.Animation;
 
 public class PopUp : MonoBehaviour
 {
@@ -20,11 +21,16 @@ public class PopUp : MonoBehaviour
     [SerializeField]
     private ExtendedButton _closeButton = null;
 
+    [SerializeField]
+    private AnimatedFlash _flash = null;
+
+    private bool _show = false;
+
 
     // Start is called before the first frame update
     void Start(){
         this._closeButton.onPointerUp.AddListener(() => { this.Hide(); });
-        //this.Hide();
+        // this.Hide();
     }
 
     public void Show(string title, string body, params PopUpOption[] options){
@@ -42,11 +48,21 @@ public class PopUp : MonoBehaviour
             button.GetComponentInChildren<Text>().text = option.text;
             button.onPointerUp.AddListener(() => {option.callback();});
         }
+        this._show = true;
+        this._flash.SetAlpha(0);
         this.gameObject.SetActive(true);
+        this._flash.StartAnimation(ShouldShow, 
+        () => {},
+        () => {},
+        () => {this.gameObject.SetActive(false);});
+    }
+
+    private bool ShouldShow(){
+        return !this._show;
     }
 
     public void Hide(){
-        this.gameObject.SetActive(false);
+        this._show = false;
     }
 
     public struct PopUpOption{

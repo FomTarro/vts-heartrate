@@ -17,6 +17,8 @@ public class UIManager : Singleton<UIManager>
     [SerializeField]
     private PopUp _popUp = null; 
 
+    public static readonly float UI_CYCLE_TIME = 0.35f; 
+
 
     // Start is called before the first frame update
     void Start()

@@ -49,7 +49,7 @@ public class HeartratePlugin : VTSPlugin
     private void Start()
     {
         this.SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
-        Application.OpenURL(Application.persistentDataPath);
+        // Application.OpenURL(Application.persistentDataPath);
         Load(); 
         // Everything you need to get started!
         Connect();
@@ -158,7 +158,8 @@ public class HeartratePlugin : VTSPlugin
 
             _linear.value = interpolation;
             _sine.value = 0.5f * (1 + Mathf.Sin((1+interpolation) * Time.time));
-            _freq = _realtime.value < 0.01f ? ((float)this.HeartRate) / 60f : _freq;
+            // TODO this needs work! (Stutters currently)
+            _freq = _realtime.value <= 0.01f ? ((float)this.HeartRate) / 60f : _freq;
             _realtime.value = 0.5f * (1 + Mathf.Sin(2 * Mathf.PI * _freq * Time.time));
             if(_paramValues.Count > 0){
                 this.InjectParameterValues(_paramValues.ToArray(),
