@@ -412,7 +412,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 7
-  m_Spacing: 5
+  m_Spacing: 10
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -574,12 +574,12 @@ PrefabInstance:
     - target: {fileID: 8812189474033031125, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: -10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8812189474033031125, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8862045443099933357, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}
@@ -761,12 +761,12 @@ PrefabInstance:
     - target: {fileID: 8812189474033031125, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: -10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8812189474033031125, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8862045443099933357, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}

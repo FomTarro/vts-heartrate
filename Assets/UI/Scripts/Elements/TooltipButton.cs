@@ -70,10 +70,19 @@ public class TooltipButton : MonoBehaviour
                     "<b>Art Meshes</b> are matched as long as their names or tags contain <b>any</b> of the provided list of text to match. For example, providing the text '<b>head,mouth,neck</b>' will match Art Meshes with names like '<b>forehead</b>', '<b>outermouth2</b>', and '<b>leftneckside1</b>'.\n\n"+
                     "Text to match must be <b>comma separated</b> and should <b>not contain spaces</b>.\n\n"+
                     "If you are unsure of what your Art Meshes are named, a great web-tool was developed by <b>Hawkbar</b> called <b>VTubeStudioTagger</b>, which offers an intiuitive way to discover the names of your model's Art Meshes.",
-                     new PopUp.PopUpOption(
+                    new PopUp.PopUpOption(
                         "Visit VTubeStudioTagger",
                         Color.white,
                         () => { Application.OpenURL("https://hawk.bar/VTubeStudioTagger/"); }) 
+                );
+                break;
+            case Tooltips.OUTPUT_PARAMS:
+                UIManager.Instance.ShowPopUp(
+                    "Custom Parameters",
+                    "This plugin outputs three custom tracking parameters for use. They are as follows:\n"+
+                    "<b>VTS_Heartrate_Linear</b>: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.\n"+
+                    "<b>VTS_Heartrate_Pulse</b>: A value that oscilates between 0.0 and 1.0 with a frequency exactly matching your heartrate.\n"+
+                    "<b>VTS_Heartrate_Breath</b>: A value that oscilates between 0.0 and 1.0 with a frequency slower than Pulse, suitable for controlling your model's <b>ParamBreath</b> output.\n"
                 );
                 break;
             default:

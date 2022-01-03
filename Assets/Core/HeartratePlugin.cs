@@ -15,17 +15,19 @@ public class HeartratePlugin : VTSPlugin
     [SerializeField]
     [Range(50, 120)]
     private int _heartRate = 70;
-    public int HeartRate { get { return this._heartRate; } }
+    public int HeartRate { get { return Math.Max(0, this._heartRate); } }
     private int _maxRate = 100;
     private int _minRate = 70;
 
     private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
-    private const string PARAMETER_SINE = "VTS_Heartrate_Pulse";
-    private const string PARAMETER_SINE_REALTIME = "VTS_Heartrate_Pulse_Realtime";
+    private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
+        private const string PARAMETER_SINE_BREATH = "VTS_Heartrate_Breath";
+    private Dictionary<String, float> _parameterMap = new Dictionary<string, float>();
+    public Dictionary<String, float> ParameterMap { get { return this._parameterMap; } }
     private List<VTSParameterInjectionValue> _paramValues = new List<VTSParameterInjectionValue>();
     private VTSParameterInjectionValue _linear = new VTSParameterInjectionValue();
-    private VTSParameterInjectionValue _sine = new VTSParameterInjectionValue();
-    private VTSParameterInjectionValue _realtime = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _pulse = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _breath = new VTSParameterInjectionValue();
 
     [Header("Colors")]
     [SerializeField]
@@ -76,22 +78,22 @@ public class HeartratePlugin : VTSPlugin
                 (e) => {
                     Debug.LogError(e.ToString());
                 });
-                CreateNewParameter(PARAMETER_SINE, 
+                CreateNewParameter(PARAMETER_SINE_PULSE, 
                 (s) => {
                     // confirm param created with bool
-                    _sine.id = PARAMETER_SINE;
-                    _sine.value = 0;
-                    _paramValues.Add(_sine);
+                    _pulse.id = PARAMETER_SINE_PULSE;
+                    _pulse.value = 0;
+                    _paramValues.Add(_pulse);
                 },
                 (e) => {
                     Debug.LogError(e.ToString());
                 });
-                CreateNewParameter(PARAMETER_SINE_REALTIME, 
+                CreateNewParameter(PARAMETER_SINE_BREATH, 
                 (s) => {
                     // confirm param created with bool
-                    _realtime.id = PARAMETER_SINE_REALTIME;
-                    _realtime.value = 0;
-                    _paramValues.Add(_realtime);
+                    _breath.id = PARAMETER_SINE_BREATH;
+                    _breath.value = 0;
+                    _paramValues.Add(_breath);
                 },
                 (e) => {
                     Debug.LogError(e.ToString());
@@ -157,14 +159,25 @@ public class HeartratePlugin : VTSPlugin
             }
 
             _linear.value = interpolation;
-            _sine.value = 0.5f * (1 + Mathf.Sin((1+interpolation) * Time.time));
-            // TODO this needs work! (Stutters currently)
-            _freq = _realtime.value <= 0.01f ? ((float)this.HeartRate) / 60f : _freq;
-            _realtime.value = 0.5f * (1 + Mathf.Sin(2 * Mathf.PI * _freq * Time.time));
+
+            float breathRadians = (2 * Mathf.PI) * _breathFreq * _breathTime;
+            _breathTime = breathRadians >= (Mathf.PI * 2) ? 0f : _breathTime;
+            // Only change frequency after a complete cycle to avoid stuttering
+            _breathFreq = Mathf.Max(0.35f, _breathTime == 0f * 2 ? 0.5f * (((float)this.HeartRate) / 60f) : _breathFreq);
+            _breathTime = _breathTime + Time.deltaTime;
+            _breath.value = 0.5f * (1 + Mathf.Sin((2 * Mathf.PI) * _breathFreq * _breathTime));
+
+
+            float pulseRadians = (2 * Mathf.PI) * _pulseFreq * _pulseTime;
+            _pulseTime = pulseRadians >= (Mathf.PI * 2) || _pulseFreq == 0  ? 0f : _pulseTime;
+            // Only change frequency after a complete cycle to avoid stuttering
+            _pulseFreq = _pulseTime == 0f * 2 ? (((float)this.HeartRate) / 60f) : _pulseFreq;
+            _pulseTime = _pulseTime + Time.deltaTime;
+            _pulse.value = 0.5f * (1 + Mathf.Sin((2 * Mathf.PI) * _pulseFreq * _pulseTime));
             if(_paramValues.Count > 0){
                 this.InjectParameterValues(_paramValues.ToArray(),
                 (s) => {
-
+                    InjectedParamValuesToDictionary(_paramValues.ToArray());
                 },
                 (e) => {
                     Debug.Log(JsonUtility.ToJson(e));
@@ -174,7 +187,19 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    private float _freq = 0f;
+    private float _breathFreq = 0f;
+    private float _breathTime = 0f;
+
+    private float _pulseTime = 0f;
+    private float _pulseFreq = 0f;
+
+    private void InjectedParamValuesToDictionary(VTSParameterInjectionValue[] values){
+        this._parameterMap = new Dictionary<string, float>();
+        foreach(VTSParameterInjectionValue parameter in values){
+            this._parameterMap.Add(parameter.id, parameter.value);
+        }
+    }
+
 
     public void CreateColorInputModule(ColorInputModule.SaveData module){
         ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);

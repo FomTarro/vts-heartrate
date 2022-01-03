@@ -325,8 +325,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5343286638955544330, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
+      propertyPath: m_Text
+      value: + New Art Mesh Tint
+      objectReference: {fileID: 0}
+    - target: {fileID: 5343286638955544330, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
       propertyPath: m_FontData.m_Alignment
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8095749044357934530, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
