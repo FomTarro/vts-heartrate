@@ -18,6 +18,10 @@ public abstract class HeartrateInputModule : MonoBehaviour
         this._toggle.onValueChanged.AddListener(SetStatus);
     }
 
+    private void OnValidate(){
+        this._toggle = GetComponentInChildren<Toggle>();
+    }
+
     /// <summary>
     /// Sets the active status of the input module. 
     /// </summary>

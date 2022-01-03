@@ -24,6 +24,9 @@ public class PopUp : MonoBehaviour
     [SerializeField]
     private AnimatedFlash _flash = null;
 
+    [SerializeField]
+    private RectTransform _layoutGroup = null;
+
     private bool _show = false;
 
 
@@ -51,6 +54,7 @@ public class PopUp : MonoBehaviour
         this._show = true;
         this._flash.SetAlpha(0);
         this.gameObject.SetActive(true);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(this._layoutGroup);
         this._flash.StartAnimation(ShouldShow, 
         () => {},
         () => {},

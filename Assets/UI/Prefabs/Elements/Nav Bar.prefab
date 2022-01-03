@@ -3069,7 +3069,7 @@ PrefabInstance:
     - target: {fileID: 5343286638955544330, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: m_Text
-      value: Color
+      value: Outputs
       objectReference: {fileID: 0}
     - target: {fileID: 8095749044357934530, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
