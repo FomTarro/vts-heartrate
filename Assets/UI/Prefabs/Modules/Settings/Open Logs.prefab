@@ -24,7 +24,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c38c358d8755b9144acd002184fd5c39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _url: https://github.com/FomTarro/vts-heartrate/blob/master/readme.md
+  _url: https://github.com/FomTarro/vts-heartrate#readme
 --- !u!114 &5011797516491780572
 MonoBehaviour:
   m_ObjectHideFlags: 0
