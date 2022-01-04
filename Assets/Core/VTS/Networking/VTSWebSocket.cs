@@ -29,7 +29,11 @@ namespace VTS.Networking {
             this._ws = webSocket;
             this._json = jsonUtility;
             if(UDP_CLIENT == null){
-                UDP_CLIENT = new UdpClient(47779);
+                try{
+                    UDP_CLIENT = new UdpClient(47779);
+                }catch(Exception e){
+                    Debug.LogError(e);
+                }
             }
         }
 

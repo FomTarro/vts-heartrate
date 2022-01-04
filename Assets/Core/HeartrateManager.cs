@@ -26,7 +26,10 @@ public class HeartrateManager : Singleton<HeartrateManager>
                 if(CompareVersion(info)){
                     UIManager.Instance.ShowPopUp(
                         "New Version Available!",
-                        string.Format("A newer version of this Plugin is now available. You can download it at: {0}", info.url),
+                        string.Format("A newer version of this Plugin is now available.\n"+
+                        "<b>Version</b>: {0}\n"+
+                        "<b>Release Date:</b> {1}\n\n"+
+                        "You can download it at: {2}", info.version, info.date, info.url),
                         new PopUp.PopUpOption(
                             "Download", 
                             Color.white, 

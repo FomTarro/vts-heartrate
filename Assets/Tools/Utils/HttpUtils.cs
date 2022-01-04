@@ -39,7 +39,7 @@ public static class HttpUtils
             this.statusCode = statusCode;
             this.message = message;
             Debug.LogError(this.message);
-            LoggingManager.Instance.Log(this.message);
+            // LoggingManager.Instance.Log(this.message);
         }
     }
 
