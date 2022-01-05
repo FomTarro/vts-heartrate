@@ -1,28 +1,31 @@
 # VTS-Heartrate
 A VTube Studio plugin that allows for connectivity between heart rate monitors (HRM) and VTube Studio!
  
-[Download the latest version here!](https://github.com/FomTarro/vts-heartrate/releases/tag/v0.0.0)
+[Download the latest version here!](https://skeletom-ch.itch.io/vts-heartrate), on in the [release section](https://github.com/FomTarro/vts-heartrate/releases) of this repo.
 
 ![Working Example](img/akari_gif.gif)
  
-## About
-This plugin is developed by Tom "Skeletom" Farro. If you need to contact him, the best way to do so is [via Twitter](https://twitter.com/FomTarro) or by leaving an issue ticket on this repo.
- 
-If you're more of an email-oriented person, you can contact his support email: [tom@skeletom.net](mailto:tom@skeletom.net).
- 
-## Usage
-Getting up and running is relatively straightforward. The plugin will automatically connect to VTube Studio on launch. From there do the following steps:
-* Input an estimated minimum and maximum heartrate.
-* Select a desired heartrate input method.
-* Add [Art Mesh Tint](#Art-Mesh-Tinting) modules.
-* Hook up your model to [Custom Tracking Parameters](#Custom-Tracking-Parameters), if you want
- 
- 
 # Features
 
-* Support for many heart rate monitors with [<b>Pulsoid</b>](https://www.pulsoid.net) and other input methods!  
-* Configurable tinting that scales with pulse!
-* Custom tracking parameters for pulse and breath!
+💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](ttps://www.pulsoid.net)!  
+
+💓 Configurable <b>model tinting</b> that scales with pulse!
+
+💓 Custom <b>tracking parameters</b> for pulse and breath!
+
+# About
+This plugin is developed by Tom "Skeletom" Farro. If you need to contact him, the best way to do so is via Twitter.
+
+If you're more of an email-oriented person, you can contact his support email: tom@skeletom.net.
+
+# Usage
+Getting up and running is relatively straightforward. The plugin will automatically connect to VTube Studio on launch. From there, do the following steps:
+
+* Input an estimated <b>minimum</b> and <b>maximum</b> heartrate.
+* Select a desired heartrate <b>input method</b>. Currently, in order to use an actual Heart Rate Monitor, a pulsoid.net account is needed. More input methods on the way!
+* Add [<b>Art Mesh Tint modules</b>](#art-mesh-tinting) and configure them to parts of your model!
+* Hook up your model to [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), if you want!
+ 
 
  
 ## Heartrate Input Methods
