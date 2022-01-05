@@ -134,10 +134,6 @@ public class HeartratePlugin : VTSPlugin
 
     private void Update(){
 
-        if(Input.GetKeyDown(KeyCode.Minus)){
-            ScreenCapture.CaptureScreenshot(Application.persistentDataPath+"/asdf.png");
-        }
-
         foreach(HeartrateInputModule module in this._heartrateInputs){
             if(module.IsActive){
                 this._heartRate = module.GetHeartrate();
