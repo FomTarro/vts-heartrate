@@ -1,7 +1,7 @@
 # VTS-Heartrate
 A VTube Studio plugin that allows for connectivity between heart rate monitors (HRM) and VTube Studio!
  
-[Download the latest version here!](https://skeletom-ch.itch.io/vts-heartrate), on in the [release section](https://github.com/FomTarro/vts-heartrate/releases) of this repo.
+[Download the latest version here!](https://skeletom-ch.itch.io/vts-heartrate) Or, in the [release section](https://github.com/FomTarro/vts-heartrate/releases) of this repo.
 
 ![Working Example](img/akari_gif.gif)
  
