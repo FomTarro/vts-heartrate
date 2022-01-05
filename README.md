@@ -1,15 +1,17 @@
 # VTS-Heartrate
 A VTube Studio plugin that allows for connectivity between heart rate monitors (HRM) and VTube Studio!
  
+[Download the latest version here!](https://github.com/FomTarro/vts-heartrate/releases/tag/v0.0.0)
+
 ![Working Example](img/akari_gif.gif)
  
 ## About
-This plugin is maintained by Tom "Skeletom" Farro. If you need to contact him, the best way to do so is [via Twitter](https://twitter.com/FomTarro) or by leaving an issue ticket on this repo.
+This plugin is developed by Tom "Skeletom" Farro. If you need to contact him, the best way to do so is [via Twitter](https://twitter.com/FomTarro) or by leaving an issue ticket on this repo.
  
 If you're more of an email-oriented person, you can contact his support email: [tom@skeletom.net](mailto:tom@skeletom.net).
  
 ## Usage
-Getting up and running is relatively straightforward. The plugin will automatically connect to VTube Studio on launch. From there,
+Getting up and running is relatively straightforward. The plugin will automatically connect to VTube Studio on launch. From there do the following steps:
 * Input an estimated minimum and maximum heartrate.
 * Select a desired heartrate input method.
 * Add [Art Mesh Tint](#Art-Mesh-Tinting) modules.
@@ -17,6 +19,11 @@ Getting up and running is relatively straightforward. The plugin will automatica
  
  
 # Features
+
+* Support for many heart rate monitors with [<b>Pulsoid</b>](https://www.pulsoid.net) and other input methods!  
+* Configurable tinting that scales with pulse!
+* Custom tracking parameters for pulse and breath!
+
  
 ## Heartrate Input Methods
 In the interest of being widely accessible, this plugin features a wide set of possible input methods, which you may freely switch between at any time.
@@ -67,4 +74,5 @@ This plugin outputs <b>three custom tracking parameters</b> for use. They are as
 Planned features include the following:
 * The ability to directly connect to your Bluetooth HRM via Windows as an input method (I have been working at this for months, and it is not very reliable currently! Sorry!!!)
 * The ability to trigger animations/toggle emotions at certain heartrate thresholds
+* More robust system logging
 

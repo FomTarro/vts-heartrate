@@ -62,7 +62,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
     public class SaveData{
         public bool isActive = false;
         public InputType type;
-        public Values values;
+        public Values values = new Values();
 
         public override string ToString()
         {

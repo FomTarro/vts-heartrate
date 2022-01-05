@@ -21,7 +21,7 @@ public class HeartratePlugin : VTSPlugin
 
     private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
-        private const string PARAMETER_SINE_BREATH = "VTS_Heartrate_Breath";
+    private const string PARAMETER_SINE_BREATH = "VTS_Heartrate_Breath";
     private Dictionary<String, float> _parameterMap = new Dictionary<string, float>();
     public Dictionary<String, float> ParameterMap { get { return this._parameterMap; } }
     private List<VTSParameterInjectionValue> _paramValues = new List<VTSParameterInjectionValue>();
@@ -133,6 +133,10 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private void Update(){
+
+        if(Input.GetKeyDown(KeyCode.Minus)){
+            ScreenCapture.CaptureScreenshot(Application.persistentDataPath+"/asdf.png");
+        }
 
         foreach(HeartrateInputModule module in this._heartrateInputs){
             if(module.IsActive){
@@ -251,24 +255,32 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private void Load(){
+        SaveData data;
         if(File.Exists(this.SAVE_PATH)){
             string text = File.ReadAllText(this.SAVE_PATH);
-            SaveData data = JsonUtility.FromJson<SaveData>(text);
+            data = JsonUtility.FromJson<SaveData>(text);
+    
+        }else{
+            data = new SaveData();
+            HeartrateInputModule.SaveData defaultData = new HeartrateInputModule.SaveData();
+            defaultData.type = HeartrateInputModule.InputType.SLIDER;
+            defaultData.isActive = true;
+            defaultData.values.value = 70f;
+            data.inputs.Add(defaultData);
+        }
+        this._maxRate = data.maxRate;
+        this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
+        this._minRate = data.minRate;
+        this._heartrateRanges.SetMinRate(this._minRate.ToString());
 
-            this._maxRate = data.maxRate;
-            this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
-            this._minRate = data.minRate;
-            this._heartrateRanges.SetMinRate(this._minRate.ToString());
-
-            foreach(ColorInputModule.SaveData module in data.colors){
-                CreateColorInputModule(module);
-            }
-
-            foreach(HeartrateInputModule.SaveData module in data.inputs){
-                foreach(HeartrateInputModule m in this._heartrateInputs){
-                    if(m.Type == module.type){
-                        m.FromSaveData(module);
-                    }
+        foreach(ColorInputModule.SaveData module in data.colors){
+            CreateColorInputModule(module);
+        }
+    
+        foreach(HeartrateInputModule.SaveData module in data.inputs){
+            foreach(HeartrateInputModule m in this._heartrateInputs){
+                if(m.Type == module.type){
+                    m.FromSaveData(module);
                 }
             }
         }
