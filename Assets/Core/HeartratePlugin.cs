@@ -22,12 +22,14 @@ public class HeartratePlugin : VTSPlugin
     private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
     private const string PARAMETER_SINE_BREATH = "VTS_Heartrate_Breath";
+        private const string PARAMETER_BPM = "VTS_Heartrate_BPM";
     private Dictionary<String, float> _parameterMap = new Dictionary<string, float>();
     public Dictionary<String, float> ParameterMap { get { return this._parameterMap; } }
     private List<VTSParameterInjectionValue> _paramValues = new List<VTSParameterInjectionValue>();
     private VTSParameterInjectionValue _linear = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _pulse = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _breath = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _bpm = new VTSParameterInjectionValue();
 
     [Header("Colors")]
     [SerializeField]
@@ -36,6 +38,12 @@ public class HeartratePlugin : VTSPlugin
     private RectTransform _colorListParent = null;
     [SerializeField]
     private List<ColorInputModule> _colors = new List<ColorInputModule>();
+
+    [Header("Expressions")]
+    private List<string> _expressions = new List<string>();
+    public List<string> Expressions { get { return this._expressions; } }
+    [SerializeField]
+    private List<ExpressionModule> _expressionModules = new List<ExpressionModule>();
 
     [Header("Input Modules")]
     [SerializeField]
@@ -68,6 +76,7 @@ public class HeartratePlugin : VTSPlugin
                 status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
                 this._connectionStatus.SetStatus(status);
                 // LoggingManager.Instance.Log("Connected to VTube Studio!");
+                this._paramValues = new List<VTSParameterInjectionValue>();
                 CreateNewParameter(PARAMETER_LINEAR, 
                 (s) => {
                     // confirm param created with bool
@@ -94,6 +103,16 @@ public class HeartratePlugin : VTSPlugin
                     _breath.id = PARAMETER_SINE_BREATH;
                     _breath.value = 0;
                     _paramValues.Add(_breath);
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
+                CreateNewParameter(PARAMETER_BPM, 
+                (s) => {
+                    // confirm param created with bool
+                    _bpm.id = PARAMETER_BPM;
+                    _bpm.value = 0;
+                    _paramValues.Add(_bpm);
                 },
                 (e) => {
                     Debug.LogError(e.ToString());
@@ -134,6 +153,7 @@ public class HeartratePlugin : VTSPlugin
 
     private void Update(){
 
+        int priorHeartrate = this._heartRate;
         foreach(HeartrateInputModule module in this._heartrateInputs){
             if(module.IsActive){
                 this._heartRate = module.GetHeartrate();
@@ -142,6 +162,20 @@ public class HeartratePlugin : VTSPlugin
         }
         float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
         if(this.IsAuthenticated){
+            GetExpressionStateList(
+                (s) => {
+                    this._expressions.Clear();
+                    foreach(ExpressionData expression in s.data.expressions){
+                        this._expressions.Add(expression.file);
+                    }
+                    foreach(ExpressionModule module in this._expressionModules){
+                        module.RefreshExpressionList();
+                    }
+                },
+                (e) => {
+                    Debug.LogError(e.data.message);
+                });
+
             foreach(ColorInputModule module in this._colors){
                 ArtMeshMatcher matcher = new ArtMeshMatcher();
                 matcher.tintAll = false;
@@ -158,7 +192,30 @@ public class HeartratePlugin : VTSPlugin
                     });
             }
 
+            foreach(ExpressionModule module in this._expressionModules){
+                if(module.ShouldActivate){
+                    if(priorHeartrate < module.Threshold && this._heartRate >= module.Threshold){;
+                        SetExpressionState(module.SelectedExpression, true, 
+                        (s) => {
+
+                        },
+                        (e) => {
+
+                        });
+                    }else if(priorHeartrate >= module.Threshold && this._heartRate < module.Threshold){
+                        SetExpressionState(module.SelectedExpression, false, 
+                        (s) => {
+
+                        },
+                        (e) => {
+
+                        });
+                    }
+                }
+            }
+
             _linear.value = interpolation;
+            _bpm.value = this._heartRate;
 
             float breathRadians = (2 * Mathf.PI) * _breathFreq * _breathTime;
             _breathTime = breathRadians >= (Mathf.PI * 2) ? 0f : _breathTime;
