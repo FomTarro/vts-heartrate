@@ -7,7 +7,7 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
  
 # Features
 
-💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](ttps://www.pulsoid.net)!  
+💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](https://www.pulsoid.net)!  
 
 💓 Configurable <b>model tinting</b> that scales with pulse!
 
@@ -22,7 +22,7 @@ If you're more of an email-oriented person, you can contact his support email: t
 Getting up and running is relatively straightforward. The plugin will automatically connect to VTube Studio on launch. From there, do the following steps:
 
 * Input an estimated <b>minimum</b> and <b>maximum</b> heartrate.
-* Select a desired heartrate <b>input method</b>. Currently, in order to use an actual Heart Rate Monitor, a pulsoid.net account is needed. More input methods on the way!
+* Select a desired heartrate <b>input method</b>. Currently, in order to connect to a heart rate monitor, a [pulsoid.net](https://www.pulsoid.net) account is needed. More input methods, such as direct device connection, are on the way!
 * Add [<b>Art Mesh Tint modules</b>](#art-mesh-tinting) and configure them to parts of your model!
 * Hook up your model to [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), if you want!
  
@@ -39,13 +39,11 @@ This input method allows you to read heartrate data from an external file.
 The file must simply contain the <b>numeric heartrate value</b> in <b>plain text</b>. File path must be absolute. Useful if you have another program that can output heartrate data.
  
 ### Pulsoid App
-[<b>Pulsoid</b>](https://www.pulsoid.net) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors. Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
+[<b>Pulsoid</b>](https://www.pulsoid.net) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
  
 By clicking the <b>'Login' button</b> in the plugin, you will be asked to grant this plugin permission to connect to your account. You will then be given an <b>'Authentication Token'</b> which you must paste into the plugin.
  
-### Pulsoid Feed Reference
-<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors. Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
- 
+### Pulsoid Feed Reference 
 To use this input method, navigate to your <b>Pulsoid account page</b>, and then go to [<b>Widgets -> Advanced</b>](https://pulsoid.net/ui/configuration). From there, you should find a <b>'Feed URL'</b> which you must paste into the plugin.
  
 Please note that Pulsoid may be deprecating this input method in the future, in favor of direct app connectivity.
