@@ -67,6 +67,8 @@ This plugin outputs <b>three custom tracking parameters</b> for use. They are as
 * `VTS_Heartrate_Linear`: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.
 * `VTS_Heartrate_Pulse`: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.
 * `VTS_Heartrate_Breath`: A value that oscillates between 0.0 and 1.0 with a frequency slower than Pulse, suitable for controlling your model's <b>ParamBreath</b> output.
+
+For more information on how to integrate these tracking parameters into your model, please refer to the (https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters)[Official VTube Studio documentation].
  
 ![Custom Parameter setup](img/parameter_setup.png)
  
@@ -75,5 +77,6 @@ This plugin outputs <b>three custom tracking parameters</b> for use. They are as
 Planned features include the following:
 * The ability to directly connect to your Bluetooth HRM via Windows as an input method (I have been working at this for months, and it is not very reliable currently! Sorry!!!)
 * The ability to trigger animations/toggle emotions at certain heartrate thresholds
+* Localization into additional languages
 * More robust system logging
 
