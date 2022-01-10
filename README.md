@@ -68,7 +68,7 @@ This plugin outputs <b>three custom tracking parameters</b> for use. They are as
 * `VTS_Heartrate_Pulse`: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.
 * `VTS_Heartrate_Breath`: A value that oscillates between 0.0 and 1.0 with a frequency slower than Pulse, suitable for controlling your model's <b>ParamBreath</b> output.
 
-For more information on how to integrate these tracking parameters into your model, please refer to the (https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters)[Official VTube Studio documentation].
+For more information on how to integrate these tracking parameters into your model, please refer to the [Official VTube Studio documentation](https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters).
  
 ![Custom Parameter setup](img/parameter_setup.png)
  
