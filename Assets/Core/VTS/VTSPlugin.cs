@@ -241,7 +241,6 @@ namespace VTS {
         /// <param name="onError">Callback executed upon receiving an error.</param>
         public void GetCurrentModel(Action<VTSCurrentModelData> onSuccess, Action<VTSErrorData> onError){
             VTSCurrentModelData request = new VTSCurrentModelData();
-            Debug.Log(request);
             this._socket.Send<VTSCurrentModelData>(request, onSuccess, onError);
         }
 

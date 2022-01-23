@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,27 +8,34 @@ public class ExpressionModule : MonoBehaviour
 {
     [SerializeField]
     private InputField _threshold = null;
-    // TODO: MAKE THIS SAFE LATER
-    public int Threshold { get { return int.Parse(this._threshold.text); }}
+    public int Threshold { get { return this.StringToByte(this._threshold.text); }}
     [SerializeField]
     private Toggle _activate = null;
     public bool ShouldActivate { get { return this._activate.isOn; } }
     [SerializeField]
     private Dropdown _dropdown = null;
     public string SelectedExpression { get { 
-        return HeartrateManager.Instance.Plugin.Expressions[this._dropdown.value]; 
+        return this._waitingOn == null ? 
+        HeartrateManager.Instance.Plugin.Expressions[this._dropdown.value] : 
+        this._waitingOn; 
     }}
 
     private int ExpressionToIndex(string expressionFile){
-        return Mathf.Max(0, this._dropdown.options.FindIndex((o) 
-            => { return o.text.Equals(expressionFile); }));
+        return this._dropdown.options.FindIndex((o) 
+            => { return o.text.Equals(expressionFile); });
     }
 
     private void SetExpression(string expressionFile){
-        if(this._dropdown.options.Count > 0){
-            this._dropdown.SetValueWithoutNotify(ExpressionToIndex(expressionFile));
+        int index = ExpressionToIndex(expressionFile);
+        if(index < 0){
+            this._waitingOn = expressionFile;
+        }
+        else if(this._dropdown.options.Count > 0){
+            this._dropdown.SetValueWithoutNotify(index);
         }
     }
+
+    private string _waitingOn = null;
 
     public void RefreshExpressionList(){
         int currentIndex = this._dropdown.value;
@@ -37,7 +45,12 @@ public class ExpressionModule : MonoBehaviour
         this._dropdown.ClearOptions();
         this._dropdown.AddOptions(HeartrateManager.Instance.Plugin.Expressions);
         this._dropdown.RefreshShownValue();
-        SetExpression(expressionFile);
+        if(this._waitingOn != null){
+            SetExpression(this._waitingOn);
+            this._waitingOn = null;
+        }else{
+            SetExpression(expressionFile);
+        }
     }
 
     [System.Serializable]
@@ -65,5 +78,14 @@ public class ExpressionModule : MonoBehaviour
         this._threshold.text = data.threshold.ToString();
         this._activate.isOn = data.shouldActivate;
         SetExpression(data.expressionFile);
+    }
+
+    private byte StringToByte(string value){
+        try{
+            return Convert.ToByte(value);
+        }catch(Exception e){
+            Debug.LogWarning(e);
+            return 0;
+        }
     }
 }

@@ -9,8 +9,10 @@ using System.Collections.Generic;
 using System.IO;
 public class HeartratePlugin : VTSPlugin
 {
-    private string SAVE_PATH = "";
-    public string SavePath { get { return this.SAVE_PATH; } }
+    #region Member Variables
+    private string GLOBAL_SAVE_PATH = "";
+    private string MODEL_SAVE_PATH = "";
+    public string SavePath { get { return Application.persistentDataPath; } }
 
     [SerializeField]
     [Range(50, 120)]
@@ -22,7 +24,7 @@ public class HeartratePlugin : VTSPlugin
     private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
     private const string PARAMETER_SINE_BREATH = "VTS_Heartrate_Breath";
-        private const string PARAMETER_BPM = "VTS_Heartrate_BPM";
+    private const string PARAMETER_BPM = "VTS_Heartrate_BPM";
     private Dictionary<String, float> _parameterMap = new Dictionary<string, float>();
     public Dictionary<String, float> ParameterMap { get { return this._parameterMap; } }
     private List<VTSParameterInjectionValue> _paramValues = new List<VTSParameterInjectionValue>();
@@ -40,6 +42,8 @@ public class HeartratePlugin : VTSPlugin
     private List<ColorInputModule> _colors = new List<ColorInputModule>();
 
     [Header("Expressions")]
+    [SerializeField]
+    private ExpressionModule _expressionPrefab = null;
     private List<string> _expressions = new List<string>();
     public List<string> Expressions { get { return this._expressions; } }
     [SerializeField]
@@ -54,13 +58,16 @@ public class HeartratePlugin : VTSPlugin
     [Header("Misc.")]
     [SerializeField]
     private StatusIndicator _connectionStatus = null;
-    
+
+    private string _currentModelID = "";
+    #endregion
     // Start is called before the first frame update
     private void Start()
     {
-        this.SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
+        this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
+        this.MODEL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "models");
         // Application.OpenURL(Application.persistentDataPath);
-        Load(); 
+        LoadGlobalData(); 
         // Everything you need to get started!
         Connect();
         
@@ -140,7 +147,8 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private void OnApplicationQuit(){
-        Save();
+        SaveGlobalData();
+        SaveModelData(this._currentModelID);
     }
 
     public void SetMinRate(int rate){
@@ -162,6 +170,22 @@ public class HeartratePlugin : VTSPlugin
         }
         float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
         if(this.IsAuthenticated){
+
+            GetCurrentModel(
+                (s) => {
+                    if(!s.data.modelID.Equals(this._currentModelID)){
+                        // model has changed
+                        Debug.Log(s.data.modelID);
+                        SaveModelData(this._currentModelID);
+                        LoadModelData(s.data.modelID);
+                    }
+                    this._currentModelID = s.data.modelID; 
+                },
+                (e) => {
+                    this._currentModelID = "";
+                }
+            );
+
             GetExpressionStateList(
                 (s) => {
                     this._expressions.Clear();
@@ -274,6 +298,22 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
+    public void CreateExpressionModule(ExpressionModule.SaveData module){
+        ExpressionModule instance = Instantiate<ExpressionModule>(this._expressionPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
+        instance.transform.SetSiblingIndex(1);
+        this._expressionModules.Add(instance);
+        if(module != null){
+            instance.FromSaveData(module);
+        }
+    }
+
+    public void DestroyExpressionModule(ExpressionModule module){
+        if(this._expressionModules.Contains(module)){
+            this._expressionModules.Remove(module);
+            Destroy(module.gameObject);
+        }
+    }
+
     public void SetActiveHeartrateInput(HeartrateInputModule module){
         foreach(HeartrateInputModule m in this._heartrateInputs){
             if(!m.name.Equals(module.name)){
@@ -294,27 +334,39 @@ public class HeartratePlugin : VTSPlugin
             onError);
     }
 
-    private void Save(){
-        SaveData data = new SaveData();
+    private void SaveGlobalData(){
+        GlobalSaveData data = new GlobalSaveData();
         data.maxRate = this._maxRate;
         data.minRate = this._minRate;
-        foreach(ColorInputModule module in this._colors){
-            data.colors.Add(module.ToSaveData());
-        }
         foreach(HeartrateInputModule module in this._heartrateInputs){
             data.inputs.Add(module.ToSaveData());
         }
-        File.WriteAllText(this.SAVE_PATH, data.ToString());
+        File.WriteAllText(this.GLOBAL_SAVE_PATH, data.ToString());
     }
 
-    private void Load(){
-        SaveData data;
-        if(File.Exists(this.SAVE_PATH)){
-            string text = File.ReadAllText(this.SAVE_PATH);
-            data = JsonUtility.FromJson<SaveData>(text);
+    private void SaveModelData(string modelID){
+        ModelSaveData data = new ModelSaveData();
+        foreach(ColorInputModule module in this._colors){
+            data.colors.Add(module.ToSaveData());
+        }
+        foreach(ExpressionModule module in this._expressionModules){
+            data.expressions.Add(module.ToSaveData());
+        }
+        if(!Directory.Exists(this.MODEL_SAVE_PATH)){
+            Directory.CreateDirectory(this.MODEL_SAVE_PATH);
+        }
+        string filePath = Path.Combine(this.MODEL_SAVE_PATH, modelID+".json");
+        File.WriteAllText(filePath, data.ToString());
+    }
+
+    private void LoadGlobalData(){
+        GlobalSaveData data;
+        if(File.Exists(this.GLOBAL_SAVE_PATH)){
+            string text = File.ReadAllText(this.GLOBAL_SAVE_PATH);
+            data = JsonUtility.FromJson<GlobalSaveData>(text);
     
         }else{
-            data = new SaveData();
+            data = new GlobalSaveData();
             HeartrateInputModule.SaveData defaultData = new HeartrateInputModule.SaveData();
             defaultData.type = HeartrateInputModule.InputType.SLIDER;
             defaultData.isActive = true;
@@ -325,10 +377,6 @@ public class HeartratePlugin : VTSPlugin
         this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
         this._minRate = data.minRate;
         this._heartrateRanges.SetMinRate(this._minRate.ToString());
-
-        foreach(ColorInputModule.SaveData module in data.colors){
-            CreateColorInputModule(module);
-        }
     
         foreach(HeartrateInputModule.SaveData module in data.inputs){
             foreach(HeartrateInputModule m in this._heartrateInputs){
@@ -339,13 +387,55 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
+    private void LoadModelData(string modelID){
+        ModelSaveData data;
+        if(!Directory.Exists(this.MODEL_SAVE_PATH)){
+            Directory.CreateDirectory(this.MODEL_SAVE_PATH);
+        }
+        string filePath = Path.Combine(this.MODEL_SAVE_PATH, modelID+".json");
+        if(File.Exists(filePath)){
+            ClearCurrentData();
+            string text = File.ReadAllText(filePath);
+            data = JsonUtility.FromJson<ModelSaveData>(text);
+            foreach(ColorInputModule.SaveData module in data.colors){
+                CreateColorInputModule(module);
+            }
+            foreach(ExpressionModule.SaveData module in data.expressions){
+                CreateExpressionModule(module);
+            }
+    
+        }else{
+            // TODO
+        }
+    }
+
+    private void ClearCurrentData(){
+        List<ColorInputModule> tempColor = new List<ColorInputModule>(this._colors);
+        foreach(ColorInputModule c in tempColor){
+            DestroyColorInputModule(c);
+        }
+        List<ExpressionModule> tempEmotion = new List<ExpressionModule>(this._expressionModules);
+        foreach(ExpressionModule e in tempEmotion){
+            DestroyExpressionModule(e);
+        }
+    }
+
     [System.Serializable]
-    public class SaveData {
+    public class GlobalSaveData {
         public int minRate = 0;
         public int maxRate = 0;
-        public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
         public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>(); 
 
+        public override string ToString()
+        {
+            return JsonUtility.ToJson(this, true);
+        }
+    }
+
+    [System.Serializable]
+    public class ModelSaveData {
+        public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
+        public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
         public override string ToString()
         {
             return JsonUtility.ToJson(this, true);
