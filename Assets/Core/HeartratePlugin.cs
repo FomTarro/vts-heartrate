@@ -142,15 +142,6 @@ public class HeartratePlugin : VTSPlugin
             this._connectionStatus.SetStatus(connect);
     }
 
-    private void OnValidate(){
-        this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
-    }
-
-    private void OnApplicationQuit(){
-        SaveGlobalData();
-        SaveModelData(this._currentModelID);
-    }
-
     public void SetMinRate(int rate){
         this._minRate = rate;
     }
@@ -159,6 +150,15 @@ public class HeartratePlugin : VTSPlugin
         this._maxRate = rate;
     }
 
+
+    private void OnValidate(){
+        this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
+    }
+
+    private void OnApplicationQuit(){
+        SaveGlobalData();
+        SaveModelData(this._currentModelID);
+    }
     private void Update(){
 
         int priorHeartrate = this._heartRate;
@@ -175,7 +175,7 @@ public class HeartratePlugin : VTSPlugin
                 (s) => {
                     if(!s.data.modelID.Equals(this._currentModelID)){
                         // model has changed
-                        Debug.Log(s.data.modelID);
+                        Debug.Log("Loading Model: " + s.data.modelID);
                         SaveModelData(this._currentModelID);
                         LoadModelData(s.data.modelID);
                     }
@@ -255,6 +255,7 @@ public class HeartratePlugin : VTSPlugin
             _pulseFreq = _pulseTime == 0f * 2 ? (((float)this.HeartRate) / 60f) : _pulseFreq;
             _pulseTime = _pulseTime + Time.deltaTime;
             _pulse.value = 0.5f * (1 + Mathf.Sin((2 * Mathf.PI) * _pulseFreq * _pulseTime));
+
             if(_paramValues.Count > 0){
                 this.InjectParameterValues(_paramValues.ToArray(),
                 (s) => {
@@ -262,8 +263,7 @@ public class HeartratePlugin : VTSPlugin
                 },
                 (e) => {
                     Debug.Log(JsonUtility.ToJson(e));
-                }
-                );
+                });
             }
         }
     }
@@ -274,6 +274,16 @@ public class HeartratePlugin : VTSPlugin
     private float _pulseTime = 0f;
     private float _pulseFreq = 0f;
 
+    #region Parameters
+
+    public void SetActiveHeartrateInput(HeartrateInputModule module){
+        foreach(HeartrateInputModule m in this._heartrateInputs){
+            if(!m.name.Equals(module.name)){
+                m.SetStatus(false);
+            }
+        }
+    }
+
     private void InjectedParamValuesToDictionary(VTSParameterInjectionValue[] values){
         this._parameterMap = new Dictionary<string, float>();
         foreach(VTSParameterInjectionValue parameter in values){
@@ -281,6 +291,21 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
+    private void CreateNewParameter(string paramName, System.Action<VTSParameterCreationData> onSuccess, System.Action<VTSErrorData> onError){
+        VTSCustomParameter newParam = new VTSCustomParameter();
+        newParam.defaultValue = 0;
+        newParam.min = 0;
+        newParam.max = 1;
+        newParam.parameterName = paramName;
+        this.AddCustomParameter(
+            newParam,
+            onSuccess,
+            onError);
+    }
+
+    #endregion
+
+    #region Module Creation
 
     public void CreateColorInputModule(ColorInputModule.SaveData module){
         ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
@@ -314,28 +339,13 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    public void SetActiveHeartrateInput(HeartrateInputModule module){
-        foreach(HeartrateInputModule m in this._heartrateInputs){
-            if(!m.name.Equals(module.name)){
-                m.SetStatus(false);
-            }
-        }
-    }
+    #endregion
 
-    private void CreateNewParameter(string paramName, System.Action<VTSParameterCreationData> onSuccess, System.Action<VTSErrorData> onError){
-        VTSCustomParameter newParam = new VTSCustomParameter();
-        newParam.defaultValue = 0;
-        newParam.min = 0;
-        newParam.max = 1;
-        newParam.parameterName = paramName;
-        this.AddCustomParameter(
-            newParam,
-            onSuccess,
-            onError);
-    }
+    #region Data Serialization
 
     private void SaveGlobalData(){
         GlobalSaveData data = new GlobalSaveData();
+        data.version = Application.version;
         data.maxRate = this._maxRate;
         data.minRate = this._minRate;
         foreach(HeartrateInputModule module in this._heartrateInputs){
@@ -346,6 +356,7 @@ public class HeartratePlugin : VTSPlugin
 
     private void SaveModelData(string modelID){
         ModelSaveData data = new ModelSaveData();
+        data.version = Application.version;
         foreach(ColorInputModule module in this._colors){
             data.colors.Add(module.ToSaveData());
         }
@@ -355,15 +366,19 @@ public class HeartratePlugin : VTSPlugin
         if(!Directory.Exists(this.MODEL_SAVE_PATH)){
             Directory.CreateDirectory(this.MODEL_SAVE_PATH);
         }
-        string filePath = Path.Combine(this.MODEL_SAVE_PATH, modelID+".json");
-        File.WriteAllText(filePath, data.ToString());
+
+        if(modelID != null && modelID.Length > 0){
+            string filePath = Path.Combine(this.MODEL_SAVE_PATH, modelID+".json");
+            File.WriteAllText(filePath, data.ToString());
+        }
     }
 
     private void LoadGlobalData(){
         GlobalSaveData data;
         if(File.Exists(this.GLOBAL_SAVE_PATH)){
-            string text = File.ReadAllText(this.GLOBAL_SAVE_PATH);
-            data = JsonUtility.FromJson<GlobalSaveData>(text);
+            string content = File.ReadAllText(this.GLOBAL_SAVE_PATH);
+            data = JsonUtility.FromJson<GlobalSaveData>(content);
+            ModernizeLegacySaveData(data.version, content);
     
         }else{
             data = new GlobalSaveData();
@@ -387,6 +402,23 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
+    private void ModernizeLegacySaveData(string version, string content){
+        switch(version){
+            case null:
+            case "":
+            case "0.1.0":
+            LegacySaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacySaveData_v0_1_0>(content);
+            if(legacyData.colors != null && legacyData.colors.Count > 0){
+                Debug.Log("Legacy Data detected: v"+version);
+                // make a new ModelSaveData, apply it to the first loaded model.
+                ModelSaveData modelData = new ModelSaveData();
+                modelData.colors = legacyData.colors;
+                LoadModelData(modelData);
+            }
+            break;
+        }
+    }
+
     private void LoadModelData(string modelID){
         ModelSaveData data;
         if(!Directory.Exists(this.MODEL_SAVE_PATH)){
@@ -394,18 +426,21 @@ public class HeartratePlugin : VTSPlugin
         }
         string filePath = Path.Combine(this.MODEL_SAVE_PATH, modelID+".json");
         if(File.Exists(filePath)){
-            ClearCurrentData();
             string text = File.ReadAllText(filePath);
             data = JsonUtility.FromJson<ModelSaveData>(text);
-            foreach(ColorInputModule.SaveData module in data.colors){
-                CreateColorInputModule(module);
-            }
-            foreach(ExpressionModule.SaveData module in data.expressions){
-                CreateExpressionModule(module);
-            }
-    
+            LoadModelData(data);
         }else{
             // TODO
+        }
+    }
+
+    private void LoadModelData(ModelSaveData data){
+        ClearCurrentData();
+        foreach(ColorInputModule.SaveData module in data.colors){
+            CreateColorInputModule(module);
+        }
+        foreach(ExpressionModule.SaveData module in data.expressions){
+            CreateExpressionModule(module);
         }
     }
 
@@ -422,6 +457,7 @@ public class HeartratePlugin : VTSPlugin
 
     [System.Serializable]
     public class GlobalSaveData {
+        public string version;
         public int minRate = 0;
         public int maxRate = 0;
         public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>(); 
@@ -434,11 +470,15 @@ public class HeartratePlugin : VTSPlugin
 
     [System.Serializable]
     public class ModelSaveData {
+        public string version;
         public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
         public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
+
         public override string ToString()
         {
             return JsonUtility.ToJson(this, true);
         }
     }
+
+    #endregion
 }

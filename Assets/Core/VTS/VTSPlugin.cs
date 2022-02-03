@@ -518,7 +518,7 @@ namespace VTS {
 
         #region Helper Methods
 
-        private static Regex ALPHANUMERIC = new Regex(@"\W|_");
+        private static Regex ALPHANUMERIC = new Regex(@"\W|");
         private string SanitizeParameterName(string name){
             // between 4 and 32 chars, alphanumeric
             string output = name;

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,9 +14,19 @@ public class ExpressionModule : MonoBehaviour
     private Dropdown _dropdown = null;
     public string SelectedExpression { get { 
         return this._waitingOn == null ? 
-        HeartrateManager.Instance.Plugin.Expressions[this._dropdown.value] : 
+        (this._dropdown.value < HeartrateManager.Instance.Plugin.Expressions.Count ? 
+            HeartrateManager.Instance.Plugin.Expressions[this._dropdown.value] : null) :
         this._waitingOn; 
     }}
+
+    
+    public void Clone(){
+        HeartrateManager.Instance.Plugin.CreateExpressionModule(this.ToSaveData());
+    }
+
+    public void Delete(){
+        HeartrateManager.Instance.Plugin.DestroyExpressionModule(this);
+    }
 
     private int ExpressionToIndex(string expressionFile){
         return this._dropdown.options.FindIndex((o) 
@@ -58,7 +66,7 @@ public class ExpressionModule : MonoBehaviour
 
         public string expressionFile;
         public int threshold;
-        public bool shouldActivate;
+        public bool shouldActivate = true;
 
         public override string ToString()
         {
