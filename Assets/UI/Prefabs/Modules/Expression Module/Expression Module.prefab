@@ -808,6 +808,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Title Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 2647555702770650737, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
+      propertyPath: _tooltip
+      value: 203
+      objectReference: {fileID: 0}
     - target: {fileID: 3113968578081100292, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
       propertyPath: m_Pivot.x

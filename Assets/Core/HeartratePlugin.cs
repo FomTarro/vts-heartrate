@@ -159,15 +159,28 @@ public class HeartratePlugin : VTSPlugin
         SaveGlobalData();
         SaveModelData(this._currentModel);
     }
+
+    private Queue<int> _pastSecond = new Queue<int>();
     private void Update(){
 
         int priorHeartrate = this._heartRate;
         foreach(HeartrateInputModule module in this._heartrateInputs){
             if(module.IsActive){
-                this._heartRate = module.GetHeartrate();
+                // TODO: make this 60 based on actual framerate
+                if(_pastSecond.Count > 60){
+                    this._pastSecond.Dequeue();
+                }
+                this._pastSecond.Enqueue(module.GetHeartrate());
                 break;
             }
         }
+        float average = 0.0f;
+        foreach(int i in this._pastSecond){
+            average += i;
+        }
+        average = average / Math.Max(1, _pastSecond.Count);
+        this._heartRate = Mathf.RoundToInt(average);
+
         float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
         if(this.IsAuthenticated){
 

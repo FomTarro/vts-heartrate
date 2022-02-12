@@ -80,9 +80,16 @@ public class TooltipButton : MonoBehaviour
                 UIManager.Instance.ShowPopUp(
                     "Custom Parameters",
                     "This plugin outputs three custom tracking parameters for use. They are as follows:\n"+
+                    "<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM, rather than an interpolated value.\n"+
+                    "<b>VTS_Heartrate_Breath</b>: A value that oscillates between 0.0 and 1.0 with a frequency slower than Pulse, suitable for controlling your model's <b>ParamBreath</b> output.\n"+
                     "<b>VTS_Heartrate_Linear</b>: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.\n"+
-                    "<b>VTS_Heartrate_Pulse</b>: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.\n"+
-                    "<b>VTS_Heartrate_Breath</b>: A value that oscillates between 0.0 and 1.0 with a frequency slower than Pulse, suitable for controlling your model's <b>ParamBreath</b> output.\n"
+                    "<b>VTS_Heartrate_Pulse</b>: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.\n"
+                );
+                break;
+            case Tooltips.OUTPUT_EXPRESSION:
+                UIManager.Instance.ShowPopUp(
+                    "Expression Trigger",
+                    "This output will cause an Expression to activate or deactivate when the current heartrate exceeds a given threshold. The Expression will then resume its original state once the heartrate dips back below the given threhsold.\n"
                 );
                 break;
             default:
@@ -100,6 +107,7 @@ public class TooltipButton : MonoBehaviour
         HEARTRATE_BLUETOOTH = 106,
 
         OUTPUT_PARAMS = 201,
-        OUTPUT_COLOR = 202
+        OUTPUT_COLOR = 202,
+        OUTPUT_EXPRESSION = 203,
     }
 }
