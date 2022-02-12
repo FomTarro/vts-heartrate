@@ -394,7 +394,7 @@ namespace VTS {
         /// Gets the value for the specified parameter.
         /// 
         /// For more info, see 
-        /// <a href="https://github.com/DenchiSoft/VTubeStudio#requesting-list-of-available-tracking-parameters">https://github.com/DenchiSoft/VTubeStudio#requesting-list-of-available-tracking-parameters</a>
+        /// <a href="https://github.com/DenchiSoft/VTubeStudio#get-the-value-for-one-specific-parameter-default-or-custom">https://github.com/DenchiSoft/VTubeStudio#get-the-value-for-one-specific-parameter-default-or-custom</a>
         /// </summary>
         /// <param name="parameterName">The name of the parameter to get the value of.</param>
         /// <param name="onSuccess">Callback executed upon receiving a response.</param>
@@ -491,13 +491,13 @@ namespace VTS {
         /// <a href="https://github.com/DenchiSoft/VTubeStudio#requesting-activation-or-deactivation-of-expressions">https://github.com/DenchiSoft/VTubeStudio#requesting-activation-or-deactivation-of-expressions</a>
         /// </summary>
         /// <parame name="expression">The expression file name to change the state of.</param>
-        /// <param name="state">The state to set the expression to. True to activate, false to deactivate.</param>
+        /// <param name="active">The state to set the expression to. True to activate, false to deactivate.</param>
         /// <param name="onSuccess">Callback executed upon receiving a response.</param>
         /// <param name="onError">Callback executed upon receiving an error.</param>
-        public void SetExpressionState(string expression, bool state, Action<VTSExpressionActivationData> onSuccess, Action<VTSErrorData> onError){
+        public void SetExpressionState(string expression, bool active, Action<VTSExpressionActivationData> onSuccess, Action<VTSErrorData> onError){
             VTSExpressionActivationData request = new VTSExpressionActivationData();
             request.data.expressionFile = expression;
-            request.data.active = state;
+            request.data.active = active;
             this._socket.Send<VTSExpressionActivationData>(request, onSuccess, onError);
         }
 
@@ -520,7 +520,7 @@ namespace VTS {
 
         private static Regex ALPHANUMERIC = new Regex(@"\W|");
         private string SanitizeParameterName(string name){
-            // between 4 and 32 chars, alphanumeric
+            // between 4 and 32 chars, alphanumeric, underscores allowed
             string output = name;
             output = ALPHANUMERIC.Replace(output, "");
             output.PadLeft(4, 'X');

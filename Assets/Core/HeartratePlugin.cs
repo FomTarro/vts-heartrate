@@ -59,7 +59,7 @@ public class HeartratePlugin : VTSPlugin
     [SerializeField]
     private StatusIndicator _connectionStatus = null;
 
-    private string _currentModelID = "";
+    private VTSCurrentModelData _currentModel = new VTSCurrentModelData();
     #endregion
     // Start is called before the first frame update
     private void Start()
@@ -157,7 +157,7 @@ public class HeartratePlugin : VTSPlugin
 
     private void OnApplicationQuit(){
         SaveGlobalData();
-        SaveModelData(this._currentModelID);
+        SaveModelData(this._currentModel);
     }
     private void Update(){
 
@@ -173,16 +173,16 @@ public class HeartratePlugin : VTSPlugin
 
             GetCurrentModel(
                 (s) => {
-                    if(!s.data.modelID.Equals(this._currentModelID)){
+                    if(!s.data.modelID.Equals(this._currentModel.data.modelID)){
                         // model has changed
                         Debug.Log("Loading Model: " + s.data.modelID);
-                        SaveModelData(this._currentModelID);
+                        SaveModelData(this._currentModel);
                         LoadModelData(s.data.modelID);
                     }
-                    this._currentModelID = s.data.modelID; 
+                    this._currentModel = s; 
                 },
                 (e) => {
-                    this._currentModelID = "";
+                    this._currentModel = new VTSCurrentModelData();
                 }
             );
 
@@ -354,9 +354,11 @@ public class HeartratePlugin : VTSPlugin
         File.WriteAllText(this.GLOBAL_SAVE_PATH, data.ToString());
     }
 
-    private void SaveModelData(string modelID){
+    private void SaveModelData(VTSCurrentModelData currentModel){
         ModelSaveData data = new ModelSaveData();
         data.version = Application.version;
+        data.modelName = currentModel.data.modelName;
+        data.modelID = currentModel.data.modelID;
         foreach(ColorInputModule module in this._colors){
             data.colors.Add(module.ToSaveData());
         }
@@ -367,8 +369,8 @@ public class HeartratePlugin : VTSPlugin
             Directory.CreateDirectory(this.MODEL_SAVE_PATH);
         }
 
-        if(modelID != null && modelID.Length > 0){
-            string filePath = Path.Combine(this.MODEL_SAVE_PATH, modelID+".json");
+        if(data.modelID != null && data.modelID.Length > 0){
+            string filePath = Path.Combine(this.MODEL_SAVE_PATH, data.modelID+".json");
             File.WriteAllText(filePath, data.ToString());
         }
     }
@@ -431,6 +433,7 @@ public class HeartratePlugin : VTSPlugin
             LoadModelData(data);
         }else{
             // TODO
+            ClearCurrentData();
         }
     }
 
@@ -471,6 +474,8 @@ public class HeartratePlugin : VTSPlugin
     [System.Serializable]
     public class ModelSaveData {
         public string version;
+        public string modelID;
+        public string modelName;
         public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
         public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
 
