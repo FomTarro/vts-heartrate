@@ -20,6 +20,7 @@ public class HeartratePlugin : VTSPlugin
     public int HeartRate { get { return Math.Max(0, this._heartRate); } }
     private int _maxRate = 100;
     private int _minRate = 70;
+    private ShiftingAverage _average = new ShiftingAverage(60);
 
     private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
@@ -160,26 +161,16 @@ public class HeartratePlugin : VTSPlugin
         SaveModelData(this._currentModel);
     }
 
-    private Queue<int> _pastSecond = new Queue<int>();
     private void Update(){
 
         int priorHeartrate = this._heartRate;
         foreach(HeartrateInputModule module in this._heartrateInputs){
             if(module.IsActive){
-                // TODO: make this 60 based on actual framerate
-                if(_pastSecond.Count > 60){
-                    this._pastSecond.Dequeue();
-                }
-                this._pastSecond.Enqueue(module.GetHeartrate());
+                this._average.AddValue(module.GetHeartrate());
                 break;
             }
-        }
-        float average = 0.0f;
-        foreach(int i in this._pastSecond){
-            average += i;
-        }
-        average = average / Math.Max(1, _pastSecond.Count);
-        this._heartRate = Mathf.RoundToInt(average);
+        };
+        this._heartRate = Mathf.RoundToInt(this._average.Average);
 
         float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
         if(this.IsAuthenticated){
@@ -356,6 +347,16 @@ public class HeartratePlugin : VTSPlugin
 
     #region Data Serialization
 
+    public Dictionary<string, string> GetModelDataNameMap(){
+        Dictionary<string, string> dict = new Dictionary<string, string>();
+        foreach(string s in Directory.GetFiles(this.MODEL_SAVE_PATH)){
+            string text = File.ReadAllText(s);
+            ModelSaveData data = JsonUtility.FromJson<ModelSaveData>(text);
+            dict.Add(data.modelName, data.modelID);
+        }
+        return dict;
+    }
+
     private void SaveGlobalData(){
         GlobalSaveData data = new GlobalSaveData();
         data.version = Application.version;
@@ -469,6 +470,27 @@ public class HeartratePlugin : VTSPlugin
         foreach(ExpressionModule e in tempEmotion){
             DestroyExpressionModule(e);
         }
+    }
+
+    public void CopyModelData(string modelID, string modelName){
+        UIManager.Instance.ShowPopUp(
+            "Confrim Data Copy",
+            String.Format("Are you sure that you want to <b>copy model settings data</b> from <b>{0}</b> to your currently loaded model, <b>{1}</b>?\n"+
+            "Doing so will <b>permanently erase</b> any settings your currently loaded model has configured.", modelName, this._currentModel.data.modelName),
+            new PopUp.PopUpOption(
+                "Proceed",
+                Color.white,
+                () => {
+                    LoadModelData(modelID);
+                    UIManager.Instance.HidePopUp();
+                }),
+            new PopUp.PopUpOption(
+                "Cancel",
+                Color.red,
+                () => {
+                    UIManager.Instance.HidePopUp();
+                })
+        );
     }
 
     [System.Serializable]

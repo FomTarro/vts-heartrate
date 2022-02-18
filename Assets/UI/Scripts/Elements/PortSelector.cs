@@ -3,44 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PortSelector : MonoBehaviour
+public class PortSelector : RefreshableDropdown
 {
-
-    [SerializeField]
-    private Dropdown _dropdown = null;
-
     private List<string> _portNumbers = new List<string>();
 
     public void Start(){
         this._dropdown.onValueChanged.AddListener((i) => { 
-            SetPort(i);
+            SetValue(i);
         });
     }
 
-    public void OnEnable(){
-        try{
-            RefreshPorts();
-        }catch(System.Exception){
-
-        }
-    }
-
-    public void RefreshPorts(){
-        int currentIndex = this._dropdown.value;
-        List<int> ports = new List<int>(HeartrateManager.Instance.Plugin.GetPorts().Keys);
-        ports.Sort();
-        this._portNumbers = new List<string>();
-        foreach(int port in ports){
-            this._portNumbers.Add(port.ToString());
-        }
-        this._dropdown.ClearOptions();
-        this._dropdown.AddOptions(this._portNumbers);
-        this._dropdown.RefreshShownValue();
-        this._dropdown.SetValueWithoutNotify(Mathf.Min(this._dropdown.options.Count, currentIndex));
-    }
-
-    public void SetPort(int index){
-        HeartrateManager.Instance.Plugin.SetPort(int.Parse(this._portNumbers[index]));
+    protected override void SetValue(int index){
+        HeartrateManager.Instance.Plugin.SetPort(int.Parse(this._dropdown.options[index].text));
         HeartrateManager.Instance.Plugin.Connect();
+    }
+
+    public override void Refresh()
+    {
+        RefreshValues(HeartrateManager.Instance.Plugin.GetPorts().Keys);
     }
 }

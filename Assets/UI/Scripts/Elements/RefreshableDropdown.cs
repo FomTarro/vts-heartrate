@@ -3,28 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class RefreshableDropdown<T> : MonoBehaviour
+public abstract class RefreshableDropdown : MonoBehaviour
 {
     [SerializeField]
-    private Dropdown _dropdown = null;
+    protected Dropdown _dropdown = null;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
+    }
+
+    protected abstract void SetValue(int index);
+
+    public void OnEnable(){
+        try{
+            Refresh();
+        }catch(System.Exception){
+
+        }
     }
 
     public abstract void Refresh();
 
-    private void RefreshValues(List<T> values){
+    // Call this in the Refresh implementation when you get your data back
+    protected void RefreshValues(IEnumerable values){
         int currentIndex = this._dropdown.value;
         string currentSelection = 
             this._dropdown.options.Count > 0 ? 
             this._dropdown.options[currentIndex].text : 
             null;
-        values.Sort();
         List<string> options = new List<string>();
-        foreach(T value in values){
+        foreach(object value in values){
             options.Add(value.ToString());
         }
         this._dropdown.ClearOptions();
