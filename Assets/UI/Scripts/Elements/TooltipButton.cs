@@ -21,13 +21,13 @@ public class TooltipButton : MonoBehaviour
                 UIManager.Instance.ShowPopUp(
                     "Heartrate Ranges",
                     "Input your expected range of heartrates here. <b>Resting</b> refers to your low-stress heartrate, while <b>Maximum</b> refers to your high-stress heartrate.\n\n"+
-                    "The values of the various <b>Outputs</b> will be scaled based on where your current heartrate lands along this range."
+                    "The values of the various <b>Outputs</b> will be scaled based on where your current heartrate lands along this range.\n"
                 );
                 break;
             case Tooltips.HEARTRATE_SLIDER:
                 UIManager.Instance.ShowPopUp(
                     "Test Slider",
-                    "Use the slider for quick testing of different heartrate values.\nThe slider range is from 0 to 255."
+                    "Use the slider for quick testing of different heartrate values.\nThe slider range is from 0 to 255.\n"
                 );
                 break;
             case Tooltips.HEARTRATE_PULSOID_CONNECT:
@@ -38,7 +38,7 @@ public class TooltipButton : MonoBehaviour
                     "By clicking the <b>'Login' button</b>, you will be asked to grant this plugin permission to connect to your account. You will then be given an <b>'Authentication Token'</b> which you must paste in to the plugin.",
                     new PopUp.PopUpOption(
                         "Visit pulsoid.net",
-                        Color.white,
+                        true,
                         () => { Application.OpenURL("https://www.pulsoid.net"); })
                 );
                 break;
@@ -51,7 +51,7 @@ public class TooltipButton : MonoBehaviour
                     "Please note that Pulsoid may be deprecating this input method in the future, in favor of direct app connectivity.",
                     new PopUp.PopUpOption(
                         "Visit pulsoid.net",
-                        Color.white,
+                        true,
                         () => { Application.OpenURL("https://www.pulsoid.net"); })
                 );
                 break;
@@ -60,7 +60,7 @@ public class TooltipButton : MonoBehaviour
                     "Read from File",
                     "Use this input method to read heartrate data from an external file.\n"+
                     "The file must simply contain the numeric heartrate value in plain text. File path must be absolute.\n\n"+
-                    "Useful if you have another program that can output heartrate data."
+                    "Useful if you have another program that can output heartrate data.\n"
                 );
                 break;
             case Tooltips.OUTPUT_COLOR:
@@ -72,7 +72,7 @@ public class TooltipButton : MonoBehaviour
                     "If you are unsure of what your Art Meshes are named, a great web-tool was developed by <b>Hawkbar</b> called <b>VTubeStudioTagger</b>, which offers an intuitive way to discover the names of your model's Art Meshes.",
                     new PopUp.PopUpOption(
                         "Visit VTubeStudioTagger",
-                        Color.white,
+                        true,
                         () => { Application.OpenURL("https://hawk.bar/VTubeStudioTagger/"); })
                 );
                 break;
@@ -92,6 +92,13 @@ public class TooltipButton : MonoBehaviour
                     "This output will cause an Expression to activate or deactivate when the current heartrate exceeds a given threshold. The Expression will then resume its original state once the heartrate dips back below the given threhsold.\n"
                 );
                 break;
+            case Tooltips.OUTPUT_COPY:
+                UIManager.Instance.ShowPopUp(
+                    "Copy Profile Settings",
+                    "This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.\n\n"+
+                    "As a result, any settings configured for your currently loaded model will be permanetly erased.\n"
+                );
+                break;
             default:
             break;
         }
@@ -109,5 +116,6 @@ public class TooltipButton : MonoBehaviour
         OUTPUT_PARAMS = 201,
         OUTPUT_COLOR = 202,
         OUTPUT_EXPRESSION = 203,
+        OUTPUT_COPY = 204,
     }
 }

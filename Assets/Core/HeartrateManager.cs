@@ -32,7 +32,7 @@ public class HeartrateManager : Singleton<HeartrateManager>
                         "You can download it at: {2}", info.version, info.date, info.url),
                         new PopUp.PopUpOption(
                             "Download", 
-                            Color.white, 
+                            true, 
                             () => { Application.OpenURL(info.url); })
                         );
                 }

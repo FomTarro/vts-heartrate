@@ -325,6 +325,16 @@ public class HeartratePlugin : VTSPlugin
             this._colors.Remove(module);
             Destroy(module.gameObject);
         }
+        ArtMeshMatcher matcher = new ArtMeshMatcher();
+        matcher.tintAll = false;
+        matcher.nameContains = module.ModuleMatchers;
+        this.TintArtMesh(
+            Color.white,
+            0.5f, 
+            matcher,
+            (success) => {},
+            (error) => {}
+        );
     }
 
     public void CreateExpressionModule(ExpressionModule.SaveData module){
@@ -479,14 +489,14 @@ public class HeartratePlugin : VTSPlugin
             "Doing so will <b>permanently erase</b> any settings your currently loaded model has configured.", modelName, this._currentModel.data.modelName),
             new PopUp.PopUpOption(
                 "Proceed",
-                Color.white,
+                true,
                 () => {
                     LoadModelData(modelID);
                     UIManager.Instance.HidePopUp();
                 }),
             new PopUp.PopUpOption(
                 "Cancel",
-                Color.red,
+                false,
                 () => {
                     UIManager.Instance.HidePopUp();
                 })
