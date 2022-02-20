@@ -7,9 +7,11 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
  
 # Features
 
-💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](ttps://www.pulsoid.net)!  
+💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](https://www.pulsoid.net)!  
 
 💓 Configurable <b>model tinting</b> that scales with pulse!
+
+💓 Automatic <b>expression triggering</b> at desired heartrate thresholds!
 
 💓 Custom <b>tracking parameters</b> for pulse and breath!
 
@@ -22,7 +24,7 @@ If you're more of an email-oriented person, you can contact his support email: t
 Getting up and running is relatively straightforward. The plugin will automatically connect to VTube Studio on launch. From there, do the following steps:
 
 * Input an estimated <b>minimum</b> and <b>maximum</b> heartrate.
-* Select a desired heartrate <b>input method</b>. Currently, in order to use an actual Heart Rate Monitor, a pulsoid.net account is needed. More input methods on the way!
+* Select a desired heartrate <b>input method</b>. Currently, in order to connect to a heart rate monitor, a [pulsoid.net](https://www.pulsoid.net) account is needed. More input methods, such as direct device connection, are on the way!
 * Add [<b>Art Mesh Tint modules</b>](#art-mesh-tinting) and configure them to parts of your model!
 * Hook up your model to [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), if you want!
  
@@ -39,13 +41,11 @@ This input method allows you to read heartrate data from an external file.
 The file must simply contain the <b>numeric heartrate value</b> in <b>plain text</b>. File path must be absolute. Useful if you have another program that can output heartrate data.
  
 ### Pulsoid App
-[<b>Pulsoid</b>](https://www.pulsoid.net) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors. Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
+[<b>Pulsoid</b>](https://www.pulsoid.net) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
  
 By clicking the <b>'Login' button</b> in the plugin, you will be asked to grant this plugin permission to connect to your account. You will then be given an <b>'Authentication Token'</b> which you must paste into the plugin.
  
-### Pulsoid Feed Reference
-<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors. Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
- 
+### Pulsoid Feed Reference 
 To use this input method, navigate to your <b>Pulsoid account page</b>, and then go to [<b>Widgets -> Advanced</b>](https://pulsoid.net/ui/configuration). From there, you should find a <b>'Feed URL'</b> which you must paste into the plugin.
  
 Please note that Pulsoid may be deprecating this input method in the future, in favor of direct app connectivity.
@@ -77,6 +77,8 @@ This plugin outputs <b>three custom tracking parameters</b> for use. They are as
 * `VTS_Heartrate_Pulse`: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.
 * `VTS_Heartrate_Breath`: A value that oscillates between 0.0 and 1.0 with a frequency slower than Pulse, suitable for controlling your model's <b>ParamBreath</b> output.
 * `VTS_Heartrate_BPM`: A value that represents the actual current heartrate in BPM.
+
+For more information on how to integrate these tracking parameters into your model, please refer to the [Official VTube Studio documentation](https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters).
  
 ![Custom Parameter setup](img/parameter_setup.png)
 
@@ -89,5 +91,10 @@ As a result, any settings configured for your currently loaded model will be per
  
 Planned features include the following:
 * The ability to directly connect to your Bluetooth HRM via Windows as an input method (I have been working at this for months, and it is not very reliable currently! Sorry!!!)
+<<<<<<< HEAD
+=======
+* The ability to trigger animations/toggle emotions at certain heartrate thresholds
+* Localization into additional languages
+>>>>>>> 2c3bab3d8e75c7952e59be205c2ded5a21cd5d60
 * More robust system logging
 
