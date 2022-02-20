@@ -48,9 +48,11 @@ public class PopUp : MonoBehaviour
                 Vector3.zero, 
                 Quaternion.identity, 
                 this._buttonParent);
+            button.GetComponent<Image>().color = option.positive ? ColorUtils.GREEN : ColorUtils.RED;
             button.GetComponentInChildren<Text>().text = option.text;
             button.onPointerUp.AddListener(() => {option.callback();});
         }
+        this._buttonParent.gameObject.SetActive(options.Length > 0);
         this._show = true;
         this._flash.SetAlpha(0);
         this.gameObject.SetActive(true);
@@ -71,12 +73,12 @@ public class PopUp : MonoBehaviour
 
     public struct PopUpOption{
         public string text;
-        public Color color;
+        public bool positive;
         public System.Action callback;
 
-        public PopUpOption(string text, Color color, System.Action callback){
+        public PopUpOption(string text, bool positive, System.Action callback){
             this.text = text;
-            this.color = color;
+            this.positive = positive;
             this.callback = callback;
         }
     }

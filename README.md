@@ -11,6 +11,8 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
 
 💓 Configurable <b>model tinting</b> that scales with pulse!
 
+💓 Automatic <b>expression triggering</b> at desired heartrate thresholds!
+
 💓 Custom <b>tracking parameters</b> for pulse and breath!
 
 # About
@@ -60,6 +62,13 @@ Text to match must be <b>comma separated</b> and should <b>not contain spaces</b
 If you are unsure of what your Art Meshes are named, a great web-tool was developed by <b>Hawkbar</b> called [<b>VTubeStudioTagger</b>](https://hawk.bar/VTubeStudioTagger/), which offers an intuitive way to discover the names of your model's Art Meshes.
  
 ![Working Example](img/color_setup.png)
+
+### Automatic Expression Triggering
+This output will cause an <b>Expression</b> to activate or deactivate when the current heartrate <b>exceeds a given threshold</b>. The Expression will then resume its original state once the heartrate dips back below the given threshold. 
+
+For example, the configuration in the provided image will cause the `angry` Expression to automatically activate when the heartrate exceeds 125 BPM, and will deactivate when the heartrate falls back beneath 125 BPM.
+
+![Working Example](img/expression_trigger.png)
  
 ### Custom Tracking Parameters
 This plugin outputs <b>three custom tracking parameters</b> for use. They are as follows:
@@ -67,16 +76,25 @@ This plugin outputs <b>three custom tracking parameters</b> for use. They are as
 * `VTS_Heartrate_Linear`: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.
 * `VTS_Heartrate_Pulse`: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.
 * `VTS_Heartrate_Breath`: A value that oscillates between 0.0 and 1.0 with a frequency slower than Pulse, suitable for controlling your model's <b>ParamBreath</b> output.
+* `VTS_Heartrate_BPM`: A value that represents the actual current heartrate in BPM.
 
 For more information on how to integrate these tracking parameters into your model, please refer to the [Official VTube Studio documentation](https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters).
  
 ![Custom Parameter setup](img/parameter_setup.png)
+
+### Copy Profile Settings
+As of version 1.0.0, settings are saved on a per-model basis. This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
+
+As a result, any settings configured for your currently loaded model will be permanently erased.
  
 # Roadmap
  
 Planned features include the following:
 * The ability to directly connect to your Bluetooth HRM via Windows as an input method (I have been working at this for months, and it is not very reliable currently! Sorry!!!)
+<<<<<<< HEAD
+=======
 * The ability to trigger animations/toggle emotions at certain heartrate thresholds
 * Localization into additional languages
+>>>>>>> 2c3bab3d8e75c7952e59be205c2ded5a21cd5d60
 * More robust system logging
 

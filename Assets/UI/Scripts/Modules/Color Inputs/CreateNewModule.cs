@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class CreateNewModule : MonoBehaviour
 {
-    public void CreateModule(){
+    public void CreateColorModule(){
         HeartrateManager.Instance.Plugin.CreateColorInputModule(new ColorInputModule.SaveData());
+    }
+
+    public void CreateExpressionModule(){
+        HeartrateManager.Instance.Plugin.CreateExpressionModule(new ExpressionModule.SaveData());
     }
 }

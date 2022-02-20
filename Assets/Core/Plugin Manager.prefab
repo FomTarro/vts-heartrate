@@ -65,6 +65,9 @@ MonoBehaviour:
     type: 3}
   _colorListParent: {fileID: 0}
   _colors: []
+  _expressionPrefab: {fileID: 7958620937288378037, guid: e34d426236e8c494ea1d1edd62a35145,
+    type: 3}
+  _expressionModules: []
   _heartrateInputs:
   - {fileID: 0}
   - {fileID: 0}
