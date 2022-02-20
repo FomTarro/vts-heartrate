@@ -80,7 +80,10 @@ This plugin outputs <b>three custom tracking parameters</b> for use. They are as
  
 ![Custom Parameter setup](img/parameter_setup.png)
 
-### Copy
+### Copy Profile Settings
+As of version 1.0.0, settings are saved on a per-model basis. This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
+
+As a result, any settings configured for your currently loaded model will be permanently erased.
  
 # Roadmap
  

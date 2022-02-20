@@ -20,7 +20,7 @@ public class HeartratePlugin : VTSPlugin
     public int HeartRate { get { return Math.Max(0, this._heartRate); } }
     private int _maxRate = 100;
     private int _minRate = 70;
-    private ShiftingAverage _average = new ShiftingAverage(120);
+    private ShiftingAverage _average = new ShiftingAverage(60);
 
     private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";

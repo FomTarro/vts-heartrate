@@ -558,6 +558,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2435759765234754635, guid: 84a85925520895f429a539c02502ba3e,
+        type: 3}
+      propertyPath: m_Text
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4537418389902797986, guid: 84a85925520895f429a539c02502ba3e,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -612,6 +617,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Refreshable Dropdown
+      objectReference: {fileID: 0}
+    - target: {fileID: 7861017577697479240, guid: 84a85925520895f429a539c02502ba3e,
+        type: 3}
+      propertyPath: m_Options.m_Options.Array.size
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3514351204112586402, guid: 84a85925520895f429a539c02502ba3e, type: 3}
