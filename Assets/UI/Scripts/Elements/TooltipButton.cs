@@ -1,20 +1,20 @@
 ﻿using UnityEngine;
 using UI.InputTools;
-
+ 
 [RequireComponent(typeof(ExtendedButton))]
 public class TooltipButton : MonoBehaviour
 {
     private ExtendedButton _button = null;
     [SerializeField]
     private Tooltips _tooltip;
-
+ 
     // Start is called before the first frame update
     void Start()
     {
         this._button = GetComponent<ExtendedButton>();
         this._button.onPointerUp.AddListener(() => { DisplayTooltip(this._tooltip); });
     }
-
+ 
     private void DisplayTooltip(Tooltips tip){
         switch(tip){
             case Tooltips.HEARTRATE_RANGES:
@@ -89,21 +89,21 @@ public class TooltipButton : MonoBehaviour
             case Tooltips.OUTPUT_EXPRESSION:
                 UIManager.Instance.ShowPopUp(
                     "Expression Trigger",
-                    "This output will cause an Expression to activate or deactivate when the current heartrate exceeds a given threshold. The Expression will then resume its original state once the heartrate dips back below the given threhsold.\n"
+                    "This output will cause an <b>Expression</b> to activate or deactivate when the current heartrate <b>exceeds a given threshold</b>. The Expression will then resume its original state once the heartrate dips back below the given threshold.\n"
                 );
                 break;
             case Tooltips.OUTPUT_COPY:
                 UIManager.Instance.ShowPopUp(
                     "Copy Profile Settings",
                     "This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.\n\n"+
-                    "As a result, any settings configured for your currently loaded model will be permanetly erased.\n"
+                    "As a result, any settings configured for your currently loaded model will be permanently erased.\n"
                 );
                 break;
             default:
             break;
         }
     }
-
+ 
     [System.Serializable]
     private enum Tooltips : int {
         HEARTRATE_RANGES = 101,
@@ -112,7 +112,7 @@ public class TooltipButton : MonoBehaviour
         HEARTRATE_PULSOID_FEED = 104,
         HEARTRATE_FILE = 105,
         HEARTRATE_BLUETOOTH = 106,
-
+ 
         OUTPUT_PARAMS = 201,
         OUTPUT_COLOR = 202,
         OUTPUT_EXPRESSION = 203,

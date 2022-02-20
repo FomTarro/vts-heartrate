@@ -20,7 +20,7 @@ public class HeartratePlugin : VTSPlugin
     public int HeartRate { get { return Math.Max(0, this._heartRate); } }
     private int _maxRate = 100;
     private int _minRate = 70;
-    private ShiftingAverage _average = new ShiftingAverage(60);
+    private ShiftingAverage _average = new ShiftingAverage(120);
 
     private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
@@ -174,7 +174,7 @@ public class HeartratePlugin : VTSPlugin
 
         float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
         if(this.IsAuthenticated){
-
+            // see which model is currently loaded
             GetCurrentModel(
                 (s) => {
                     if(!s.data.modelID.Equals(this._currentModel.data.modelID)){
@@ -189,7 +189,7 @@ public class HeartratePlugin : VTSPlugin
                     this._currentModel = new VTSCurrentModelData();
                 }
             );
-
+            // get all expressions for currently loaded model
             GetExpressionStateList(
                 (s) => {
                     this._expressions.Clear();
@@ -204,6 +204,7 @@ public class HeartratePlugin : VTSPlugin
                     Debug.LogError(e.data.message);
                 });
 
+            // apply art mesh tints
             foreach(ColorInputModule module in this._colors){
                 ArtMeshMatcher matcher = new ArtMeshMatcher();
                 matcher.tintAll = false;
@@ -219,7 +220,7 @@ public class HeartratePlugin : VTSPlugin
 
                     });
             }
-
+            // apply expressions
             foreach(ExpressionModule module in this._expressionModules){
                 if(module.ShouldActivate){
                     if(priorHeartrate < module.Threshold && this._heartRate >= module.Threshold){;
@@ -456,7 +457,7 @@ public class HeartratePlugin : VTSPlugin
             data = JsonUtility.FromJson<ModelSaveData>(text);
             LoadModelData(data);
         }else{
-            // TODO
+            // if no data exists for this model, just wipe the slate clean
             ClearCurrentData();
         }
     }

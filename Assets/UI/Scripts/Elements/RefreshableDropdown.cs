@@ -9,9 +9,8 @@ public abstract class RefreshableDropdown : MonoBehaviour
     protected Dropdown _dropdown = null;
 
     // Start is called before the first frame update
-    void Start()
-    {
-
+    void Start(){
+        this._dropdown.onValueChanged.AddListener(SetValue);
     }
 
     protected abstract void SetValue(int index);
@@ -26,12 +25,14 @@ public abstract class RefreshableDropdown : MonoBehaviour
 
     public abstract void Refresh();
 
-    // Call this in the Refresh implementation when you get your data back
+    /// <summary>
+    /// Call this in the Refresh implementation when data is returned. This approach allows for asynchronous refreshes.
+    /// </summary>
+    /// <param name="values"></param>
     protected void RefreshValues(IEnumerable values){
-        int currentIndex = this._dropdown.value;
         string currentSelection = 
             this._dropdown.options.Count > 0 ? 
-            this._dropdown.options[currentIndex].text : 
+            this._dropdown.options[this._dropdown.value].text : 
             null;
         List<string> options = new List<string>();
         foreach(object value in values){
@@ -40,6 +41,7 @@ public abstract class RefreshableDropdown : MonoBehaviour
         this._dropdown.ClearOptions();
         this._dropdown.AddOptions(options);
         this._dropdown.RefreshShownValue();
+        // set current selection to the same value as it was before the refresh, if it exists
         this._dropdown.SetValueWithoutNotify(
             Mathf.Min(this._dropdown.options.Count, 
             StringToIndex(currentSelection)));

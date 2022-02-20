@@ -1,17 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using System.Collections.Generic;
 
 public class PortSelector : RefreshableDropdown
 {
     private List<string> _portNumbers = new List<string>();
-
-    public void Start(){
-        this._dropdown.onValueChanged.AddListener((i) => { 
-            SetValue(i);
-        });
-    }
 
     protected override void SetValue(int index){
         HeartrateManager.Instance.Plugin.SetPort(int.Parse(this._dropdown.options[index].text));

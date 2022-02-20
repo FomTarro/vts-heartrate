@@ -7,11 +7,11 @@ public class ShiftingAverage
     private int _size = 1;
     public float Average { 
         get{ 
-            float average = 0.0f;
+            float sum = 0.0f;
             foreach(float i in this._window){
-                average += i;
+                sum += i;
             }
-            return average / Math.Max(1, this._window.Count);
+            return sum / Math.Max(1, this._window.Count);
         } 
     }
 
