@@ -91,10 +91,6 @@ As a result, any settings configured for your currently loaded model will be per
  
 Planned features include the following:
 * The ability to directly connect to your Bluetooth HRM via Windows as an input method (I have been working at this for months, and it is not very reliable currently! Sorry!!!)
-<<<<<<< HEAD
-=======
-* The ability to trigger animations/toggle emotions at certain heartrate thresholds
 * Localization into additional languages
->>>>>>> 2c3bab3d8e75c7952e59be205c2ded5a21cd5d60
 * More robust system logging
 
