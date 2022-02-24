@@ -71,7 +71,7 @@ For example, the configuration in the provided image will cause the `angry` Expr
 ![Working Example](img/expression_trigger.png)
  
 ### Custom Tracking Parameters
-This plugin outputs <b>three custom tracking parameters</b> for use. They are as follows:
+This plugin outputs <b>four custom tracking parameters</b> for use. They are as follows:
  
 * `VTS_Heartrate_Linear`: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.
 * `VTS_Heartrate_Pulse`: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.
