@@ -53,6 +53,12 @@ public class HeartratePlugin : VTSPlugin
     [Header("Input Modules")]
     [SerializeField]
     private List<HeartrateInputModule> _heartrateInputs = new List<HeartrateInputModule>();
+    public List<HeartrateInputModule> HeartrateInputs { 
+        get { 
+            return new List<HeartrateInputModule>(this._heartrateInputs); 
+            }
+        }
+    private HeartrateInputModule _activeModule = null;
     [SerializeField]
     private HeartrateRangesInputModule _heartrateRanges = null;
 
@@ -154,6 +160,9 @@ public class HeartratePlugin : VTSPlugin
 
     private void OnValidate(){
         this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
+        this._heartrateInputs.Sort((a, b) => {
+            return a.Type - b.Type;
+        });
     }
 
     private void OnApplicationQuit(){
@@ -164,12 +173,7 @@ public class HeartratePlugin : VTSPlugin
     private void Update(){
 
         int priorHeartrate = this._heartRate;
-        foreach(HeartrateInputModule module in this._heartrateInputs){
-            if(module.IsActive){
-                this._average.AddValue(module.GetHeartrate());
-                break;
-            }
-        };
+        this._average.AddValue(this._activeModule != null ? this._activeModule.GetHeartrate() : 0);
         this._heartRate = Mathf.RoundToInt(this._average.Average);
 
         float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
@@ -283,10 +287,10 @@ public class HeartratePlugin : VTSPlugin
 
     public void SetActiveHeartrateInput(HeartrateInputModule module){
         foreach(HeartrateInputModule m in this._heartrateInputs){
-            if(!m.name.Equals(module.name)){
-                m.SetStatus(false);
-            }
+            m.gameObject.SetActive(false);
         }
+        module.gameObject.SetActive(true);
+        this._activeModule = module;
     }
 
     private void InjectedParamValuesToDictionary(VTSParameterInjectionValue[] values){
@@ -314,7 +318,8 @@ public class HeartratePlugin : VTSPlugin
 
     public void CreateColorInputModule(ColorInputModule.SaveData module){
         ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
-        instance.transform.SetSiblingIndex(1);
+        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
+        instance.transform.SetSiblingIndex(index);
         this._colors.Add(instance);
         if(module != null){
             instance.FromSaveData(module);
@@ -340,7 +345,8 @@ public class HeartratePlugin : VTSPlugin
 
     public void CreateExpressionModule(ExpressionModule.SaveData module){
         ExpressionModule instance = Instantiate<ExpressionModule>(this._expressionPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
-        instance.transform.SetSiblingIndex(1);
+        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
+        instance.transform.SetSiblingIndex(index);
         this._expressionModules.Add(instance);
         if(module != null){
             instance.FromSaveData(module);
@@ -363,7 +369,7 @@ public class HeartratePlugin : VTSPlugin
         foreach(string s in Directory.GetFiles(this.MODEL_SAVE_PATH)){
             string text = File.ReadAllText(s);
             ModelSaveData data = JsonUtility.FromJson<ModelSaveData>(text);
-            dict.Add(data.modelName, data.modelID);
+            dict.Add(String.Format("{0} ({1})", data.modelName, data.modelID), data.modelID);
         }
         return dict;
     }

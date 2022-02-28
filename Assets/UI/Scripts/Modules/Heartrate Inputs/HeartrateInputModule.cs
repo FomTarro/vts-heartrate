@@ -14,6 +14,9 @@ public abstract class HeartrateInputModule : MonoBehaviour
 
     public bool IsActive { get { return this._toggle.isOn; } } 
 
+    [SerializeField]
+    private Text _label = null;
+
     public void Start(){
         this._toggle.onValueChanged.AddListener(SetStatus);
     }
@@ -53,7 +56,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
     public enum InputType : int {
         SLIDER = 1,
         FILE = 2,
-        DEVICE = 3,
+        // BLUETOOTH_DEVICE = 3,
         PULSOID = 4,
         PULSOID_RSS = 5
     }
@@ -85,7 +88,6 @@ public abstract class HeartrateInputModule : MonoBehaviour
     protected abstract SaveData.Values ToValues();
     protected abstract void FromValues(SaveData.Values values);
 
-
     public SaveData ToSaveData(){
         SaveData data = new SaveData();
         data.isActive = this.IsActive;
@@ -97,5 +99,10 @@ public abstract class HeartrateInputModule : MonoBehaviour
     public void FromSaveData(SaveData data){
         FromValues(data.values);
         SetStatus(data.isActive);
+    }
+
+    public override string ToString()
+    {
+        return this._label.text;
     }
 }
