@@ -20,4 +20,13 @@ public class InputSelectionDropdown : RefreshableDropdown
     {
         this._modules[this._dropdown.options[index].text].SetStatus(true);
     }
+
+    private void Update(){
+        if(HeartrateManager.Instance.Plugin.ActiveInputModule != null && 
+            (this._dropdown.options[this._dropdown.value].text != HeartrateManager.Instance.Plugin.ActiveInputModule)){
+            int index = this.StringToIndex(HeartrateManager.Instance.Plugin.ActiveInputModule);
+            this._dropdown.SetValueWithoutNotify(index);
+            this.SetValue(index);
+        }
+    }
 }

@@ -63,7 +63,6 @@ public abstract class HeartrateInputModule : MonoBehaviour
 
     [System.Serializable]
     public class SaveData{
-        public bool isActive = false;
         public InputType type;
         public Values values = new Values();
 
@@ -90,7 +89,6 @@ public abstract class HeartrateInputModule : MonoBehaviour
 
     public SaveData ToSaveData(){
         SaveData data = new SaveData();
-        data.isActive = this.IsActive;
         data.type = this.Type;
         data.values = ToValues();
         return data;
@@ -98,7 +96,6 @@ public abstract class HeartrateInputModule : MonoBehaviour
 
     public void FromSaveData(SaveData data){
         FromValues(data.values);
-        SetStatus(data.isActive);
     }
 
     public override string ToString()

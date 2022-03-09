@@ -53,12 +53,9 @@ public class HeartratePlugin : VTSPlugin
     [Header("Input Modules")]
     [SerializeField]
     private List<HeartrateInputModule> _heartrateInputs = new List<HeartrateInputModule>();
-    public List<HeartrateInputModule> HeartrateInputs { 
-        get { 
-            return new List<HeartrateInputModule>(this._heartrateInputs); 
-            }
-        }
+    public List<HeartrateInputModule> HeartrateInputs { get { return new List<HeartrateInputModule>(this._heartrateInputs); }}
     private HeartrateInputModule _activeModule = null;
+    public String ActiveInputModule { get { return this._activeModule != null? this._activeModule.ToString() : null; }}
     [SerializeField]
     private HeartrateRangesInputModule _heartrateRanges = null;
 
@@ -379,6 +376,7 @@ public class HeartratePlugin : VTSPlugin
         data.version = Application.version;
         data.maxRate = this._maxRate;
         data.minRate = this._minRate;
+        data.activeInput = this._activeModule.Type;
         foreach(HeartrateInputModule module in this._heartrateInputs){
             data.inputs.Add(module.ToSaveData());
         }
@@ -417,14 +415,15 @@ public class HeartratePlugin : VTSPlugin
             data = new GlobalSaveData();
             HeartrateInputModule.SaveData defaultData = new HeartrateInputModule.SaveData();
             defaultData.type = HeartrateInputModule.InputType.SLIDER;
-            defaultData.isActive = true;
             defaultData.values.value = 70f;
             data.inputs.Add(defaultData);
+            data.activeInput = HeartrateInputModule.InputType.SLIDER;
         }
         this._maxRate = data.maxRate;
         this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
         this._minRate = data.minRate;
         this._heartrateRanges.SetMinRate(this._minRate.ToString());
+        this.SetActiveHeartrateInput(this._heartrateInputs.Find((x => x.Type == data.activeInput)));
     
         foreach(HeartrateInputModule.SaveData module in data.inputs){
             foreach(HeartrateInputModule m in this._heartrateInputs){
@@ -515,6 +514,7 @@ public class HeartratePlugin : VTSPlugin
         public string version;
         public int minRate = 0;
         public int maxRate = 0;
+        public HeartrateInputModule.InputType activeInput;
         public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>(); 
 
         public override string ToString()
