@@ -18,7 +18,7 @@ public class InputSelectionDropdown : RefreshableDropdown
 
     protected override void SetValue(int index)
     {
-        this._modules[this._dropdown.options[index].text].SetStatus(true);
+        this._modules[this._dropdown.options[index].text].Activate();
     }
 
     private void Update(){

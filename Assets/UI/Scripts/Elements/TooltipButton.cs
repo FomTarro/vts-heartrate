@@ -32,7 +32,7 @@ public class TooltipButton : MonoBehaviour
                 break;
             case Tooltips.HEARTRATE_PULSOID_CONNECT:
                 UIManager.Instance.ShowPopUp(
-                    "Pulsoid App",
+                    "Pulsoid",
                     "<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.\n"+
                     "Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.\n\n" +
                     "By clicking the <b>'Login' button</b>, you will be asked to grant this plugin permission to connect to your account. You will then be given an <b>'Authentication Token'</b> which you must paste in to the plugin.",
@@ -44,7 +44,7 @@ public class TooltipButton : MonoBehaviour
                 break;
             case Tooltips.HEARTRATE_PULSOID_FEED:
                 UIManager.Instance.ShowPopUp(
-                    "Pulsoid Feed Reference",
+                    "Pulsoid (Widget Feed)",
                     "<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.\n"+
                     "Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.\n\n" +
                     "To use this input method, navigate to your <b>Pulsoid account page</b>, and then go to <b>Widgets -> Advanced</b>. From there, you should find a <b>'Feed URL'</b> which you must paste into the plugin.\n\n" +

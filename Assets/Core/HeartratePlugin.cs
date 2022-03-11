@@ -285,6 +285,7 @@ public class HeartratePlugin : VTSPlugin
     public void SetActiveHeartrateInput(HeartrateInputModule module){
         foreach(HeartrateInputModule m in this._heartrateInputs){
             m.gameObject.SetActive(false);
+            m.Deactivate();
         }
         module.gameObject.SetActive(true);
         this._activeModule = module;
