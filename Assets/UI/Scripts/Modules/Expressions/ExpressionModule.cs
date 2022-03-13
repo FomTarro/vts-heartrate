@@ -7,6 +7,10 @@ public class ExpressionModule : MonoBehaviour
     [SerializeField]
     private InputField _threshold = null;
     public int Threshold { get { return this.StringToByte(this._threshold.text); }}
+
+    // TODO: this shouldn't be public! 
+    public int PriorThreshold = 0;
+
     [SerializeField]
     private Toggle _activate = null;
     public bool ShouldActivate { get { return this._activate.isOn; } }

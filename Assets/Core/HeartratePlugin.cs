@@ -223,25 +223,31 @@ public class HeartratePlugin : VTSPlugin
             }
             // apply expressions
             foreach(ExpressionModule module in this._expressionModules){
-                if(module.ShouldActivate){
-                    if(priorHeartrate < module.Threshold && this._heartRate >= module.Threshold){;
-                        SetExpressionState(module.SelectedExpression, true, 
-                        (s) => {
+                int priorThreshold = module.PriorThreshold;
+                if(
+                    (priorThreshold != module.Threshold && this._heartRate >= module.Threshold) ||
+                    (priorHeartrate < module.Threshold && this._heartRate >= module.Threshold)){
+                    // Trigger the module
+                    SetExpressionState(module.SelectedExpression, module.ShouldActivate, 
+                    (s) => {
 
-                        },
-                        (e) => {
+                    },
+                    (e) => {
 
-                        });
-                    }else if(priorHeartrate >= module.Threshold && this._heartRate < module.Threshold){
-                        SetExpressionState(module.SelectedExpression, false, 
-                        (s) => {
+                    });
+                }else if(
+                    (priorThreshold != module.Threshold && this._heartRate < module.Threshold) ||
+                    (priorHeartrate >= module.Threshold && this._heartRate < module.Threshold)){
+                    // Reset the module
+                    SetExpressionState(module.SelectedExpression, !module.ShouldActivate, 
+                    (s) => {
 
-                        },
-                        (e) => {
+                    },
+                    (e) => {
 
-                        });
-                    }
+                    });
                 }
+                module.PriorThreshold = module.Threshold;
             }
 
             _linear.value = interpolation;
