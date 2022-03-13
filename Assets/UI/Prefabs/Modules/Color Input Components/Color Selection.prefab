@@ -740,6 +740,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3569776094588039521}
     m_Modifications:
+    - target: {fileID: 752380240848616685, guid: 5e8aa02a5d40ec2468a8c7f2a989ff2a,
+        type: 3}
+      propertyPath: m_FontData.m_MinSize
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 752380240848616685, guid: 5e8aa02a5d40ec2468a8c7f2a989ff2a,
+        type: 3}
+      propertyPath: m_FontData.m_FontSize
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 1311735577199824457, guid: 5e8aa02a5d40ec2468a8c7f2a989ff2a,
         type: 3}
       propertyPath: m_OnEndEdit.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -937,6 +947,31 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3569776094588039521}
     m_Modifications:
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4321503657628375088, guid: a449af0aa1f11c247b0f5451402337af,
         type: 3}
       propertyPath: m_Pivot.x
@@ -1051,6 +1086,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Copy Button Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8788857475914668639, guid: a449af0aa1f11c247b0f5451402337af,
         type: 3}

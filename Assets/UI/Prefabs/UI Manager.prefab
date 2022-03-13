@@ -48,13 +48,21 @@ MonoBehaviour:
   _tabs:
   - tab: 1
     element: {fileID: 0}
+    others:
+    - {fileID: 0}
   - tab: 2
     element: {fileID: 0}
+    others:
+    - {fileID: 0}
   - tab: 3
     element: {fileID: 0}
+    others: []
   - tab: 4
     element: {fileID: 0}
+    others:
+    - {fileID: 0}
   _scroll: {fileID: 0}
+  _popUp: {fileID: 0}
 --- !u!114 &2310369811408829692
 MonoBehaviour:
   m_ObjectHideFlags: 0

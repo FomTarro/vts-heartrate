@@ -59,7 +59,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _pluginName: VTS-Heartrate
   _pluginAuthor: Tom "Skeletom" Farro
-  _pluginIcon: {fileID: 0}
+  _pluginIcon: {fileID: 2800000, guid: e6e790bd66c4bf748a6ad521e3ef9675, type: 3}
   _heartRate: 66
   _colorPrefab: {fileID: 1719934845639939419, guid: 83c6fddd392fcad42ba2526064060ef9,
     type: 3}
