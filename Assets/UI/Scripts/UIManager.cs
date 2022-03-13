@@ -40,6 +40,9 @@ public class UIManager : Singleton<UIManager>
     public void GoTo(Tabs tab){
         foreach(TabMapper entry in this._tabs){
             entry.element.gameObject.SetActive(entry.tab == tab);
+            foreach(RectTransform other in entry.others){
+                other.gameObject.SetActive(entry.tab == tab);
+            }
             if(entry.tab == tab){
                 _selected = entry.element;
             }
@@ -58,6 +61,7 @@ public class UIManager : Singleton<UIManager>
     public class TabMapper {
         public Tabs tab;
         public RectTransform element;
+        public RectTransform[] others;
     }
 
     [System.Serializable]
