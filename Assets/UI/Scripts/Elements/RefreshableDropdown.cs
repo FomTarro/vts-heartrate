@@ -35,7 +35,7 @@ public abstract class RefreshableDropdown : MonoBehaviour
             this._dropdown.options[this._dropdown.value].text : 
             null;
         List<string> options = new List<string>();
-        foreach(object value in values){
+        foreach(object value in values){;
             options.Add(value.ToString());
         }
         this._dropdown.ClearOptions();
@@ -47,7 +47,7 @@ public abstract class RefreshableDropdown : MonoBehaviour
             StringToIndex(currentSelection)));
     }
 
-    private int StringToIndex(string val){
+    protected int StringToIndex(string val){
         return this._dropdown.options.FindIndex((o) 
             => { return o.text.Equals(val); });
     }
