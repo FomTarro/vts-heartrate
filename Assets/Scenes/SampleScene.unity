@@ -420,6 +420,12 @@ Transform:
   m_Father: {fileID: 1978977794}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!224 &253194784 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8733030890452635469, guid: 546e70d5932373f4691f2cd0e778c82e,
+    type: 3}
+  m_PrefabInstance: {fileID: 295857256}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &295857256
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1441,6 +1447,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1180930666}
   m_CullTransparentMesh: 0
+--- !u!224 &1213199382 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7740117831334200486, guid: 546e70d5932373f4691f2cd0e778c82e,
+    type: 3}
+  m_PrefabInstance: {fileID: 295857256}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1509581849
 GameObject:
   m_ObjectHideFlags: 0
@@ -1681,6 +1693,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b56ba96f15f68cd409f759af5d67a08e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &1783140471 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6788513331846308286, guid: 546e70d5932373f4691f2cd0e778c82e,
+    type: 3}
+  m_PrefabInstance: {fileID: 295857256}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1846809109
 GameObject:
   m_ObjectHideFlags: 0
@@ -3406,6 +3424,21 @@ PrefabInstance:
       propertyPath: _tabs.Array.data[3].element
       value: 
       objectReference: {fileID: 4559335555149456323}
+    - target: {fileID: 7311080656055107048, guid: 44ebefc6a7d9b884fadf5f995457cd70,
+        type: 3}
+      propertyPath: _tabs.Array.data[0].others.Array.data[0]
+      value: 
+      objectReference: {fileID: 253194784}
+    - target: {fileID: 7311080656055107048, guid: 44ebefc6a7d9b884fadf5f995457cd70,
+        type: 3}
+      propertyPath: _tabs.Array.data[1].others.Array.data[0]
+      value: 
+      objectReference: {fileID: 1213199382}
+    - target: {fileID: 7311080656055107048, guid: 44ebefc6a7d9b884fadf5f995457cd70,
+        type: 3}
+      propertyPath: _tabs.Array.data[3].others.Array.data[0]
+      value: 
+      objectReference: {fileID: 1783140471}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 44ebefc6a7d9b884fadf5f995457cd70, type: 3}
 --- !u!224 &4559335555149456323 stripped

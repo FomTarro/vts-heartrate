@@ -1,12 +1,15 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class ExpressionModule : MonoBehaviour
 {
     [SerializeField]
     private InputField _threshold = null;
-    public int Threshold { get { return this.StringToByte(this._threshold.text); }}
+    public int Threshold { get { return MathUtils.StringToByte(this._threshold.text); }}
+
+    // TODO: this shouldn't be public, but it's probably the easiest way 
+    public int PriorThreshold = 0;
+
     [SerializeField]
     private Toggle _activate = null;
     public bool ShouldActivate { get { return this._activate.isOn; } }
@@ -19,7 +22,6 @@ public class ExpressionModule : MonoBehaviour
         this._waitingOn; 
     }}
 
-    
     public void Clone(){
         HeartrateManager.Instance.Plugin.CreateExpressionModule(this.ToSaveData());
     }
@@ -43,8 +45,12 @@ public class ExpressionModule : MonoBehaviour
         }
     }
 
+    // Because the dropdown is populated by an async method, 
+    // we load the expression that should be selected from a profile load into this buffer
+    // until the async method resolves.
     private string _waitingOn = null;
 
+    // TODO: consolidate this behavior into RefreshableDropdown
     public void RefreshExpressionList(){
         int currentIndex = this._dropdown.value;
         string expressionFile = this._dropdown.options.Count > 0 ? 
@@ -86,14 +92,5 @@ public class ExpressionModule : MonoBehaviour
         this._threshold.text = data.threshold.ToString();
         this._activate.isOn = data.shouldActivate;
         SetExpression(data.expressionFile);
-    }
-
-    private byte StringToByte(string value){
-        try{
-            return Convert.ToByte(value);
-        }catch(Exception e){
-            Debug.LogWarning(e);
-            return 0;
-        }
     }
 }

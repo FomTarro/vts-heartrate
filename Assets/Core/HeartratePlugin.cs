@@ -13,6 +13,7 @@ public class HeartratePlugin : VTSPlugin
     private string GLOBAL_SAVE_PATH = "";
     private string MODEL_SAVE_PATH = "";
     public string SavePath { get { return Application.persistentDataPath; } }
+    private VTSCurrentModelData _currentModel = new VTSCurrentModelData();
 
     [SerializeField]
     [Range(50, 120)]
@@ -33,6 +34,9 @@ public class HeartratePlugin : VTSPlugin
     private VTSParameterInjectionValue _pulse = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _breath = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _bpm = new VTSParameterInjectionValue();
+    private OscillatingValue _oscillatingPulse = new OscillatingValue();
+    private OscillatingValue _oscillatingBreath = new OscillatingValue();
+    private const int PARAMETER_MAX_VALUE = 1000000;
 
     [Header("Colors")]
     [SerializeField]
@@ -62,8 +66,6 @@ public class HeartratePlugin : VTSPlugin
     [Header("Misc.")]
     [SerializeField]
     private StatusIndicator _connectionStatus = null;
-
-    private VTSCurrentModelData _currentModel = new VTSCurrentModelData();
     #endregion
     // Start is called before the first frame update
     private void Start()
@@ -88,7 +90,7 @@ public class HeartratePlugin : VTSPlugin
                 this._connectionStatus.SetStatus(status);
                 // LoggingManager.Instance.Log("Connected to VTube Studio!");
                 this._paramValues = new List<VTSParameterInjectionValue>();
-                CreateNewParameter(PARAMETER_LINEAR, 
+                CreateNewParameter(PARAMETER_LINEAR, "", 1,
                 (s) => {
                     // confirm param created with bool
                     _linear.id = PARAMETER_LINEAR;
@@ -98,7 +100,7 @@ public class HeartratePlugin : VTSPlugin
                 (e) => {
                     Debug.LogError(e.ToString());
                 });
-                CreateNewParameter(PARAMETER_SINE_PULSE, 
+                CreateNewParameter(PARAMETER_SINE_PULSE, "", 1,
                 (s) => {
                     // confirm param created with bool
                     _pulse.id = PARAMETER_SINE_PULSE;
@@ -108,7 +110,7 @@ public class HeartratePlugin : VTSPlugin
                 (e) => {
                     Debug.LogError(e.ToString());
                 });
-                CreateNewParameter(PARAMETER_SINE_BREATH, 
+                CreateNewParameter(PARAMETER_SINE_BREATH, "", 1,
                 (s) => {
                     // confirm param created with bool
                     _breath.id = PARAMETER_SINE_BREATH;
@@ -118,7 +120,7 @@ public class HeartratePlugin : VTSPlugin
                 (e) => {
                     Debug.LogError(e.ToString());
                 });
-                CreateNewParameter(PARAMETER_BPM, 
+                CreateNewParameter(PARAMETER_BPM, "", 255,
                 (s) => {
                     // confirm param created with bool
                     _bpm.id = PARAMETER_BPM;
@@ -223,44 +225,40 @@ public class HeartratePlugin : VTSPlugin
             }
             // apply expressions
             foreach(ExpressionModule module in this._expressionModules){
-                if(module.ShouldActivate){
-                    if(priorHeartrate < module.Threshold && this._heartRate >= module.Threshold){;
-                        SetExpressionState(module.SelectedExpression, true, 
-                        (s) => {
+                int priorThreshold = module.PriorThreshold;
+                if(
+                    (priorThreshold != module.Threshold && this._heartRate >= module.Threshold) ||
+                    (priorHeartrate < module.Threshold && this._heartRate >= module.Threshold)){
+                    // Trigger the module
+                    SetExpressionState(module.SelectedExpression, module.ShouldActivate, 
+                    (s) => {
 
-                        },
-                        (e) => {
+                    },
+                    (e) => {
 
-                        });
-                    }else if(priorHeartrate >= module.Threshold && this._heartRate < module.Threshold){
-                        SetExpressionState(module.SelectedExpression, false, 
-                        (s) => {
+                    });
+                }else if(
+                    (priorThreshold != module.Threshold && this._heartRate < module.Threshold) ||
+                    (priorHeartrate >= module.Threshold && this._heartRate < module.Threshold)){
+                    // Reset the module
+                    SetExpressionState(module.SelectedExpression, !module.ShouldActivate, 
+                    (s) => {
 
-                        },
-                        (e) => {
+                    },
+                    (e) => {
 
-                        });
-                    }
+                    });
                 }
+                module.PriorThreshold = module.Threshold;
             }
 
+            // calculate tracking parameters
             _linear.value = interpolation;
             _bpm.value = this._heartRate;
-
-            float breathRadians = (2 * Mathf.PI) * _breathFreq * _breathTime;
-            _breathTime = breathRadians >= (Mathf.PI * 2) ? 0f : _breathTime;
-            // Only change frequency after a complete cycle to avoid stuttering
-            _breathFreq = Mathf.Max(0.35f, _breathTime == 0f * 2 ? 0.5f * (((float)this.HeartRate) / 60f) : _breathFreq);
-            _breathTime = _breathTime + Time.deltaTime;
-            _breath.value = 0.5f * (1 + Mathf.Sin((2 * Mathf.PI) * _breathFreq * _breathTime));
-
-
-            float pulseRadians = (2 * Mathf.PI) * _pulseFreq * _pulseTime;
-            _pulseTime = pulseRadians >= (Mathf.PI * 2) || _pulseFreq == 0  ? 0f : _pulseTime;
-            // Only change frequency after a complete cycle to avoid stuttering
-            _pulseFreq = _pulseTime == 0f * 2 ? (((float)this.HeartRate) / 60f) : _pulseFreq;
-            _pulseTime = _pulseTime + Time.deltaTime;
-            _pulse.value = 0.5f * (1 + Mathf.Sin((2 * Mathf.PI) * _pulseFreq * _pulseTime));
+            _breath.value = _oscillatingBreath.GetValue(
+                Mathf.Clamp(((float)this.HeartRate - this._minRate) / 60f, 0.35f, PARAMETER_MAX_VALUE));
+            _pulse.value = _oscillatingPulse.GetValue(
+                Mathf.Clamp(((float)this.HeartRate) / 60f, 0f, PARAMETER_MAX_VALUE));
 
             if(_paramValues.Count > 0){
                 this.InjectParameterValues(_paramValues.ToArray(),
@@ -273,12 +271,6 @@ public class HeartratePlugin : VTSPlugin
             }
         }
     }
-
-    private float _breathFreq = 0f;
-    private float _breathTime = 0f;
-
-    private float _pulseTime = 0f;
-    private float _pulseFreq = 0f;
 
     #region Parameters
 
@@ -298,12 +290,13 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    private void CreateNewParameter(string paramName, System.Action<VTSParameterCreationData> onSuccess, System.Action<VTSErrorData> onError){
+    private void CreateNewParameter(string paramName, string paramDescription, int paramMax, System.Action<VTSParameterCreationData> onSuccess, System.Action<VTSErrorData> onError){
         VTSCustomParameter newParam = new VTSCustomParameter();
         newParam.defaultValue = 0;
         newParam.min = 0;
-        newParam.max = 1;
+        newParam.max = paramMax;
         newParam.parameterName = paramName;
+        newParam.explanation = paramDescription;
         this.AddCustomParameter(
             newParam,
             onSuccess,

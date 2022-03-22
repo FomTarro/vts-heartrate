@@ -61,7 +61,6 @@ public class PulsoidManager : Singleton<PulsoidManager>
         while(this._appRequestIsLooping){
             yield return HttpUtils.GetRequest(PULSOID_APP_URL, 
             (e) => { 
-                // TODO: error handling on the UI
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
                 status.status = HttpUtils.ConnectionStatus.Status.ERROR;
                 if(e.statusCode == 403 || e.statusCode == 401){
@@ -132,7 +131,6 @@ public class PulsoidManager : Singleton<PulsoidManager>
         while(this._feedRequestIsLooping){
             yield return HttpUtils.GetRequest(this._feedURL, 
             (e) => { 
-                // TODO: error handling on the UI
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
                 status.status = HttpUtils.ConnectionStatus.Status.ERROR;
                 status.message = e.message;
