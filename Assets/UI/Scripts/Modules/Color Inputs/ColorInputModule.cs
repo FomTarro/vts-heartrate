@@ -35,10 +35,6 @@ public class ColorInputModule : MonoBehaviour
         this._matchersField.onEndEdit.AddListener(SetMatchers);
     }
 
-    private void FixedUpdate(){
-        _background.color = this._color;
-    }
-
     public void Clone(){
         HeartrateManager.Instance.Plugin.CreateColorInputModule(this.ToSaveData());
     }
@@ -48,58 +44,60 @@ public class ColorInputModule : MonoBehaviour
     }
 
     public void SetRed(string value){
-        byte v = StringToByte(value);
+        byte v = MathUtils.StringToByte(value);
         this._color = new Color32(
             v, 
             this._color.g, 
             this._color.b, 
             this._color.a);
         this._redField.text = v.ToString();
+        this._background.color = this._color;
     }
+    
     public void SetGreen(string value){
-        byte v = StringToByte(value);
+        byte v = MathUtils.StringToByte(value);
         this._color = new Color32(
             this._color.r, 
             v, 
             this._color.b,
             this._color.a);
         this._greenField.text = v.ToString();
+        this._background.color = this._color;
     }
+
     public void SetBlue(string value){
-        byte v = StringToByte(value);
+        byte v = MathUtils.StringToByte(value);
         this._color = new Color32(
             this._color.r, 
             this._color.g, 
             v, 
             this._color.a);
         this._blueField.text = v.ToString();
+        this._background.color = this._color;
     }
+
     public void SetAlpha(string value){
-        byte v = StringToByte(value);
+        byte v = MathUtils.StringToByte(value);
         this._color = new Color32(
             this._color.r, 
             this._color.g, 
             this._color.b,
             v);
         this._alphaField.text = v.ToString();
+        this._background.color = this._color;
     }
+
     public void SetMatchers(string value){
-        string[] sanitized = value.Trim().Split(' ', ',');
-        for(int i = 0; i < sanitized.Length; i++){
-            sanitized[i] = sanitized[i].Trim();
+        string[] split = value.Trim().Split(' ', ',');
+        List<string> sanitized = new List<string>();
+        for(int i = 0; i < split.Length; i++){
+            split[i] = split[i].Trim();
+            if(split[i].Length > 0){
+                sanitized.Add(split[i]);
+            }
         }
-        this._matchers = sanitized;
+        this._matchers = sanitized.ToArray();
         this._matchersField.text = string.Join(",", sanitized);
-    }
-
-
-    private byte StringToByte(string value){
-        try{
-            return Convert.ToByte(value);
-        }catch(Exception e){
-            Debug.LogWarning(e);
-            return 0;
-        }
     }
 
     [System.Serializable]
