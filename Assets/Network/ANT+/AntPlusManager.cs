@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using System.Collections.Generic;
 using ANT_Managed_Library;
 using System;
@@ -24,16 +25,19 @@ public class AntPlusManager : Singleton<AntPlusManager> {
     private int _heartRate = 0;
     public int Heartrate { get { return this._heartRate; } }
 
-    private AntChannel backgroundScanChannel;
-    private AntChannel deviceChannel;
+    private AntChannel _backgroundScanChannel;
+    private ConnectedAntDevice _connectedDevice = new ConnectedAntDevice(null, null, null);
 
     //Start a background Scan to find the device
     public void StartScan() {
         Debug.Log("Looking for ANT + HeartRate sensor");
         AntManager.Instance.Init();
-        _scanResult = new List<AntDevice>();
-        backgroundScanChannel = AntManager.Instance.OpenBackgroundScanChannel(0);
-        backgroundScanChannel.onReceiveData += OnReceivedBackgroundScanData;
+        this._scanResult = new List<AntDevice>();
+        if(this._connectedDevice.device != null){
+            this._scanResult.Add(_connectedDevice.device);
+        }
+        this._backgroundScanChannel = AntManager.Instance.OpenBackgroundScanChannel(0);
+        this._backgroundScanChannel.onReceiveData += OnReceivedBackgroundScanData;
     }
 
     //Windows and mac 
@@ -57,36 +61,89 @@ public class AntPlusManager : Singleton<AntPlusManager> {
             foundDevice.transType = transType;
             foundDevice.period = 8070;
             foundDevice.radiofreq = 57;
-            foundDevice.name = "heartrate(" + foundDevice.deviceNumber + ")";
-            _scanResult.Add(foundDevice);
+            foundDevice.name = "HRM (" + foundDevice.deviceNumber + ")";
+            this._scanResult.Add(foundDevice);
+            this._scanResult.Sort();
         }
 
     }
 
-    public void ConnectToDevice(AntDevice device, Action<HttpUtils.ConnectionStatus> setStatus) {
-        Debug.Log(device);
-        AntManager.Instance.CloseBackgroundScanChannel();
-        byte channelID = AntManager.Instance.GetFreeChannelID();
-        deviceChannel = AntManager.Instance.OpenChannel(ANT_ReferenceLibrary.ChannelType.BASE_Slave_Receive_0x00, channelID, (ushort)device.deviceNumber, device.deviceType, device.transType, (byte)device.radiofreq, (ushort)device.period, false);
-        HttpUtils.ConnectionStatus connectingStatus = new HttpUtils.ConnectionStatus();
-        connectingStatus.message = "Connecting...";
-        connectingStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
-        setStatus(connectingStatus); 
-        deviceChannel.onReceiveData += OnData;
-        deviceChannel.onReceiveData += (d) => { 
-            HttpUtils.ConnectionStatus connectedStatus = new HttpUtils.ConnectionStatus();
-            connectedStatus.message = "Connected";
-            connectedStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
-            setStatus(connectedStatus); 
-        };
-        deviceChannel.onChannelResponse += OnChannelResponse;
-        deviceChannel.hideRXFAIL = true;
+    public void ConnectToDevice(AntDevice device, Action<HttpUtils.ConnectionStatus> onStatus) {
+        if(device != null){
+            try{
+                AntManager.Instance.CloseBackgroundScanChannel();
+                if(this._connectedDevice.device != null && device.name != this._connectedDevice.device.name){
+                    DisconnectFromDevice(onStatus);
+                }
+                byte channelID = AntManager.Instance.GetFreeChannelID();
+                AntChannel deviceChannel = AntManager.Instance.OpenChannel(
+                    0x00, channelID, 
+                    (ushort)device.deviceNumber, 
+                    device.deviceType, 
+                    device.transType, 
+                    (byte)device.radiofreq, 
+                    (ushort)device.period, 
+                    false);
+                HttpUtils.ConnectionStatus connectingStatus = new HttpUtils.ConnectionStatus();
+                connectingStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
+                onStatus.Invoke(connectingStatus); 
+                deviceChannel.onChannelResponse += OnChannelResponse;
+                deviceChannel.hideRXFAIL = true;
+                deviceChannel.onReceiveData += OnData;
+                deviceChannel.onReceiveData += (d) => { 
+                    this._connectedDevice = new ConnectedAntDevice(device, deviceChannel, onStatus);
+                    HttpUtils.ConnectionStatus connectedStatus = new HttpUtils.ConnectionStatus();
+                    connectedStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
+                    onStatus.Invoke(connectedStatus); 
+                };
+            }catch(Exception e){
+                HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
+                errorStatus.message = e.Message;
+                errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
+                onStatus.Invoke(errorStatus); 
+            }
+        }else{
+            HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
+            errorStatus.message = "No device selected";
+            errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
+            onStatus.Invoke(errorStatus); 
+        }
     }
 
+    public void DisconnectFromDevice(Action<HttpUtils.ConnectionStatus> onStatus, bool isTimeout = false){
+        if(this._connectedDevice.channel != null){
+            // this._connectedDevice.channel.Close();
+        }
+        // this._connectedDevice = new ConnectedAntDevice(null, null, null);
+        HttpUtils.ConnectionStatus disconnectStatus = new HttpUtils.ConnectionStatus();
+        if(!isTimeout){
+            disconnectStatus.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
+        }else{
+            disconnectStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
+            disconnectStatus.message = "Connection to device was lost";
+        }
+        onStatus.Invoke(disconnectStatus); 
+    }
+
+    private float _timeout = 0f;
 
     //Deal with the received Data
     public void OnData(Byte[] data) {
+        this._timeout = 5f;
         this._heartRate = (data[7]);
+    }
+
+    private void Update(){
+        if(this._timeout > 0){
+            this._timeout = this._timeout - Time.deltaTime;
+            if(this._timeout <= 0){
+                DisconnectFromDevice(
+                    this._connectedDevice.onTimeout != null 
+                    ? this._connectedDevice.onTimeout 
+                    : (s) => {},
+                true);
+            }
+        }
     }
 
     void OnChannelResponse(ANT_Response response) {
@@ -95,5 +152,16 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 
     public override void Initialize(){
 
+    }
+
+    private struct ConnectedAntDevice{
+        public AntDevice device;
+        public AntChannel channel;
+        public Action<HttpUtils.ConnectionStatus> onTimeout;
+        public ConnectedAntDevice(AntDevice device, AntChannel channel, Action<HttpUtils.ConnectionStatus> onTimeout){
+            this.device = device;
+            this.channel = channel;
+            this.onTimeout = onTimeout;
+        }
     }
 }

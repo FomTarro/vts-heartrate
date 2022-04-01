@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class AntPlusInputModule : HeartrateInputModule
 {
@@ -30,6 +28,8 @@ public class AntPlusInputModule : HeartrateInputModule
 
     protected override void OnStatusChange(bool isActive)
     {
-        
+        if(!isActive){
+            AntPlusManager.Instance.DisconnectFromDevice(this._status.SetStatus);
+        }
     }
 }
