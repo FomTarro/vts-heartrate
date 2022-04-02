@@ -26,7 +26,10 @@ public class AntPlusManager : Singleton<AntPlusManager> {
     public int Heartrate { get { return this._heartRate; } }
 
     private AntChannel _backgroundScanChannel;
-    private ConnectedAntDevice _connectedDevice = new ConnectedAntDevice(null, null, null);
+    private ConnectionData _connectedDevice = new ConnectionData(null, null, null);
+
+    private float _timeout = 0f;
+    private const float TIMEOUT_SECONDS = 5f;
 
     //Start a background Scan to find the device
     public void StartScan() {
@@ -34,7 +37,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
         AntManager.Instance.Init();
         this._scanResult = new List<AntDevice>();
         if(this._connectedDevice.device != null){
-            this._scanResult.Add(_connectedDevice.device);
+            this._scanResult.Add(this._connectedDevice.device);
         }
         this._backgroundScanChannel = AntManager.Instance.OpenBackgroundScanChannel(0);
         this._backgroundScanChannel.onReceiveData += OnReceivedBackgroundScanData;
@@ -91,11 +94,12 @@ public class AntPlusManager : Singleton<AntPlusManager> {
                 deviceChannel.hideRXFAIL = true;
                 deviceChannel.onReceiveData += OnData;
                 deviceChannel.onReceiveData += (d) => { 
-                    this._connectedDevice = new ConnectedAntDevice(device, deviceChannel, onStatus);
+                    this._connectedDevice = new ConnectionData(device, deviceChannel, onStatus);
                     HttpUtils.ConnectionStatus connectedStatus = new HttpUtils.ConnectionStatus();
                     connectedStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
                     onStatus.Invoke(connectedStatus); 
                 };
+                this._timeout = TIMEOUT_SECONDS;
             }catch(Exception e){
                 HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
                 errorStatus.message = e.Message;
@@ -111,25 +115,30 @@ public class AntPlusManager : Singleton<AntPlusManager> {
     }
 
     public void DisconnectFromDevice(Action<HttpUtils.ConnectionStatus> onStatus, bool isTimeout = false){
-        if(this._connectedDevice.channel != null){
-            // this._connectedDevice.channel.Close();
-        }
-        // this._connectedDevice = new ConnectedAntDevice(null, null, null);
         HttpUtils.ConnectionStatus disconnectStatus = new HttpUtils.ConnectionStatus();
+        this._timeout = 0;
         if(!isTimeout){
+            if(this._connectedDevice.channel != null){
+                this._connectedDevice.channel.Close();
+            }
+            // no connected device, wipe all connection data
+            this._connectedDevice = new ConnectionData(null, null, null);
             disconnectStatus.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
         }else{
+            Debug.LogWarning("Connection to device " + this._connectedDevice + " was lost");
+            // keep the channels to attempt a reconnect (should the device come back in to range),
+            // but clear the device so that it no longer appears on a refreshed dropdown (if the device isn't truly unplugged, it will show up in the next scan anyway)
+            this._connectedDevice = new ConnectionData(null, this._connectedDevice.channel, this._connectedDevice.onTimeout);
             disconnectStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
             disconnectStatus.message = "Connection to device was lost";
         }
         onStatus.Invoke(disconnectStatus); 
     }
 
-    private float _timeout = 0f;
-
     //Deal with the received Data
     public void OnData(Byte[] data) {
-        this._timeout = 5f;
+        // refresh timeout window
+        this._timeout = TIMEOUT_SECONDS;
         this._heartRate = (data[7]);
     }
 
@@ -151,17 +160,27 @@ public class AntPlusManager : Singleton<AntPlusManager> {
     }
 
     public override void Initialize(){
-
+        AntManager.Instance.onSerialError += OnSerialError;
     }
 
-    private struct ConnectedAntDevice{
+    private void OnSerialError(SerialError error){
+        //TODO: plug this in to the frontend, probably
+        Debug.LogError(error.error);
+    }
+
+    private struct ConnectionData{
         public AntDevice device;
         public AntChannel channel;
         public Action<HttpUtils.ConnectionStatus> onTimeout;
-        public ConnectedAntDevice(AntDevice device, AntChannel channel, Action<HttpUtils.ConnectionStatus> onTimeout){
+        public ConnectionData(AntDevice device, AntChannel channel, Action<HttpUtils.ConnectionStatus> onTimeout){
             this.device = device;
             this.channel = channel;
             this.onTimeout = onTimeout;
+        }
+
+        public override string ToString()
+        {
+            return device != null ? device.name : "NO_DEVICE";
         }
     }
 }

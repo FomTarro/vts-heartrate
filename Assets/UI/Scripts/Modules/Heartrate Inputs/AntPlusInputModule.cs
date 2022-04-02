@@ -21,6 +21,10 @@ public class AntPlusInputModule : HeartrateInputModule
         AntPlusManager.Instance.ConnectToDevice(this._selector.Device, this._status.SetStatus);
     }
 
+    public void Disconnect(){
+        AntPlusManager.Instance.DisconnectFromDevice(this._status.SetStatus);
+    }
+
     protected override SaveData.Values ToValues()
     {
         return new SaveData.Values();

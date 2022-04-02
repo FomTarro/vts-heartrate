@@ -1,4 +1,4 @@
-﻿using VTS.Networking.Impl;
+using VTS.Networking.Impl;
 using VTS.Models.Impl;
 using VTS.Models;
 using VTS;
@@ -226,30 +226,38 @@ public class HeartratePlugin : VTSPlugin
             // apply expressions
             foreach(ExpressionModule module in this._expressionModules){
                 int priorThreshold = module.PriorThreshold;
-                if(
-                    (priorThreshold != module.Threshold && this._heartRate >= module.Threshold) ||
-                    (priorHeartrate < module.Threshold && this._heartRate >= module.Threshold)){
-                    // Trigger the module
-                    SetExpressionState(module.SelectedExpression, module.ShouldActivate, 
-                    (s) => {
+                //TODO: sort these so deactivations always go first?
+                if(priorHeartrate != 0 && this._heartRate != 0){
+                    if(
+                        (priorThreshold != module.Threshold && this._heartRate >= module.Threshold) ||
+                        (priorHeartrate < module.Threshold && this._heartRate >= module.Threshold)){
+                        // Trigger the module
+                        Debug.Log("PRIOR " + priorHeartrate + " CURRENT " + this._heartRate);
+                        Debug.Log("[EXPRESSION] " + module.SelectedExpression + " (Threshold: " + module.Threshold + ")" + " -> " + (module.ShouldActivate ? "Activated" : "Deactivated"));
+                        SetExpressionState(module.SelectedExpression, module.ShouldActivate, 
+                        (s) => {
 
-                    },
-                    (e) => {
+                        },
+                        (e) => {
 
-                    });
-                }else if(
-                    (priorThreshold != module.Threshold && this._heartRate < module.Threshold) ||
-                    (priorHeartrate >= module.Threshold && this._heartRate < module.Threshold)){
-                    // Reset the module
-                    SetExpressionState(module.SelectedExpression, !module.ShouldActivate, 
-                    (s) => {
+                        });
+                    }else if(
+                        (priorThreshold != module.Threshold && this._heartRate < module.Threshold) ||
+                        (priorHeartrate >= module.Threshold && this._heartRate < module.Threshold)){
+                        // Reset the module
+                        //TODO: this is causing a bug/undesired behavior where it will activate
+                        Debug.Log("PRIOR " + priorHeartrate + " CURRENT " + this._heartRate);
+                        Debug.Log("[EXPRESSION] " + module.SelectedExpression + " (Threshold: " + module.Threshold + ")" + " -> " + (module.ShouldActivate ? "Activated" : "Deactivated"));
+                        SetExpressionState(module.SelectedExpression, !module.ShouldActivate, 
+                        (s) => {
 
-                    },
-                    (e) => {
+                        },
+                        (e) => {
 
-                    });
+                        });
+                    }
+                    module.PriorThreshold = module.Threshold;
                 }
-                module.PriorThreshold = module.Threshold;
             }
 
             // calculate tracking parameters
