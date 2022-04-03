@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
 using System.Collections.Generic;
 using ANT_Managed_Library;
 using System;
@@ -164,8 +163,15 @@ public class AntPlusManager : Singleton<AntPlusManager> {
     }
 
     private void OnSerialError(SerialError error){
-        //TODO: plug this in to the frontend, probably
         Debug.LogError(error.error);
+        if(this._connectedDevice.onTimeout != null){
+            Action<HttpUtils.ConnectionStatus> onError = this._connectedDevice.onTimeout;
+            DisconnectFromDevice(onError);
+            HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
+            errorStatus.message = "Serial error: " + error.error;
+            errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
+            onError.Invoke(errorStatus);
+        }
     }
 
     private struct ConnectionData{
