@@ -33,7 +33,7 @@ public class TooltipButton : MonoBehaviour
             case Tooltips.HEARTRATE_PULSOID_CONNECT:
                 UIManager.Instance.ShowPopUp(
                     "Pulsoid",
-                    "<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.\n"+
+                    "<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.\n\n"+
                     "Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.\n\n" +
                     "By clicking the <b>'Login' button</b>, you will be asked to grant this plugin permission to connect to your account. You will then be given an <b>'Authentication Token'</b> which you must paste in to the plugin.",
                     new PopUp.PopUpOption(
@@ -45,7 +45,7 @@ public class TooltipButton : MonoBehaviour
             case Tooltips.HEARTRATE_PULSOID_FEED:
                 UIManager.Instance.ShowPopUp(
                     "Pulsoid (Widget Feed)",
-                    "<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.\n"+
+                    "<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.\n\n"+
                     "Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.\n\n" +
                     "To use this input method, navigate to your <b>Pulsoid account page</b>, and then go to <b>Widgets -> Advanced</b>. From there, you should find a <b>'Feed URL'</b> which you must paste into the plugin.\n\n" +
                     "Please note that Pulsoid may be deprecating this input method in the future, in favor of direct app connectivity.",
@@ -61,6 +61,20 @@ public class TooltipButton : MonoBehaviour
                     "Use this input method to read heartrate data from an external file.\n"+
                     "The file must simply contain the numeric heartrate value in plain text. File path must be absolute.\n\n"+
                     "Useful if you have another program that can output heartrate data.\n"
+                );
+                break;
+            case Tooltips.HEARTRATE_ANT_PLUS:
+                UIManager.Instance.ShowPopUp(
+                    "ANT+",
+                    "<b>ANT+</b> is a low-power protocol supported by many sport and fitness sensors.\n\n"+
+                    "This input method allows for direct connection to your ANT+ device, provided that you have a <b>USB receiver</b> plugged in.\n\n"+
+                    "By clicking the <b>'Refresh' button</b>, this plugin will begin a continuous scan for devices that output heartrate data. "+
+                    "Then, simply select one from the dropdown and click the <b>'Connect' button</b>.\n\n"+
+                    "Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.",
+                    new PopUp.PopUpOption(
+                        "Visit thisisant.com",
+                        true,
+                        () => { Application.OpenURL("https://www.thisisant.com/company/"); })
                 );
                 break;
             case Tooltips.OUTPUT_COLOR:
@@ -79,11 +93,15 @@ public class TooltipButton : MonoBehaviour
             case Tooltips.OUTPUT_PARAMS:
                 UIManager.Instance.ShowPopUp(
                     "Custom Parameters",
-                    "This plugin outputs three custom tracking parameters for use. They are as follows:\n"+
+                    "This plugin outputs four custom tracking parameters for use. They are as follows:\n"+
                     "<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM from 0 to 255, rather than an interpolated value.\n"+
                     "<b>VTS_Heartrate_Breath</b>: A value that oscillates between 0.0 and 1.0 with a frequency slower than Pulse, suitable for controlling your model's <b>ParamBreath</b> output.\n"+
                     "<b>VTS_Heartrate_Linear</b>: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.\n"+
-                    "<b>VTS_Heartrate_Pulse</b>: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.\n"
+                    "<b>VTS_Heartrate_Pulse</b>: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.\n",
+                     new PopUp.PopUpOption(
+                        "Learn how to use Custom Parameters",
+                        true,
+                        () => { Application.OpenURL("https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters"); })
                 );
                 break;
             case Tooltips.OUTPUT_EXPRESSION:
@@ -112,6 +130,7 @@ public class TooltipButton : MonoBehaviour
         HEARTRATE_PULSOID_FEED = 104,
         HEARTRATE_FILE = 105,
         HEARTRATE_BLUETOOTH = 106,
+        HEARTRATE_ANT_PLUS = 107,
  
         OUTPUT_PARAMS = 201,
         OUTPUT_COLOR = 202,

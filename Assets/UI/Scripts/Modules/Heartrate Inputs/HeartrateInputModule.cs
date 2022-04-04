@@ -38,7 +38,8 @@ public abstract class HeartrateInputModule : MonoBehaviour
         FILE = 2,
         // BLUETOOTH_DEVICE = 3,
         PULSOID = 4,
-        PULSOID_RSS = 5
+        PULSOID_RSS = 5,
+        ANT_PLUS = 6,
     }
 
     [System.Serializable]
