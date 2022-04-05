@@ -228,33 +228,40 @@ public class HeartratePlugin : VTSPlugin
                 int priorThreshold = module.PriorThreshold;
                 //TODO: sort these so deactivations always go first?
                 if(priorHeartrate != 0 && this._heartRate != 0){
+                    // rising edge
                     if(
-                        (priorThreshold != module.Threshold && this._heartRate >= module.Threshold) ||
-                        (priorHeartrate < module.Threshold && this._heartRate >= module.Threshold)){
-                        // Trigger the module
-                        Debug.Log("PRIOR " + priorHeartrate + " CURRENT " + this._heartRate);
-                        Debug.Log("[EXPRESSION] " + module.SelectedExpression + " (Threshold: " + module.Threshold + ")" + " -> " + (module.ShouldActivate ? "Activated" : "Deactivated"));
-                        SetExpressionState(module.SelectedExpression, module.ShouldActivate, 
-                        (s) => {
-
-                        },
-                        (e) => {
-
-                        });
+                    (priorThreshold != module.Threshold && this._heartRate >= module.Threshold) ||
+                    (priorHeartrate < module.Threshold && this._heartRate >= module.Threshold)){
+                            if(
+                                module.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
+                                module.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE){
+                                SetExpressionState(module.SelectedExpression, true, 
+                                (s) => {},
+                                (e) => {});
+                            }else if( 
+                                module.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
+                                module.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE){
+                                SetExpressionState(module.SelectedExpression, false, 
+                                (s) => {},
+                                (e) => {});
+                            }
+                    // falling edge
                     }else if(
-                        (priorThreshold != module.Threshold && this._heartRate < module.Threshold) ||
-                        (priorHeartrate >= module.Threshold && this._heartRate < module.Threshold)){
-                        // Reset the module
-                        //TODO: this is causing a bug/undesired behavior where it will activate
-                        Debug.Log("PRIOR " + priorHeartrate + " CURRENT " + this._heartRate);
-                        Debug.Log("[EXPRESSION] " + module.SelectedExpression + " (Threshold: " + module.Threshold + ")" + " -> " + (module.ShouldActivate ? "Activated" : "Deactivated"));
-                        SetExpressionState(module.SelectedExpression, !module.ShouldActivate, 
-                        (s) => {
-
-                        },
-                        (e) => {
-
-                        });
+                    (priorThreshold != module.Threshold && this._heartRate < module.Threshold) ||
+                    (priorHeartrate >= module.Threshold && this._heartRate < module.Threshold)){
+                           if(
+                                module.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
+                                module.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_BELOW){
+                                SetExpressionState(module.SelectedExpression, true, 
+                                (s) => {},
+                                (e) => {});
+                            }else if( 
+                                module.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
+                                module.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_BELOW){
+                                SetExpressionState(module.SelectedExpression, false, 
+                                (s) => {},
+                                (e) => {});
+                            }
                     }
                     module.PriorThreshold = module.Threshold;
                 }
