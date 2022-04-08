@@ -94,7 +94,7 @@ public class ExpressionModule : MonoBehaviour
 
         public string expressionFile;
         public int threshold;
-        public bool shouldActivate = true;
+        public TriggerBehavior behavior;
 
         public override string ToString()
         {
@@ -106,7 +106,7 @@ public class ExpressionModule : MonoBehaviour
     {
         SaveData data = new SaveData();
         data.threshold = this.Threshold;
-        data.shouldActivate = this.ShouldActivate;
+        data.behavior = this.Behavior;
         data.expressionFile = this.SelectedExpression;
         return data;
     }
@@ -116,7 +116,7 @@ public class ExpressionModule : MonoBehaviour
         this._behavior.ClearOptions();
         this._behavior.AddOptions(Names());
         this._threshold.text = data.threshold.ToString();
-        this._activate.isOn = data.shouldActivate;
+        this._behavior.SetValueWithoutNotify((int)data.behavior);
         SetExpression(data.expressionFile);
     }
 

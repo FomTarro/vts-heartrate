@@ -182,7 +182,6 @@ public class HeartratePlugin : VTSPlugin
                 (s) => {
                     if(!s.data.modelID.Equals(this._currentModel.data.modelID)){
                         // model has changed
-                        Debug.Log("Loading Model: " + s.data.modelID);
                         SaveModelData(this._currentModel);
                         LoadModelData(s.data.modelID);
                     }
@@ -290,6 +289,7 @@ public class HeartratePlugin : VTSPlugin
     #region Parameters
 
     public void SetActiveHeartrateInput(HeartrateInputModule module){
+        Debug.Log(module);
         foreach(HeartrateInputModule m in this._heartrateInputs){
             m.gameObject.SetActive(false);
             m.Deactivate();
@@ -408,6 +408,7 @@ public class HeartratePlugin : VTSPlugin
         }
 
         if(data.modelID != null && data.modelID.Length > 0){
+            Debug.Log("Saving Model: " + data.modelID);
             string filePath = Path.Combine(this.MODEL_SAVE_PATH, data.modelID+".json");
             File.WriteAllText(filePath, data.ToString());
         }
@@ -418,7 +419,7 @@ public class HeartratePlugin : VTSPlugin
         if(File.Exists(this.GLOBAL_SAVE_PATH)){
             string content = File.ReadAllText(this.GLOBAL_SAVE_PATH);
             data = JsonUtility.FromJson<GlobalSaveData>(content);
-            ModernizeLegacySaveData(data.version, content);
+            ModernizeLegacyGlobalSaveData(data, content);
     
         }else{
             data = new GlobalSaveData();
@@ -443,19 +444,46 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    private void ModernizeLegacySaveData(string version, string content){
+    private void ModernizeLegacyGlobalSaveData(GlobalSaveData data, string content){
+        //TODO: this should be some kind of iterative function so that it migrates adjacent versions in order,
+        // ie 0.1.0 to 0.2.0 to 1.0.0 to 1.1.0 etc
+        // this should probably also return a modern save file?
+        string version = data.version;
         switch(version){
             case null:
             case "":
             case "0.1.0":
-            LegacySaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacySaveData_v0_1_0>(content);
+            LegacyGlobalSaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
+            Debug.Log("Legacy Global Data detected: v"+version);
             if(legacyData.colors != null && legacyData.colors.Count > 0){
-                Debug.Log("Legacy Data detected: v"+version);
                 // make a new ModelSaveData, apply it to the first loaded model.
                 ModelSaveData modelData = new ModelSaveData();
                 modelData.colors = legacyData.colors;
                 LoadModelData(modelData);
             }
+            data.activeInput = HeartrateInputModule.InputType.SLIDER;
+            break;
+            case "1.0.0":
+            data.activeInput = HeartrateInputModule.InputType.SLIDER;
+            break;
+        }
+    }
+
+    private void ModernizeLegacyModelSaveData(ModelSaveData data, string content){
+        string version = data.version;
+        switch(version){
+            case null:
+            case "":
+            case "1.0.0":
+            LegacyModelSaveData_v1_0_0 legacyData = JsonUtility.FromJson<LegacyModelSaveData_v1_0_0>(content);
+            for(int i = 0; i < legacyData.expressions.Count; i++){
+                if(i < data.expressions.Count){
+                    data.expressions[i].behavior = legacyData.expressions[i].shouldActivate ? 
+                    ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW : 
+                    ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW;
+                }
+            }
+            Debug.Log("Legacy Model Data detected: v"+version);
             break;
         }
     }
@@ -465,10 +493,12 @@ public class HeartratePlugin : VTSPlugin
         if(!Directory.Exists(this.MODEL_SAVE_PATH)){
             Directory.CreateDirectory(this.MODEL_SAVE_PATH);
         }
+        Debug.Log("Loading Model: " + modelID);
         string filePath = Path.Combine(this.MODEL_SAVE_PATH, modelID+".json");
         if(File.Exists(filePath)){
             string text = File.ReadAllText(filePath);
             data = JsonUtility.FromJson<ModelSaveData>(text);
+            ModernizeLegacyModelSaveData(data, text);
             LoadModelData(data);
         }else{
             // if no data exists for this model, just wipe the slate clean
