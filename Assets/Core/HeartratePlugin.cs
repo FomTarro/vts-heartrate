@@ -67,16 +67,15 @@ public class HeartratePlugin : VTSPlugin
     [SerializeField]
     private StatusIndicator _connectionStatus = null;
     #endregion
-    // Start is called before the first frame update
+    
+    #region Lifecycle
+    
     private void Start()
     {
         this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
         this.MODEL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "models");
-        // Application.OpenURL(Application.persistentDataPath);
         LoadGlobalData(); 
-        // Everything you need to get started!
         Connect();
-        
     }
 
     public void Connect(){
@@ -92,7 +91,6 @@ public class HeartratePlugin : VTSPlugin
                 this._paramValues = new List<VTSParameterInjectionValue>();
                 CreateNewParameter(PARAMETER_LINEAR, "", 1,
                 (s) => {
-                    // confirm param created with bool
                     _linear.id = PARAMETER_LINEAR;
                     _linear.value = 0;
                     _paramValues.Add(_linear);
@@ -102,7 +100,6 @@ public class HeartratePlugin : VTSPlugin
                 });
                 CreateNewParameter(PARAMETER_SINE_PULSE, "", 1,
                 (s) => {
-                    // confirm param created with bool
                     _pulse.id = PARAMETER_SINE_PULSE;
                     _pulse.value = 0;
                     _paramValues.Add(_pulse);
@@ -112,7 +109,6 @@ public class HeartratePlugin : VTSPlugin
                 });
                 CreateNewParameter(PARAMETER_SINE_BREATH, "", 1,
                 (s) => {
-                    // confirm param created with bool
                     _breath.id = PARAMETER_SINE_BREATH;
                     _breath.value = 0;
                     _paramValues.Add(_breath);
@@ -122,7 +118,6 @@ public class HeartratePlugin : VTSPlugin
                 });
                 CreateNewParameter(PARAMETER_BPM, "", 255,
                 (s) => {
-                    // confirm param created with bool
                     _bpm.id = PARAMETER_BPM;
                     _bpm.value = 0;
                     _paramValues.Add(_bpm);
@@ -149,19 +144,21 @@ public class HeartratePlugin : VTSPlugin
     }
 
     public void SetMinRate(int rate){
-        this._minRate = rate;
+        this._minRate = Mathf.Clamp(0, rate, 255);
     }
 
     public void SetMaxRate(int rate){
-        this._maxRate = rate;
+        this._maxRate = Mathf.Clamp(0, rate, 255);
     }
 
 
     private void OnValidate(){
         this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
-        this._heartrateInputs.Sort((a, b) => {
-            return a.Type - b.Type;
-        });
+        SortInputModules();
+    }
+
+    private void SortInputModules(){
+        this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
     }
 
     private void OnApplicationQuit(){
@@ -170,19 +167,17 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private void Update(){
-
         int priorHeartrate = this._heartRate;
         this._average.AddValue(this._activeModule != null ? this._activeModule.GetHeartrate() : 0);
         this._heartRate = Mathf.RoundToInt(this._average.Average);
-
         float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
+
         if(this.IsAuthenticated){
             // see which model is currently loaded
             GetCurrentModel(
                 (s) => {
                     if(!s.data.modelID.Equals(this._currentModel.data.modelID)){
                         // model has changed
-                        Debug.Log("Loading Model: " + s.data.modelID);
                         SaveModelData(this._currentModel);
                         LoadModelData(s.data.modelID);
                     }
@@ -209,55 +204,13 @@ public class HeartratePlugin : VTSPlugin
 
             // apply art mesh tints
             foreach(ColorInputModule module in this._colors){
-                ArtMeshMatcher matcher = new ArtMeshMatcher();
-                matcher.tintAll = false;
-                matcher.nameContains = module.ModuleMatchers;
-                this.TintArtMesh(
-                    Color32.Lerp(Color.white, module.ModuleColor, interpolation),  
-                    0.5f, 
-                    matcher,
-                    (success) => {
-
-                    },
-                    (error) => {
-
-                    });
+                module.ApplyColor(interpolation);
             }
+
+            SortExpressionModules();
             // apply expressions
             foreach(ExpressionModule module in this._expressionModules){
-                int priorThreshold = module.PriorThreshold;
-                //TODO: sort these so deactivations always go first?
-                if(priorHeartrate != 0 && this._heartRate != 0){
-                    if(
-                        (priorThreshold != module.Threshold && this._heartRate >= module.Threshold) ||
-                        (priorHeartrate < module.Threshold && this._heartRate >= module.Threshold)){
-                        // Trigger the module
-                        Debug.Log("PRIOR " + priorHeartrate + " CURRENT " + this._heartRate);
-                        Debug.Log("[EXPRESSION] " + module.SelectedExpression + " (Threshold: " + module.Threshold + ")" + " -> " + (module.ShouldActivate ? "Activated" : "Deactivated"));
-                        SetExpressionState(module.SelectedExpression, module.ShouldActivate, 
-                        (s) => {
-
-                        },
-                        (e) => {
-
-                        });
-                    }else if(
-                        (priorThreshold != module.Threshold && this._heartRate < module.Threshold) ||
-                        (priorHeartrate >= module.Threshold && this._heartRate < module.Threshold)){
-                        // Reset the module
-                        //TODO: this is causing a bug/undesired behavior where it will activate
-                        Debug.Log("PRIOR " + priorHeartrate + " CURRENT " + this._heartRate);
-                        Debug.Log("[EXPRESSION] " + module.SelectedExpression + " (Threshold: " + module.Threshold + ")" + " -> " + (module.ShouldActivate ? "Activated" : "Deactivated"));
-                        SetExpressionState(module.SelectedExpression, !module.ShouldActivate, 
-                        (s) => {
-
-                        },
-                        (e) => {
-
-                        });
-                    }
-                    module.PriorThreshold = module.Threshold;
-                }
+                module.CheckModuleCondition(priorHeartrate, this._heartRate);
             }
 
             // calculate tracking parameters
@@ -280,9 +233,12 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
+    #endregion
+
     #region Parameters
 
     public void SetActiveHeartrateInput(HeartrateInputModule module){
+        Debug.Log("Activating Input module: " + module);
         foreach(HeartrateInputModule m in this._heartrateInputs){
             m.gameObject.SetActive(false);
             m.Deactivate();
@@ -298,7 +254,8 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    private void CreateNewParameter(string paramName, string paramDescription, int paramMax, System.Action<VTSParameterCreationData> onSuccess, System.Action<VTSErrorData> onError){
+    private void CreateNewParameter(string paramName, string paramDescription, int paramMax, 
+                                    System.Action<VTSParameterCreationData> onSuccess, System.Action<VTSErrorData> onError){
         VTSCustomParameter newParam = new VTSCustomParameter();
         newParam.defaultValue = 0;
         newParam.min = 0;
@@ -330,16 +287,6 @@ public class HeartratePlugin : VTSPlugin
             this._colors.Remove(module);
             Destroy(module.gameObject);
         }
-        ArtMeshMatcher matcher = new ArtMeshMatcher();
-        matcher.tintAll = false;
-        matcher.nameContains = module.ModuleMatchers;
-        this.TintArtMesh(
-            Color.white,
-            0.5f, 
-            matcher,
-            (success) => {},
-            (error) => {}
-        );
     }
 
     public void CreateExpressionModule(ExpressionModule.SaveData module){
@@ -347,6 +294,7 @@ public class HeartratePlugin : VTSPlugin
         int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
         instance.transform.SetSiblingIndex(index);
         this._expressionModules.Add(instance);
+        SortExpressionModules();
         if(module != null){
             instance.FromSaveData(module);
         }
@@ -355,8 +303,13 @@ public class HeartratePlugin : VTSPlugin
     public void DestroyExpressionModule(ExpressionModule module){
         if(this._expressionModules.Contains(module)){
             this._expressionModules.Remove(module);
+            SortExpressionModules();
             Destroy(module.gameObject);
         }
+    }
+
+    private void SortExpressionModules(){
+        this._expressionModules.Sort((a, b) => { return a.Threshold.CompareTo(b.Threshold); });
     }
 
     #endregion
@@ -401,6 +354,7 @@ public class HeartratePlugin : VTSPlugin
         }
 
         if(data.modelID != null && data.modelID.Length > 0){
+            Debug.Log("Saving Model: " + data.modelID);
             string filePath = Path.Combine(this.MODEL_SAVE_PATH, data.modelID+".json");
             File.WriteAllText(filePath, data.ToString());
         }
@@ -411,7 +365,7 @@ public class HeartratePlugin : VTSPlugin
         if(File.Exists(this.GLOBAL_SAVE_PATH)){
             string content = File.ReadAllText(this.GLOBAL_SAVE_PATH);
             data = JsonUtility.FromJson<GlobalSaveData>(content);
-            ModernizeLegacySaveData(data.version, content);
+            ModernizeLegacyGlobalSaveData(data, content);
     
         }else{
             data = new GlobalSaveData();
@@ -436,19 +390,46 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    private void ModernizeLegacySaveData(string version, string content){
+    private void ModernizeLegacyGlobalSaveData(GlobalSaveData data, string content){
+        //TODO: this should be some kind of iterative function so that it migrates adjacent versions in order,
+        // ie 0.1.0 to 0.2.0 to 1.0.0 to 1.1.0 etc
+        // this should probably also return a modern save file?
+        string version = data.version;
         switch(version){
             case null:
             case "":
             case "0.1.0":
-            LegacySaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacySaveData_v0_1_0>(content);
+            LegacyGlobalSaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
+            Debug.Log("Legacy Global Data detected: v"+version);
             if(legacyData.colors != null && legacyData.colors.Count > 0){
-                Debug.Log("Legacy Data detected: v"+version);
                 // make a new ModelSaveData, apply it to the first loaded model.
                 ModelSaveData modelData = new ModelSaveData();
                 modelData.colors = legacyData.colors;
                 LoadModelData(modelData);
             }
+            data.activeInput = HeartrateInputModule.InputType.SLIDER;
+            break;
+            case "1.0.0":
+            data.activeInput = HeartrateInputModule.InputType.SLIDER;
+            break;
+        }
+    }
+
+    private void ModernizeLegacyModelSaveData(ModelSaveData data, string content){
+        string version = data.version;
+        switch(version){
+            case null:
+            case "":
+            case "1.0.0":
+            LegacyModelSaveData_v1_0_0 legacyData = JsonUtility.FromJson<LegacyModelSaveData_v1_0_0>(content);
+            for(int i = 0; i < legacyData.expressions.Count; i++){
+                if(i < data.expressions.Count){
+                    data.expressions[i].behavior = legacyData.expressions[i].shouldActivate ? 
+                    ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW : 
+                    ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW;
+                }
+            }
+            Debug.Log("Legacy Model Data detected: v"+version);
             break;
         }
     }
@@ -458,10 +439,12 @@ public class HeartratePlugin : VTSPlugin
         if(!Directory.Exists(this.MODEL_SAVE_PATH)){
             Directory.CreateDirectory(this.MODEL_SAVE_PATH);
         }
+        Debug.Log("Loading Model: " + modelID);
         string filePath = Path.Combine(this.MODEL_SAVE_PATH, modelID+".json");
         if(File.Exists(filePath)){
             string text = File.ReadAllText(filePath);
             data = JsonUtility.FromJson<ModelSaveData>(text);
+            ModernizeLegacyModelSaveData(data, text);
             LoadModelData(data);
         }else{
             // if no data exists for this model, just wipe the slate clean

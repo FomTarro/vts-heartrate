@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using VTS.Models;
 
 public class ColorInputModule : MonoBehaviour
 {
@@ -41,6 +42,19 @@ public class ColorInputModule : MonoBehaviour
 
     public void Delete(){
         HeartrateManager.Instance.Plugin.DestroyColorInputModule(this);
+        ApplyColor(0);
+    }
+
+    public void ApplyColor(float interpolation){
+        ArtMeshMatcher matcher = new ArtMeshMatcher();
+        matcher.tintAll = false;
+        matcher.nameContains = this.ModuleMatchers;
+        HeartrateManager.Instance.Plugin.TintArtMesh(
+            Color32.Lerp(Color.white, this.ModuleColor, interpolation),  
+            0.5f, 
+            matcher,
+            (success) => {},
+            (error) => {});
     }
 
     public void SetRed(string value){
@@ -96,6 +110,8 @@ public class ColorInputModule : MonoBehaviour
                 sanitized.Add(split[i]);
             }
         }
+        // wipes old colors in cases where matchers are removed
+        ApplyColor(0);
         this._matchers = sanitized.ToArray();
         this._matchersField.text = string.Join(",", sanitized);
     }

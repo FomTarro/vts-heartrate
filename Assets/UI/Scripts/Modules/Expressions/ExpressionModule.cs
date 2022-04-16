@@ -1,46 +1,102 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
 
 public class ExpressionModule : MonoBehaviour
 {
     [SerializeField]
     private InputField _threshold = null;
-    public int Threshold { get { return MathUtils.StringToByte(this._threshold.text); }}
-
-    // TODO: this shouldn't be public, but it's probably the easiest way 
-    public int PriorThreshold = 0;
-
-    [SerializeField]
-    private Toggle _activate = null;
-    public bool ShouldActivate { get { return this._activate.isOn; } }
+    public int Threshold { get { return MathUtils.StringToByte(this._threshold.text); } }
+    private int _priorThreshold = 0;
     [SerializeField]
     private Dropdown _dropdown = null;
-    public string SelectedExpression { get { 
-        return this._waitingOn == null ? 
-        (this._dropdown.value < HeartrateManager.Instance.Plugin.Expressions.Count ? 
-            HeartrateManager.Instance.Plugin.Expressions[this._dropdown.value] : null) :
-        this._waitingOn; 
-    }}
+    public string SelectedExpression
+    {
+        get
+        {
+            return this._waitingOn == null ?
+            (this._dropdown.value < HeartrateManager.Instance.Plugin.Expressions.Count ?
+                HeartrateManager.Instance.Plugin.Expressions[this._dropdown.value] : null) :
+            this._waitingOn;
+        }
+    }
 
-    public void Clone(){
+    [SerializeField]
+    private Dropdown _behavior = null;
+    public TriggerBehavior Behavior { get { return (TriggerBehavior)this._behavior.value; } }
+    private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW;
+
+    public void Clone()
+    {
         HeartrateManager.Instance.Plugin.CreateExpressionModule(this.ToSaveData());
     }
 
-    public void Delete(){
+    public void Delete()
+    {
         HeartrateManager.Instance.Plugin.DestroyExpressionModule(this);
     }
 
-    private int ExpressionToIndex(string expressionFile){
-        return this._dropdown.options.FindIndex((o) 
-            => { return o.text.Equals(expressionFile); });
+    public void CheckModuleCondition(int priorHeartrate, int currentHeartrate){
+        if(this._priorBehavior != this.Behavior){
+            // forces a re-assessment of the module status
+            this._priorThreshold = -1;
+        }
+        // rising edge
+        if(
+        (this._priorThreshold != this.Threshold && currentHeartrate >= this.Threshold) ||
+        (priorHeartrate < this.Threshold && currentHeartrate >= this.Threshold)){
+            if(
+                this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
+                this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE){
+                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, true, 
+                (s) => {},
+                (e) => {});
+            }else if( 
+                this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
+                this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE){
+                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, false, 
+                (s) => {},
+                (e) => {});
+            }
+        // falling edge
+        }else if(
+        (this._priorThreshold != this.Threshold && currentHeartrate < this.Threshold) ||
+        (priorHeartrate >= this.Threshold && currentHeartrate < this.Threshold)){
+            if(
+                this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
+                this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_BELOW){
+                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, true, 
+                (s) => {},
+                (e) => {});
+            }else if( 
+                this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
+                this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_BELOW){
+                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, false, 
+                (s) => {},
+                (e) => {});
+            }
+        }
+        this._priorThreshold = this.Threshold;
+        this._priorBehavior = this.Behavior;
     }
 
-    private void SetExpression(string expressionFile){
+    private int ExpressionToIndex(string expressionFile)
+    {
+        return this._dropdown.options.FindIndex((o)
+            =>
+        { return o.text.Equals(expressionFile); });
+    }
+
+    private void SetExpression(string expressionFile)
+    {
         int index = ExpressionToIndex(expressionFile);
-        if(index < 0){
+        if (index < 0)
+        {
             this._waitingOn = expressionFile;
         }
-        else if(this._dropdown.options.Count > 0){
+        else if (this._dropdown.options.Count > 0)
+        {
             this._dropdown.SetValueWithoutNotify(index);
         }
     }
@@ -51,28 +107,33 @@ public class ExpressionModule : MonoBehaviour
     private string _waitingOn = null;
 
     // TODO: consolidate this behavior into RefreshableDropdown
-    public void RefreshExpressionList(){
+    public void RefreshExpressionList()
+    {
         int currentIndex = this._dropdown.value;
-        string expressionFile = this._dropdown.options.Count > 0 ? 
-                                this._dropdown.options[currentIndex].text : 
+        string expressionFile = this._dropdown.options.Count > 0 ?
+                                this._dropdown.options[currentIndex].text :
                                 null;
         this._dropdown.ClearOptions();
         this._dropdown.AddOptions(HeartrateManager.Instance.Plugin.Expressions);
         this._dropdown.RefreshShownValue();
-        if(this._waitingOn != null){
+        if (this._waitingOn != null)
+        {
             SetExpression(this._waitingOn);
             this._waitingOn = null;
-        }else{
+        }
+        else
+        {
             SetExpression(expressionFile);
         }
     }
 
     [System.Serializable]
-    public class SaveData {
+    public class SaveData
+    {
 
         public string expressionFile;
         public int threshold;
-        public bool shouldActivate = true;
+        public TriggerBehavior behavior;
 
         public override string ToString()
         {
@@ -80,17 +141,42 @@ public class ExpressionModule : MonoBehaviour
         }
     }
 
-    public SaveData ToSaveData(){
+    public SaveData ToSaveData()
+    {
         SaveData data = new SaveData();
         data.threshold = this.Threshold;
-        data.shouldActivate = this.ShouldActivate;
+        data.behavior = this.Behavior;
         data.expressionFile = this.SelectedExpression;
         return data;
     }
 
-    public void FromSaveData(SaveData data){
+    public void FromSaveData(SaveData data)
+    {
+        this._behavior.ClearOptions();
+        this._behavior.AddOptions(Names());
         this._threshold.text = data.threshold.ToString();
-        this._activate.isOn = data.shouldActivate;
+        this._behavior.SetValueWithoutNotify((int)data.behavior);
         SetExpression(data.expressionFile);
+    }
+
+    public enum TriggerBehavior : int
+    {
+        ACTIVATE_ABOVE_DEACTIVATE_BELOW = 0,
+        DEACTIVATE_ABOVE_ACTIVATE_BELOW = 1,
+        ACTIVATE_ABOVE = 2,
+        DEACTIVATE_ABOVE = 3,
+        ACTIVATE_BELOW = 4,
+        DEACTIVATE_BELOW = 5,
+    }
+
+    private static List<string> Names(){
+        return new List<String> ( new String[] {
+            "Activate above, Deactivate below",
+            "Deactivate above, Activate below",
+            "Activate above",
+            "Deactivate above",
+            "Activate below",
+            "Deactivate below",
+        } ); 
     }
 }
