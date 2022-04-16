@@ -67,16 +67,12 @@ public class HeartratePlugin : VTSPlugin
     [SerializeField]
     private StatusIndicator _connectionStatus = null;
     #endregion
-    // Start is called before the first frame update
     private void Start()
     {
         this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
         this.MODEL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "models");
-        // Application.OpenURL(Application.persistentDataPath);
         LoadGlobalData(); 
-        // Everything you need to get started!
         Connect();
-        
     }
 
     public void Connect(){
@@ -92,7 +88,6 @@ public class HeartratePlugin : VTSPlugin
                 this._paramValues = new List<VTSParameterInjectionValue>();
                 CreateNewParameter(PARAMETER_LINEAR, "", 1,
                 (s) => {
-                    // confirm param created with bool
                     _linear.id = PARAMETER_LINEAR;
                     _linear.value = 0;
                     _paramValues.Add(_linear);
@@ -102,7 +97,6 @@ public class HeartratePlugin : VTSPlugin
                 });
                 CreateNewParameter(PARAMETER_SINE_PULSE, "", 1,
                 (s) => {
-                    // confirm param created with bool
                     _pulse.id = PARAMETER_SINE_PULSE;
                     _pulse.value = 0;
                     _paramValues.Add(_pulse);
@@ -112,7 +106,6 @@ public class HeartratePlugin : VTSPlugin
                 });
                 CreateNewParameter(PARAMETER_SINE_BREATH, "", 1,
                 (s) => {
-                    // confirm param created with bool
                     _breath.id = PARAMETER_SINE_BREATH;
                     _breath.value = 0;
                     _paramValues.Add(_breath);
@@ -122,7 +115,6 @@ public class HeartratePlugin : VTSPlugin
                 });
                 CreateNewParameter(PARAMETER_BPM, "", 255,
                 (s) => {
-                    // confirm param created with bool
                     _bpm.id = PARAMETER_BPM;
                     _bpm.value = 0;
                     _paramValues.Add(_bpm);
@@ -215,13 +207,10 @@ public class HeartratePlugin : VTSPlugin
                     Color32.Lerp(Color.white, module.ModuleColor, interpolation),  
                     0.5f, 
                     matcher,
-                    (success) => {
-
-                    },
-                    (error) => {
-
-                    });
+                    (success) => {},
+                    (error) => {});
             }
+            SortExpressionModules();
             // apply expressions
             foreach(ExpressionModule module in this._expressionModules){
                 int priorThreshold = module.PriorThreshold;
@@ -289,7 +278,7 @@ public class HeartratePlugin : VTSPlugin
     #region Parameters
 
     public void SetActiveHeartrateInput(HeartrateInputModule module){
-        Debug.Log(module);
+        Debug.Log("Activating Input module: " + module);
         foreach(HeartrateInputModule m in this._heartrateInputs){
             m.gameObject.SetActive(false);
             m.Deactivate();
@@ -354,6 +343,7 @@ public class HeartratePlugin : VTSPlugin
         int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
         instance.transform.SetSiblingIndex(index);
         this._expressionModules.Add(instance);
+        SortExpressionModules();
         if(module != null){
             instance.FromSaveData(module);
         }
@@ -362,8 +352,13 @@ public class HeartratePlugin : VTSPlugin
     public void DestroyExpressionModule(ExpressionModule module){
         if(this._expressionModules.Contains(module)){
             this._expressionModules.Remove(module);
+            SortExpressionModules();
             Destroy(module.gameObject);
         }
+    }
+
+    private void SortExpressionModules(){
+        this._expressionModules.Sort((a, b) => { return a.Threshold.CompareTo(b.Threshold); });
     }
 
     #endregion
