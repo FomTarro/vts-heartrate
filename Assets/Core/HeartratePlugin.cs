@@ -67,6 +67,9 @@ public class HeartratePlugin : VTSPlugin
     [SerializeField]
     private StatusIndicator _connectionStatus = null;
     #endregion
+    
+    #region Lifecycle
+    
     private void Start()
     {
         this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
@@ -141,19 +144,21 @@ public class HeartratePlugin : VTSPlugin
     }
 
     public void SetMinRate(int rate){
-        this._minRate = rate;
+        this._minRate = Mathf.Clamp(0, rate, 255);
     }
 
     public void SetMaxRate(int rate){
-        this._maxRate = rate;
+        this._maxRate = Mathf.Clamp(0, rate, 255);
     }
 
 
     private void OnValidate(){
         this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
-        this._heartrateInputs.Sort((a, b) => {
-            return a.Type - b.Type;
-        });
+        SortInputModules();
+    }
+
+    private void SortInputModules(){
+        this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
     }
 
     private void OnApplicationQuit(){
@@ -162,12 +167,11 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private void Update(){
-
         int priorHeartrate = this._heartRate;
         this._average.AddValue(this._activeModule != null ? this._activeModule.GetHeartrate() : 0);
         this._heartRate = Mathf.RoundToInt(this._average.Average);
-
         float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
+
         if(this.IsAuthenticated){
             // see which model is currently loaded
             GetCurrentModel(
@@ -200,59 +204,13 @@ public class HeartratePlugin : VTSPlugin
 
             // apply art mesh tints
             foreach(ColorInputModule module in this._colors){
-                ArtMeshMatcher matcher = new ArtMeshMatcher();
-                matcher.tintAll = false;
-                matcher.nameContains = module.ModuleMatchers;
-                this.TintArtMesh(
-                    Color32.Lerp(Color.white, module.ModuleColor, interpolation),  
-                    0.5f, 
-                    matcher,
-                    (success) => {},
-                    (error) => {});
+                module.ApplyColor(interpolation);
             }
+
             SortExpressionModules();
             // apply expressions
             foreach(ExpressionModule module in this._expressionModules){
-                int priorThreshold = module.PriorThreshold;
-                //TODO: sort these so deactivations always go first?
-                if(priorHeartrate != 0 && this._heartRate != 0){
-                    // rising edge
-                    if(
-                    (priorThreshold != module.Threshold && this._heartRate >= module.Threshold) ||
-                    (priorHeartrate < module.Threshold && this._heartRate >= module.Threshold)){
-                            if(
-                                module.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
-                                module.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE){
-                                SetExpressionState(module.SelectedExpression, true, 
-                                (s) => {},
-                                (e) => {});
-                            }else if( 
-                                module.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
-                                module.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE){
-                                SetExpressionState(module.SelectedExpression, false, 
-                                (s) => {},
-                                (e) => {});
-                            }
-                    // falling edge
-                    }else if(
-                    (priorThreshold != module.Threshold && this._heartRate < module.Threshold) ||
-                    (priorHeartrate >= module.Threshold && this._heartRate < module.Threshold)){
-                           if(
-                                module.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
-                                module.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_BELOW){
-                                SetExpressionState(module.SelectedExpression, true, 
-                                (s) => {},
-                                (e) => {});
-                            }else if( 
-                                module.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
-                                module.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_BELOW){
-                                SetExpressionState(module.SelectedExpression, false, 
-                                (s) => {},
-                                (e) => {});
-                            }
-                    }
-                    module.PriorThreshold = module.Threshold;
-                }
+                module.CheckModuleCondition(priorHeartrate, this._heartRate);
             }
 
             // calculate tracking parameters
@@ -275,6 +233,8 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
+    #endregion
+
     #region Parameters
 
     public void SetActiveHeartrateInput(HeartrateInputModule module){
@@ -294,7 +254,8 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    private void CreateNewParameter(string paramName, string paramDescription, int paramMax, System.Action<VTSParameterCreationData> onSuccess, System.Action<VTSErrorData> onError){
+    private void CreateNewParameter(string paramName, string paramDescription, int paramMax, 
+                                    System.Action<VTSParameterCreationData> onSuccess, System.Action<VTSErrorData> onError){
         VTSCustomParameter newParam = new VTSCustomParameter();
         newParam.defaultValue = 0;
         newParam.min = 0;
@@ -326,16 +287,6 @@ public class HeartratePlugin : VTSPlugin
             this._colors.Remove(module);
             Destroy(module.gameObject);
         }
-        ArtMeshMatcher matcher = new ArtMeshMatcher();
-        matcher.tintAll = false;
-        matcher.nameContains = module.ModuleMatchers;
-        this.TintArtMesh(
-            Color.white,
-            0.5f, 
-            matcher,
-            (success) => {},
-            (error) => {}
-        );
     }
 
     public void CreateExpressionModule(ExpressionModule.SaveData module){

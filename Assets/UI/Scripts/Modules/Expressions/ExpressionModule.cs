@@ -8,13 +8,7 @@ public class ExpressionModule : MonoBehaviour
     [SerializeField]
     private InputField _threshold = null;
     public int Threshold { get { return MathUtils.StringToByte(this._threshold.text); } }
-
-    // TODO: this shouldn't be public, but it's probably the easiest way 
-    public int PriorThreshold = 0;
-
-    [SerializeField]
-    private Toggle _activate = null;
-    public bool ShouldActivate { get { return this._activate.isOn; } }
+    private int _priorThreshold = 0;
     [SerializeField]
     private Dropdown _dropdown = null;
     public string SelectedExpression
@@ -30,7 +24,8 @@ public class ExpressionModule : MonoBehaviour
 
     [SerializeField]
     private Dropdown _behavior = null;
-    public TriggerBehavior Behavior { get  {return (TriggerBehavior)this._behavior.value; } }
+    public TriggerBehavior Behavior { get { return (TriggerBehavior)this._behavior.value; } }
+    private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW;
 
     public void Clone()
     {
@@ -40,6 +35,50 @@ public class ExpressionModule : MonoBehaviour
     public void Delete()
     {
         HeartrateManager.Instance.Plugin.DestroyExpressionModule(this);
+    }
+
+    public void CheckModuleCondition(int priorHeartrate, int currentHeartrate){
+        if(this._priorBehavior != this.Behavior){
+            // forces a re-assessment of the module status
+            this._priorThreshold = -1;
+        }
+        // rising edge
+        if(
+        (this._priorThreshold != this.Threshold && currentHeartrate >= this.Threshold) ||
+        (priorHeartrate < this.Threshold && currentHeartrate >= this.Threshold)){
+            if(
+                this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
+                this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE){
+                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, true, 
+                (s) => {},
+                (e) => {});
+            }else if( 
+                this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
+                this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE){
+                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, false, 
+                (s) => {},
+                (e) => {});
+            }
+        // falling edge
+        }else if(
+        (this._priorThreshold != this.Threshold && currentHeartrate < this.Threshold) ||
+        (priorHeartrate >= this.Threshold && currentHeartrate < this.Threshold)){
+            if(
+                this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
+                this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_BELOW){
+                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, true, 
+                (s) => {},
+                (e) => {});
+            }else if( 
+                this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
+                this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_BELOW){
+                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, false, 
+                (s) => {},
+                (e) => {});
+            }
+        }
+        this._priorThreshold = this.Threshold;
+        this._priorBehavior = this.Behavior;
     }
 
     private int ExpressionToIndex(string expressionFile)
