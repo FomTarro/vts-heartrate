@@ -11,6 +11,10 @@ public class ExpressionModule : MonoBehaviour
     private int _priorThreshold = 0;
     [SerializeField]
     private Dropdown _dropdown = null;
+    // Because the dropdown is populated by an async method, 
+    // we load the expression that should be selected from a profile load into this buffer
+    // until the async method resolves.
+    private string _waitingOn = null;
     public string SelectedExpression
     {
         get
@@ -100,11 +104,6 @@ public class ExpressionModule : MonoBehaviour
             this._dropdown.SetValueWithoutNotify(index);
         }
     }
-
-    // Because the dropdown is populated by an async method, 
-    // we load the expression that should be selected from a profile load into this buffer
-    // until the async method resolves.
-    private string _waitingOn = null;
 
     // TODO: consolidate this behavior into RefreshableDropdown
     public void RefreshExpressionList()

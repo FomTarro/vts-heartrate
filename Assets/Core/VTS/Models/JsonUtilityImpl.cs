@@ -3,6 +3,19 @@
     {
         public T FromJson<T>(string json)
         {
+            if(json.Contains("\"messageType\":\"HotkeysInCurrentModelResponse\"")){
+                foreach(HotkeyAction action in System.Enum.GetValues(typeof(HotkeyAction))){
+                    json = json.Replace(
+                        "\"type\":\"" + System.Enum.GetName(typeof(HotkeyAction), action) + "\"", 
+                        "\"type\":\"" + (int)action + "\"");
+                }
+            }else if(json.Contains("\"messageType\":\"APIError\"")){
+                foreach(ErrorID error in System.Enum.GetValues(typeof(ErrorID))){
+                    json = json.Replace(
+                        "\"type\":\"" + System.Enum.GetName(typeof(ErrorID), error) + "\"", 
+                        "\"type\":\"" + (int)error + "\"");
+                }
+            }
             return UnityEngine.JsonUtility.FromJson<T>(json);
         }
 

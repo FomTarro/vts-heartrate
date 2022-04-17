@@ -54,6 +54,14 @@ public class HeartratePlugin : VTSPlugin
     [SerializeField]
     private List<ExpressionModule> _expressionModules = new List<ExpressionModule>();
 
+    [Header("Hotkeys")]
+    [SerializeField]
+    private HotkeyModule _hotkeyPrefab = null;
+    private List<HotkeyListItem> _hotkeys = new List<HotkeyListItem>();
+    public List<HotkeyListItem> Hotkeys { get { return this._hotkeys; } }
+    [SerializeField]
+    private List<HotkeyModule> _hotkeyModules = new List<HotkeyModule>();
+
     [Header("Input Modules")]
     [SerializeField]
     private List<HeartrateInputModule> _heartrateInputs = new List<HeartrateInputModule>();
@@ -69,7 +77,7 @@ public class HeartratePlugin : VTSPlugin
     #endregion
     
     #region Lifecycle
-    
+
     private void Start()
     {
         this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
@@ -200,7 +208,23 @@ public class HeartratePlugin : VTSPlugin
                 },
                 (e) => {
                     Debug.LogError(e.data.message);
-                });
+                }
+            );
+
+            GetHotkeysInCurrentModel(
+                this._currentModel.data.modelID,
+                (s) => {
+                    this._hotkeys.Clear();
+                    foreach(HotkeyData hotkey in s.data.availableHotkeys){
+                        this._hotkeys.Add(new HotkeyListItem(
+                            String.Format("[{0}] {1} ({2})", hotkey.type, hotkey.name, hotkey.hotkeyID),
+                            hotkey.hotkeyID));
+                    }
+                },
+                (e) => {
+                    Debug.LogError(e.data.message);
+                }
+            );
 
             // apply art mesh tints
             foreach(ColorInputModule module in this._colors){
