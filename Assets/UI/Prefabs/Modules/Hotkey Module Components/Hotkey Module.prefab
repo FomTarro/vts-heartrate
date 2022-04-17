@@ -754,7 +754,7 @@ PrefabInstance:
         type: 3}
       propertyPath: onPointerUp.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2760136597762969181}
     - target: {fileID: 4335387220891776511, guid: a449af0aa1f11c247b0f5451402337af,
         type: 3}
       propertyPath: onPointerUp.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -794,7 +794,7 @@ PrefabInstance:
         type: 3}
       propertyPath: onPointerUp.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2760136597762969181}
     - target: {fileID: 8788857475914668639, guid: a449af0aa1f11c247b0f5451402337af,
         type: 3}
       propertyPath: onPointerUp.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName

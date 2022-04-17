@@ -22,7 +22,7 @@ public class HotkeyModule : MonoBehaviour
         {
             return this._waitingOn == null ?
             (this._dropdown.value < HeartrateManager.Instance.Plugin.Hotkeys.Count ?
-                HeartrateManager.Instance.Plugin.Hotkeys[this._dropdown.value].name : null) :
+                HeartrateManager.Instance.Plugin.Hotkeys[this._dropdown.value].id : null) :
             this._waitingOn;
         }
     }
@@ -34,16 +34,46 @@ public class HotkeyModule : MonoBehaviour
 
     public void Clone()
     {
-        //HeartrateManager.Instance.Plugin.CreateHotkeyModule(this.ToSaveData());
+        HeartrateManager.Instance.Plugin.CreateHotkeyModule(this.ToSaveData());
     }
 
     public void Delete()
     {
-        //HeartrateManager.Instance.Plugin.DestroyHotkeyModule(this);
+        HeartrateManager.Instance.Plugin.DestroyHotkeyModule(this);
     }
 
     public void CheckModuleCondition(int priorHeartrate, int currentHeartrate){
-    
+        if(this._priorBehavior != this.Behavior){
+            // forces a re-assessment of the module status
+            // TODO: if the behavior changes from ABOVE AND BELOW to just ABOVE, 
+            // it will try to trigger AGAIN which just turns it off
+            this._priorThreshold = -1;
+        }
+        // rising edge
+        if(
+        (this._priorThreshold != this.Threshold && currentHeartrate >= this.Threshold) ||
+        (priorHeartrate < this.Threshold && currentHeartrate >= this.Threshold)){
+            if(
+                this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW || 
+                this.Behavior == TriggerBehavior.ACTIVATE_ABOVE){
+                HeartrateManager.Instance.Plugin.TriggerHotkey(this.SelectedHotkey, 
+                (s) => {},
+                (e) => {});
+            }
+        // falling edge
+        }else if(
+        (this._priorThreshold != this.Threshold && currentHeartrate < this.Threshold) ||
+        (priorHeartrate >= this.Threshold && currentHeartrate < this.Threshold)){
+            if(
+                this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW || 
+                this.Behavior == TriggerBehavior.ACTIVATE_BELOW){
+                HeartrateManager.Instance.Plugin.TriggerHotkey(this.SelectedHotkey, 
+                (s) => {},
+                (e) => {});
+            }
+        }
+        this._priorThreshold = this.Threshold;
+        this._priorBehavior = this.Behavior;
     }
 
     private int HotkeyToIndex(string hotkeyName)
@@ -64,10 +94,6 @@ public class HotkeyModule : MonoBehaviour
         {
             this._dropdown.SetValueWithoutNotify(index);
         }
-    }
-
-    private void Update(){
-        RefreshHotkeyList();
     }
 
     // TODO: consolidate this behavior into RefreshableDropdown
@@ -95,11 +121,50 @@ public class HotkeyModule : MonoBehaviour
         }
     }
 
+        [System.Serializable]
+    public class SaveData
+    {
+        public string hotkeyID;
+        public int threshold;
+        public TriggerBehavior behavior;
+
+        public override string ToString()
+        {
+            return JsonUtility.ToJson(this);
+        }
+    }
+
+    public SaveData ToSaveData()
+    {
+        SaveData data = new SaveData();
+        data.threshold = this.Threshold;
+        data.behavior = this.Behavior;
+        data.hotkeyID = this.SelectedHotkey;
+        return data;
+    }
+
+    public void FromSaveData(SaveData data)
+    {
+        this._behavior.ClearOptions();
+        this._behavior.AddOptions(Names());
+        this._threshold.text = data.threshold.ToString();
+        this._behavior.SetValueWithoutNotify((int)data.behavior);
+        SetHotkey(data.hotkeyID);
+    }
+
     public enum TriggerBehavior : int
     {
         ACTIVATE_ABOVE_ACTIVATE_BELOW = 0,
         ACTIVATE_ABOVE = 1,
         ACTIVATE_BELOW = 2,
+    }
+    private static List<string> Names(){
+        return new List<String> ( new String[] {
+            "Activate above, Activate below",
+            "Activate above",
+            "Activate below",
+
+        } ); 
     }
 }
 

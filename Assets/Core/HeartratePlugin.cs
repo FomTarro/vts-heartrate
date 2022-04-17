@@ -220,6 +220,9 @@ public class HeartratePlugin : VTSPlugin
                             String.Format("[{0}] {1} ({2})", hotkey.type, hotkey.name, hotkey.hotkeyID),
                             hotkey.hotkeyID));
                     }
+                    foreach(HotkeyModule module in this._hotkeyModules){
+                        module.RefreshHotkeyList();
+                    }
                 },
                 (e) => {
                     Debug.LogError(e.data.message);
@@ -234,6 +237,10 @@ public class HeartratePlugin : VTSPlugin
             SortExpressionModules();
             // apply expressions
             foreach(ExpressionModule module in this._expressionModules){
+                module.CheckModuleCondition(priorHeartrate, this._heartRate);
+            }
+
+            foreach(HotkeyModule module in this._hotkeyModules){
                 module.CheckModuleCondition(priorHeartrate, this._heartRate);
             }
 
@@ -260,7 +267,6 @@ public class HeartratePlugin : VTSPlugin
     #endregion
 
     #region Parameters
-
     public void SetActiveHeartrateInput(HeartrateInputModule module){
         Debug.Log("Activating Input module: " + module);
         foreach(HeartrateInputModule m in this._heartrateInputs){
@@ -334,6 +340,25 @@ public class HeartratePlugin : VTSPlugin
 
     private void SortExpressionModules(){
         this._expressionModules.Sort((a, b) => { return a.Threshold.CompareTo(b.Threshold); });
+    }
+
+    public void CreateHotkeyModule(HotkeyModule.SaveData module){
+        HotkeyModule instance = Instantiate<HotkeyModule>(this._hotkeyPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
+        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
+        instance.transform.SetSiblingIndex(index);
+        this._hotkeyModules.Add(instance);
+        SortExpressionModules();
+        if(module != null){
+            instance.FromSaveData(module);
+        }
+    }
+
+    public void DestroyHotkeyModule(HotkeyModule module){
+        if(this._hotkeyModules.Contains(module)){
+            this._hotkeyModules.Remove(module);
+            SortExpressionModules();
+            Destroy(module.gameObject);
+        }
     }
 
     #endregion
