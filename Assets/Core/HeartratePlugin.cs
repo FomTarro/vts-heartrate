@@ -398,6 +398,10 @@ public class HeartratePlugin : VTSPlugin
         foreach(ExpressionModule module in this._expressionModules){
             data.expressions.Add(module.ToSaveData());
         }
+        foreach(HotkeyModule module in this._hotkeyModules){
+            data.hotkeys.Add(module.ToSaveData());
+        }
+        
         if(!Directory.Exists(this.MODEL_SAVE_PATH)){
             Directory.CreateDirectory(this.MODEL_SAVE_PATH);
         }
@@ -509,6 +513,9 @@ public class HeartratePlugin : VTSPlugin
         foreach(ExpressionModule.SaveData module in data.expressions){
             CreateExpressionModule(module);
         }
+        foreach(HotkeyModule.SaveData module in data.hotkeys){
+            CreateHotkeyModule(module);
+        }
     }
 
     private void ClearCurrentData(){
@@ -519,6 +526,10 @@ public class HeartratePlugin : VTSPlugin
         List<ExpressionModule> tempEmotion = new List<ExpressionModule>(this._expressionModules);
         foreach(ExpressionModule e in tempEmotion){
             DestroyExpressionModule(e);
+        }
+        List<HotkeyModule> tempHotkey = new List<HotkeyModule>(this._hotkeyModules);
+        foreach(HotkeyModule h in tempHotkey){
+            DestroyHotkeyModule(h);
         }
     }
 
@@ -564,6 +575,7 @@ public class HeartratePlugin : VTSPlugin
         public string modelName;
         public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
         public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
+        public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();
 
         public override string ToString()
         {

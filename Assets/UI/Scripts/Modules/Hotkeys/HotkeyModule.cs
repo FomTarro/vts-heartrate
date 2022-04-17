@@ -76,19 +76,19 @@ public class HotkeyModule : MonoBehaviour
         this._priorBehavior = this.Behavior;
     }
 
-    private int HotkeyToIndex(string hotkeyName)
+    private int HotkeyToIndex(string hotkeyID)
     {
         return this._dropdown.options.FindIndex((o)
             =>
-        { return o.text.Equals(hotkeyName); });
+        { return o.text.Contains(hotkeyID); });
     }
 
-    private void SetHotkey(string hotkey)
+    private void SetHotkey(string hotkeyID)
     {
-        int index = HotkeyToIndex(hotkey);
+        int index = HotkeyToIndex(hotkeyID);
         if (index < 0)
         {
-            this._waitingOn = hotkey;
+            this._waitingOn = hotkeyID;
         }
         else if (this._dropdown.options.Count > 0)
         {
@@ -121,7 +121,7 @@ public class HotkeyModule : MonoBehaviour
         }
     }
 
-        [System.Serializable]
+    [System.Serializable]
     public class SaveData
     {
         public string hotkeyID;
@@ -163,7 +163,6 @@ public class HotkeyModule : MonoBehaviour
             "Activate above, Activate below",
             "Activate above",
             "Activate below",
-
         } ); 
     }
 }
