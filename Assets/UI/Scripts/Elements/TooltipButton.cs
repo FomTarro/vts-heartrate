@@ -19,25 +19,22 @@ public class TooltipButton : MonoBehaviour
         switch(tip){
             case Tooltips.HEARTRATE_RANGES:
                 UIManager.Instance.ShowPopUp(
-                    "Heartrate Ranges",
-                    "Input your expected range of heartrates here. <b>Resting</b> refers to your low-stress heartrate, while <b>Maximum</b> refers to your high-stress heartrate.\n\n"+
-                    "The values of the various <b>Outputs</b> will be scaled based on where your current heartrate lands along this range.\n"
+                    "input_ranges_title",
+                    "input_ranges_tooltip"
                 );
                 break;
             case Tooltips.HEARTRATE_SLIDER:
                 UIManager.Instance.ShowPopUp(
-                    "Test Slider",
-                    "Use the slider for quick testing of different heartrate values.\nThe slider range is from 0 to 255.\n"
+                    "input_slider_title",
+                    "input_slider_tooltip"
                 );
                 break;
             case Tooltips.HEARTRATE_PULSOID_CONNECT:
                 UIManager.Instance.ShowPopUp(
-                    "Pulsoid",
-                    "<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.\n\n"+
-                    "Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.\n\n" +
-                    "By clicking the <b>'Login' button</b>, you will be asked to grant this plugin permission to connect to your account. You will then be given an <b>'Authentication Token'</b> which you must paste in to the plugin.",
+                    "input_pulsoid_app_title",
+                    "input_pulsoid_app_tooltip",
                     new PopUp.PopUpOption(
-                        "Visit pulsoid.net",
+                        "input_pulsoid_button_visit",
                         true,
                         () => { Application.OpenURL("https://www.pulsoid.net"); })
                 );

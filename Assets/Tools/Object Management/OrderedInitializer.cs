@@ -19,7 +19,7 @@ public abstract class OrderedInitializer : MonoBehaviour, IComparable
 
     private static bool _loadingStarted = false;
 
-    private void Start()
+    private void Awake()
     {   
         // the first object to run Start will Initialize all of the currently extant 
         if(!_loadingStarted)

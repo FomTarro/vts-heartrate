@@ -384,6 +384,7 @@ public class HeartratePlugin : VTSPlugin
         foreach(HeartrateInputModule module in this._heartrateInputs){
             data.inputs.Add(module.ToSaveData());
         }
+        data.language = Localization.LocalizationManager.Instance.CurrentLanguage;
         File.WriteAllText(this.GLOBAL_SAVE_PATH, data.ToString());
     }
 
@@ -440,6 +441,9 @@ public class HeartratePlugin : VTSPlugin
                     m.FromSaveData(module);
                 }
             }
+        }
+        if(data.language != 0){
+            Localization.LocalizationManager.Instance.SwitchLanguage(data.language);
         }
     }
 
@@ -561,6 +565,7 @@ public class HeartratePlugin : VTSPlugin
         public int maxRate = 0;
         public HeartrateInputModule.InputType activeInput;
         public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>(); 
+        public Localization.SupportedLanguage language;
 
         public override string ToString()
         {

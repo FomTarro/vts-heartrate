@@ -49,8 +49,8 @@ public class UIManager : Singleton<UIManager>
         }
     }
 
-    public void ShowPopUp(string title, string body, params PopUp.PopUpOption[] options){
-        this._popUp.Show(title, body, options);
+    public void ShowPopUp(string titleKey, string bodyKey, params PopUp.PopUpOption[] options){
+        this._popUp.Show(titleKey, bodyKey, options);
     }
 
     public void HidePopUp(){
