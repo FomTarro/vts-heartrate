@@ -118,6 +118,14 @@ namespace Localization
         }
 
         /// <summary>
+        /// Returns true if the current language is fullwidth, false if halfwidth
+        /// </summary>
+        /// <returns></returns>
+        public bool IsLanguageCurrentFullwidth(){
+            return this.CurrentLanguage == SupportedLanguage.JAPANESE;
+        }
+
+        /// <summary>
         /// Switches to the best language for the given system language settings, if possible
         /// 
         /// Defaults to English if no match can be found
