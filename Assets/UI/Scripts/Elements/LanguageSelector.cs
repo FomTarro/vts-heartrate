@@ -12,10 +12,15 @@ public class LanguageSelector : MonoBehaviour
     // Start is called before the first frame update
 
     private void OnEnable(){
-        this._dropdown.SetValueWithoutNotify((int)Localization.LocalizationManager.Instance.CurrentLanguage - 1);
+        SetOptions();
     }
-    void Start()
-    {
+
+    void Start(){
+        SetOptions();
+        this._dropdown.onValueChanged.AddListener(SelectLanguage);
+    }
+
+    private void SetOptions(){
         List<string> languageOptions = new List<string>();
         foreach(SupportedLanguage language in 
         System.Enum.GetValues(typeof(SupportedLanguage))){
@@ -23,7 +28,7 @@ public class LanguageSelector : MonoBehaviour
         }
         this._dropdown.ClearOptions();
         this._dropdown.AddOptions(languageOptions);
-        this._dropdown.onValueChanged.AddListener(SelectLanguage);
+        this._dropdown.SetValueWithoutNotify((int)Localization.LocalizationManager.Instance.CurrentLanguage - 1);
     }
 
     private void SelectLanguage(int index){

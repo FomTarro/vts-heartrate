@@ -593,12 +593,17 @@ PrefabInstance:
     - target: {fileID: 142914426927104506, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
       propertyPath: m_Text
-      value: Test Slider
+      value: Debug Slider
       objectReference: {fileID: 0}
     - target: {fileID: 1823291630599419535, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
       propertyPath: m_Name
       value: Title Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 2598624182108680192, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
+      propertyPath: key
+      value: input_slider_title
       objectReference: {fileID: 0}
     - target: {fileID: 2647555702770650737, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}

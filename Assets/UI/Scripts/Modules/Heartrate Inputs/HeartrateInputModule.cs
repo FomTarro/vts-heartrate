@@ -11,6 +11,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
 
     [SerializeField]
     private Text _label = null;
+    private Localization.LocalizedText _localizedLabel = null;
 
     public void Start(){
     }
@@ -81,6 +82,9 @@ public abstract class HeartrateInputModule : MonoBehaviour
 
     public override string ToString()
     {
-        return this._label.text;
+        if(this._localizedLabel == null){
+            this._localizedLabel = this._label.GetComponent<Localization.LocalizedText>();
+        }
+        return this._localizedLabel.Key;
     }
 }

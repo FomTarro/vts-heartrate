@@ -66,7 +66,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 16
+    m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 1
@@ -213,8 +213,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _threshold: {fileID: 7774785389167809515}
-  PriorThreshold: 0
-  _activate: {fileID: 0}
   _dropdown: {fileID: 1197024503582774797}
   _behavior: {fileID: 1756149082223884583}
 --- !u!114 &7597434965625435335
@@ -407,7 +405,7 @@ PrefabInstance:
     - target: {fileID: 7870637167748290536, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}
       propertyPath: m_FontData.m_FontSize
-      value: 16
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 7870637167748290536, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}
@@ -496,6 +494,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Title Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 2598624182108680192, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
+      propertyPath: key
+      value: output_expressions_title
       objectReference: {fileID: 0}
     - target: {fileID: 2647555702770650737, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}

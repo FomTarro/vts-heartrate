@@ -679,6 +679,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Title Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 2598624182108680192, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
+      propertyPath: key
+      value: input_pulsoid_feed_title
+      objectReference: {fileID: 0}
     - target: {fileID: 2647555702770650737, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
       propertyPath: _tooltip

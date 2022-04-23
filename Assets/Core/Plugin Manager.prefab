@@ -68,7 +68,11 @@ MonoBehaviour:
   _expressionPrefab: {fileID: 7958620937288378037, guid: e34d426236e8c494ea1d1edd62a35145,
     type: 3}
   _expressionModules: []
+  _hotkeyPrefab: {fileID: 2760136597762969181, guid: 100d30b43e729044b90727d2d4683726,
+    type: 3}
+  _hotkeyModules: []
   _heartrateInputs:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -87,5 +91,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c92e652a7256e7349addbf34d8efc23e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _initializationOrder: 1
+  _initializationOrder: 10
   _plugin: {fileID: 8987925111482354571}

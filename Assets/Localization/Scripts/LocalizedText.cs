@@ -9,8 +9,15 @@ namespace Localization
 
         [SerializeField]
         private string key = string.Empty;
+        public string Key { get { return this.key; } }
 
         private Text _text;
+
+        [SerializeField]
+        private string _prefix = "";
+
+        [SerializeField]
+        private string _postfix = "";
 
         void Awake()
         {
@@ -48,7 +55,7 @@ namespace Localization
                 _text = GetComponent<Text>();
             }
             string val = LocalizationManager.Instance.GetString(key);
-            _text.text = val;
+            _text.text = _prefix + val + _postfix;
         }
     }
 }

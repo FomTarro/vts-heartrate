@@ -1,4 +1,28 @@
 language,English,日本語
+settings_language_title,Language,言語
+settings_system_data_title,System Data,
+settings_system_data_open_logs,Open Logs,
+settings_system_data_open_save_data,Open Save Data,
+settings_system_data_open_readme,Open README,
+settings_system_current_version,Current version,
+,,
+settings_new_version_title,New Version Available!,
+settings_new_version_body,"A newer version of this plugin is now available.
+<b>Version</b>: {0}
+<b>Release Date:</b> {1}
+
+You can download it at: {2}",
+settings_new_version_button_download,Download,
+,,
+settings_feedback_title,Feedback/Bug Reports,
+settings_feedback_body,"This plugin is being developed by 
+<b>Tom ""Skeletom"" Farro</b>. You can reach him at:
+
+Twitter: <b>@FomTarro</b>
+Email: <b>tom@skeletom.net</b>",
+settings_feedback_button_email,Email,
+settings_feedback_button_tweet,Tweet,
+,,
 input_ranges_title,Expected Heartrate Ranges,心拍数の期待範囲
 input_ranges_tooltip,"Input your expected range of heartrates here. <b>%input_ranges_min</b> refers to your low-stress heartrate, while <b>%input_ranges_max</b> refers to your high-stress heartrate.
 
@@ -14,28 +38,24 @@ The slider range is from 0 to 255.","テストスライダーで異なる心拍�
 input_pulsoid_app_title,Pulsoid,Pulsoid
 input_pulsoid_app_tooltip,"%input_pulsoid_overview
 
-
 By clicking the <b>'%input_pulsoid_button_login' button</b>, you will be asked to grant this plugin permission to connect to your account. You will then be given an <b>'%input_pulsoid_token'</b> which you must paste in to the plugin.","%input_pulsoid_overview
-
 
 <b>「%input_pulsoid_button_login」ボタン</b>をクリックすると、プラグインがアカウントを連携させるよう承認が求められます。承認後に与えられた Pulsoid の <b>「%input_pulsoid_token」</b> をこのプラグインに貼り付けてください。"
 input_pulsoid_button_login,Log In,ログイン
 input_pulsoid_button_visit,Visit pulsoid.net,pulsoid.net にアクセス
 input_pulsoid_token,Authentication Token,認証トークン
-input_pulsoid_feed,Pulsoid (Widget Feed),Pulsoid (Widget Feed) *
+input_pulsoid_feed_title,Pulsoid (Widget Feed),Pulsoid (Widget Feed)
 input_pulsoid_feed_tooltip,"%input_pulsoid_overview
 
 From there, you should find a <b>'Feed URL'</b> which you must paste into the plugin.
-
 
 Please note that Pulsoid may be deprecating this input method in the future, in favor of direct app connectivity.","%input_pulsoid_overview
 
 そこで表示される<b>「Feed URL」</b>をコピーし、プラグインに貼り付けてください。
 
-
 なお、Pulsoid は今後この入力方式を非推奨または廃止とし、アプリとの直接接続を推奨する可能性がある点はご留意ください。"
 input_pulsoid_overview,"<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.
-Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.",Pulsoid とは、Android/iOS用の無料サードパーティーアプリで、モバイル端末のBluetooth経由で幅広い心拍計に簡単・確実に接続することができます。Pulsoid のアカウントを作成すれば、この入力方式を用いて心拍数データを取得することができます。
+Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.",<b>Pulsoid</b> とは、Android/iOS用の無料サードパーティーアプリで、モバイル端末のBluetooth経由で幅広い心拍計に簡単・確実に接続することができます。Pulsoid のアカウントを作成すれば、この入力方式を用いて心拍数データを取得することができます。
 input_file_title,Read from File,ファイルからの読み込み
 input_file_tooltip,"Use this input method to read heartrate data from an external file.
 The file must simply contain the numeric heartrate value in plain text. File path must be absolute.
@@ -55,6 +75,7 @@ Please note that this plugin is not an officially licensed or certified affiliat
 input_ant_plus_button_visit,Visit thisisant.com,
 ,,
 output_artmesh_title,Art Mesh Tint,アートメッシュの色付け
+output_artmesh_new,Create %output_artmesh_title,%output_artmesh_title の新規作成
 output_artmesh_tooltip,"This output will gradually tint the matched <b>Art Meshes</b> the desired color, based on your current heartrate.
 
 
@@ -74,6 +95,7 @@ output_artmesh_label_mesh,Meshes,メッシュ
 output_artmesh_label_meshes_placeholder,Enter mesh names (comma separated),メッシュ名を入力（カンマ区切り）
 ,,
 output_expressions_title,Expression Trigger,表情の切り替え
+output_expressions_new,Create %output_expressions_title,%output_expressions_title を新規作成する
 output_expressions_tooltip,"This output will cause an <b>Expression</b> to <b>activate or deactivate</b> when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings. ","この出力は、現在の心拍数が<b>所定のしきい値を超える</b>場合に、特定の<b>表情</b>を再生又は元の表情に戻させます。
 心拍数が所定のしきい値以下に下がると、表情は元の状態に戻ります。"
 output_expressions_behavior_aadb,"%output_expressions_behavior_aa, output_expressions_behavior_db","%output_expressions_behavior_aa, output_expressions_behavior_db"
@@ -84,6 +106,7 @@ output_expressions_behavior_db,Deactivate below,
 output_expressions_behavior_ab,Activate below,
 ,,
 output_hotkey_title,Hotkey Trigger,
+output_hotkey_new,Create %output_hotkey_title,%output_hotkey_title を新規作成する
 output_hotkey_tooltip,"This output will cause a <b>Hotkey</b> to be triggered when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings.",
 output_hotkey_behavior_ab,"%output_hotkey_behavior_a, %output_hotkey_behavior_b","%output_hotkey_behavior_a, %output_hotkey_behavior_b"
 output_hotkey_behavior_a,Trigger above,
@@ -94,7 +117,11 @@ output_custom_params_tooltip,"This plugin outputs four custom tracking parameter
 <b>VTS_Heartrate_Linear</b>: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.\n
 <b>VTS_Heartrate_Pulse</b>: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.\n
 <b>VTS_Heartrate_Breath</b>: A value that oscillates between 0.0 and 1.0 with a frequency slower than <b>VTS_Heartrate_Pulse</b>, suitable for controlling your model's <b>ParamBreath</b> output.\n
-<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM from 0 to 255, rather than an interpolated value.\n",
+<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM from 0 to 255, rather than an interpolated value.\n","このプラグインは次のように、四つのカスタムトラッキングパラメータを出力します。\n
+<b>VTS_Heartrate_Linear</b>：心拍数が期待される範囲内で変化する際、比例して 0.0 から 1.0 にスケールする値。\n
+<b>VTS_Heartrate_Pulse</b>：心拍数と一致する周波数で、0.0から1.0の間で振動する値。\n
+<b>VTS_Heartrate_Breath</b>：<b>VTS_Heartrate_Pulse</b>（心拍数）より遅い周波数で、0.0から1.0の間で振動する値。モデルの ParamBreath（呼吸パラメータ）をコントロールするのに適しています。\n
+<b>VTS_Heartrate_BPM</b>：0 から 255 まで、実際の現在の心拍数を表す値。\n"
 ,,
 output_copy_profile_title,Copy Profile Settings,プロファイル設定のコピー
 output_copy_profile_tooltip,"This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
@@ -105,7 +132,8 @@ As a result, any settings configured for your currently loaded model will be per
 ,,
 button_generic_copy,Copy,コピー
 button_generic_delete,Delete,消す
-button_inputs,Inputs,
-button_outputs,Outputs,出力
-button_settings,Settings,
-button_connect,Connect,
+button_tab_inputs,Inputs,
+button_tab_outputs,Outputs,出力
+button_tab_settings,Settings,
+button_generic_connect,Connect,
+button_generic_disconnect,Disconnect,

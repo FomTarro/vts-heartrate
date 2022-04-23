@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Localization;
 
 public class InputSelectionDropdown : RefreshableDropdown
 {
@@ -11,9 +12,9 @@ public class InputSelectionDropdown : RefreshableDropdown
     {
         this._modules.Clear();
         foreach(HeartrateInputModule module in HeartrateManager.Instance.Plugin.HeartrateInputs){
-            this._modules.Add(module.ToString(), module);
+            this._modules.Add(LocalizationManager.Instance.GetString(module.ToString()), module);
         }
-        RefreshValues(HeartrateManager.Instance.Plugin.HeartrateInputs);
+        RefreshValues(this._modules.Keys);
     }
 
     protected override void SetValue(int index)
@@ -22,7 +23,7 @@ public class InputSelectionDropdown : RefreshableDropdown
     }
 
     private void Update(){
-        if(HeartrateManager.Instance.Plugin.ActiveInputModule != null && 
+        if(HeartrateManager.Instance.Plugin.ActiveInputModule != null && this._dropdown.value > 0 && 
             (this._dropdown.options[this._dropdown.value].text != HeartrateManager.Instance.Plugin.ActiveInputModule)){
             int index = this.StringToIndex(HeartrateManager.Instance.Plugin.ActiveInputModule);
             this._dropdown.SetValueWithoutNotify(index);
