@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7787172615022911906}
   - component: {fileID: 4698614673650204597}
   - component: {fileID: 4975144924983508134}
+  - component: {fileID: 2859756313104016720}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -78,6 +79,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Available Devices:'
+--- !u!114 &2859756313104016720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1278796436278429236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1444856acfc68b1449d473e23b3fd75a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: input_ant_devices
+  _prefix: 
+  _postfix: ':'
 --- !u!1 &2292653109523882407
 GameObject:
   m_ObjectHideFlags: 0

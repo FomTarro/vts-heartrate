@@ -6,6 +6,8 @@ settings_system_data_open_save_data,Open Save Data,
 settings_system_data_open_readme,Open README,
 settings_system_current_version,Current version,
 ,,
+settings_port_title,VTube Studio Port,
+,,
 settings_new_version_title,New Version Available!,
 settings_new_version_body,"A newer version of this plugin is now available.
 <b>Version</b>: {0}
@@ -23,6 +25,7 @@ Email: <b>tom@skeletom.net</b>",
 settings_feedback_button_email,Email,
 settings_feedback_button_tweet,Tweet,
 ,,
+input_select_title,Select an Input Method,
 input_ranges_title,Expected Heartrate Ranges,心拍数の期待範囲
 input_ranges_tooltip,"Input your expected range of heartrates here. <b>%input_ranges_min</b> refers to your low-stress heartrate, while <b>%input_ranges_max</b> refers to your high-stress heartrate.
 
@@ -44,6 +47,7 @@ By clicking the <b>'%input_pulsoid_button_login' button</b>, you will be asked t
 input_pulsoid_button_login,Log In,ログイン
 input_pulsoid_button_visit,Visit pulsoid.net,pulsoid.net にアクセス
 input_pulsoid_token,Authentication Token,認証トークン
+input_pulsoid_token_placeholder,Enter your %input_pulsoid_token,
 input_pulsoid_feed_title,Pulsoid (Widget Feed),Pulsoid (Widget Feed)
 input_pulsoid_feed_tooltip,"%input_pulsoid_overview
 
@@ -54,6 +58,8 @@ Please note that Pulsoid may be deprecating this input method in the future, in 
 そこで表示される<b>「Feed URL」</b>をコピーし、プラグインに貼り付けてください。
 
 なお、Pulsoid は今後この入力方式を非推奨または廃止とし、アプリとの直接接続を推奨する可能性がある点はご留意ください。"
+input_pulsoid_feed_url,Feed Reference URL,「Feed Reference URL」
+input_pulsoid_feed_url_placeholder,Widgets -> Advanced -> Feed reference URL,Widgets -> Advanced -> Feed reference URL
 input_pulsoid_overview,"<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.
 Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.",<b>Pulsoid</b> とは、Android/iOS用の無料サードパーティーアプリで、モバイル端末のBluetooth経由で幅広い心拍計に簡単・確実に接続することができます。Pulsoid のアカウントを作成すれば、この入力方式を用いて心拍数データを取得することができます。
 input_file_title,Read from File,ファイルからの読み込み
@@ -66,6 +72,8 @@ Useful if you have another program that can output heartrate data.","この入�
 
 
 心拍数データが出力できる別のプログラムを使用する場合は便利です。"
+input_file_path,File Path,ファイルパス
+input_file_path_paceholder,Enter absolute file path,ファイルの絶対パスを入力
 input_ant_plus_title,ANT+,ANT+
 input_ant_plus_tooltip,"<b>ANT+</b> is a low-power protocol supported by many sport and fitness sensors.\n\n
 This input method allows for direct connection to your ANT+ device, provided that you have a <b>USB receiver</b> plugged in.\n\n
@@ -73,6 +81,7 @@ By clicking the <b>'Refresh' button</b>, this plugin will begin a continuous sca
 Then, simply select one from the dropdown and click the <b>'%input_ant_plus_button_connect' button</b>.\n\n
 Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.",
 input_ant_plus_button_visit,Visit thisisant.com,
+input_ant_devices,Available Devices,
 ,,
 output_artmesh_title,Art Mesh Tint,アートメッシュの色付け
 output_artmesh_new,Create %output_artmesh_title,%output_artmesh_title の新規作成
@@ -122,6 +131,7 @@ output_custom_params_tooltip,"This plugin outputs four custom tracking parameter
 <b>VTS_Heartrate_Pulse</b>：心拍数と一致する周波数で、0.0から1.0の間で振動する値。\n
 <b>VTS_Heartrate_Breath</b>：<b>VTS_Heartrate_Pulse</b>（心拍数）より遅い周波数で、0.0から1.0の間で振動する値。モデルの ParamBreath（呼吸パラメータ）をコントロールするのに適しています。\n
 <b>VTS_Heartrate_BPM</b>：0 から 255 まで、実際の現在の心拍数を表す値。\n"
+output_custom_params_button,Learn how to use Custom Parameters,
 ,,
 output_copy_profile_title,Copy Profile Settings,プロファイル設定のコピー
 output_copy_profile_tooltip,"This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.

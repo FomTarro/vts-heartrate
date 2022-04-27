@@ -197,6 +197,7 @@ GameObject:
   - component: {fileID: 8670608092343070419}
   - component: {fileID: 900519154497216060}
   - component: {fileID: 122347000204369355}
+  - component: {fileID: 6110104651090173883}
   m_Layer: 5
   m_Name: Placeholder
   m_TagString: Untagged
@@ -264,6 +265,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Enter absolute file path
+--- !u!114 &6110104651090173883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3162659236993185473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1444856acfc68b1449d473e23b3fd75a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: input_file_path_paceholder
+  _prefix: 
+  _postfix: 
 --- !u!1 &3427495274926856165
 GameObject:
   m_ObjectHideFlags: 0
@@ -593,6 +609,7 @@ GameObject:
   - component: {fileID: 6361007241520423597}
   - component: {fileID: 9088457892051283972}
   - component: {fileID: 4059635969837562528}
+  - component: {fileID: 3130363768380772045}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -659,7 +676,22 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'File Path:'
+  m_Text: File Path
+--- !u!114 &3130363768380772045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8249396846565340688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1444856acfc68b1449d473e23b3fd75a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: input_file_path
+  _prefix: 
+  _postfix: ':'
 --- !u!1001 &7055450750244234037
 PrefabInstance:
   m_ObjectHideFlags: 0

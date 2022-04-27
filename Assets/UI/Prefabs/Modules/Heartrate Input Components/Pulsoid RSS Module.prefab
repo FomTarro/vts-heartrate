@@ -89,6 +89,7 @@ GameObject:
   - component: {fileID: 4643856266904577080}
   - component: {fileID: 3772103144084870359}
   - component: {fileID: 4149173456009287456}
+  - component: {fileID: 6018758686037143958}
   m_Layer: 5
   m_Name: Placeholder
   m_TagString: Untagged
@@ -155,7 +156,22 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter Widgets -> Advanced -> Feed reference URL
+  m_Text: Widgets -> Advanced -> Feed reference URL
+--- !u!114 &6018758686037143958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1423840505665158186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1444856acfc68b1449d473e23b3fd75a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: input_pulsoid_feed_url_placeholder
+  _prefix: 
+  _postfix: 
 --- !u!1 &1708714179859684622
 GameObject:
   m_ObjectHideFlags: 0
@@ -428,6 +444,7 @@ GameObject:
   - component: {fileID: 6944740664805353542}
   - component: {fileID: 5045943601056594671}
   - component: {fileID: 31740510309527627}
+  - component: {fileID: 5936816452297444292}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -495,6 +512,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Feed Reference URL:'
+--- !u!114 &5936816452297444292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5358654692302585083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1444856acfc68b1449d473e23b3fd75a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: input_pulsoid_feed_url
+  _prefix: 
+  _postfix: ':'
 --- !u!1 &6845512943690981518
 GameObject:
   m_ObjectHideFlags: 0

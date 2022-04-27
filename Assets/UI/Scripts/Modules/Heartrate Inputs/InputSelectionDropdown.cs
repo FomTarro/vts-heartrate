@@ -23,9 +23,11 @@ public class InputSelectionDropdown : RefreshableDropdown
     }
 
     private void Update(){
-        if(HeartrateManager.Instance.Plugin.ActiveInputModule != null && this._dropdown.value > 0 && 
-            (this._dropdown.options[this._dropdown.value].text != HeartrateManager.Instance.Plugin.ActiveInputModule)){
-            int index = this.StringToIndex(HeartrateManager.Instance.Plugin.ActiveInputModule);
+        //TODO: this is janked up
+        string activeModule = LocalizationManager.Instance.GetString(HeartrateManager.Instance.Plugin.ActiveInputModule);
+        if(HeartrateManager.Instance.Plugin.ActiveInputModule != null && this._dropdown.value >= 0 && 
+        (this._dropdown.options[this._dropdown.value].text != activeModule)){
+            int index = this.StringToIndex(activeModule);
             this._dropdown.SetValueWithoutNotify(index);
             this.SetValue(index);
         }

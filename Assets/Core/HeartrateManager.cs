@@ -10,7 +10,6 @@ public class HeartrateManager : Singleton<HeartrateManager>
 
     public override void Initialize(){
         CheckVersion();
-        UIManager.Instance.GoTo(UIManager.Tabs.COLOR_INPUTS);
     }
 
     private void CheckVersion(){

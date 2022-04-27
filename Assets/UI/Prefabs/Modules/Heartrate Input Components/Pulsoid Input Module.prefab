@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1491593453202099253}
   - component: {fileID: 2301854947544053379}
   - component: {fileID: 417192380660336554}
+  - component: {fileID: 6777361449197208638}
   m_Layer: 5
   m_Name: Placeholder
   m_TagString: Untagged
@@ -78,6 +79,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Enter your Authentication Token
+--- !u!114 &6777361449197208638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 885662633003203021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1444856acfc68b1449d473e23b3fd75a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: input_pulsoid_token_placeholder
+  _prefix: 
+  _postfix: 
 --- !u!1 &1096762429456654857
 GameObject:
   m_ObjectHideFlags: 0
@@ -661,6 +677,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   key: input_pulsoid_token
+  _prefix: 
+  _postfix: ':'
 --- !u!1001 &2577442020759978196
 PrefabInstance:
   m_ObjectHideFlags: 0

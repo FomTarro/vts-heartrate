@@ -92,6 +92,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   key: input_ranges_title
+  _prefix: 
+  _postfix: 
 --- !u!114 &5482426931971509698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,6 +107,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   key: input_ranges_min
+  _prefix: 
+  _postfix: ':'
 --- !u!1 &1854379987072994579
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,6 +285,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   key: input_ranges_max
+  _prefix: 
+  _postfix: ':'
 --- !u!1 &3937472888970742170
 GameObject:
   m_ObjectHideFlags: 0

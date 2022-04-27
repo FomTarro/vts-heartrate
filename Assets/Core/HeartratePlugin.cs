@@ -83,6 +83,7 @@ public class HeartratePlugin : VTSPlugin
         this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
         this.MODEL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "models");
         LoadGlobalData(); 
+        UIManager.Instance.GoTo(UIManager.Tabs.HEARTRATE_INPUTS);
         Connect();
     }
 

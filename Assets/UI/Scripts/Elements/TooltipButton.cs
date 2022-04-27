@@ -80,7 +80,7 @@ public class TooltipButton : MonoBehaviour
                     "output_custom_params_title",
                     "output_custom_params_tooltip",
                      new PopUp.PopUpOption(
-                        "Learn how to use Custom Parameters",
+                        "output_custom_params_button",
                         true,
                         () => { Application.OpenURL("https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters"); })
                 );
