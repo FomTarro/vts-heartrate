@@ -1,31 +1,39 @@
 language,English,日本語
 settings_language_title,Language,言語
-settings_system_data_title,System Data,
-settings_system_data_open_logs,Open Logs,
-settings_system_data_open_save_data,Open Save Data,
-settings_system_data_open_readme,Open README,
-settings_system_current_version,Current version,
+settings_system_data_title,System Data,システムデータ
+settings_system_data_open_logs,Open Logs,ログを開く
+settings_system_data_open_save_data,Open Save Data,「Save Data」フォルダを開く
+settings_system_data_open_readme,Open README,README を開く
+settings_system_current_version,Current version,現在のバージョン
 ,,
-settings_port_title,VTube Studio Port,
+settings_port_title,VTube Studio Port,VTube Studio ポート
 ,,
-settings_new_version_title,New Version Available!,
+settings_new_version_title,New Version Available!,新しいバージョンが入手可能です。
 settings_new_version_body,"A newer version of this plugin is now available.
 <b>Version</b>: {0}
-<b>Release Date:</b> {1}
+<b>Release Date</b>: {1}
 
-You can download it at: {2}",
-settings_new_version_button_download,Download,
+You can download it at: {2}","このプラグインの新しいバージョンが入手可能となりました。
+<b>バージョン</b>：{0}
+<b>リリース日</b>：{1}
+
+{2} からダウンロードできます。"
+settings_new_version_button_download,Download,ダウンロード
 ,,
-settings_feedback_title,Feedback/Bug Reports,
+settings_feedback_title,Feedback/Bug Reports,フィードバック・バグ報告
 settings_feedback_body,"This plugin is being developed by 
 <b>Tom ""Skeletom"" Farro</b>. You can reach him at:
 
 Twitter: <b>@FomTarro</b>
-Email: <b>tom@skeletom.net</b>",
-settings_feedback_button_email,Email,
-settings_feedback_button_tweet,Tweet,
+Email: <b>tom@skeletom.net</b>","このプラグインは、<b>Tom ""Skeletom"" Farro</b> によって開発中です。
+ご質問・ご用件は 
+Twitter <b>@FomTarro</b>、
+もしくはEメール <b>tom@skeletom.net</b> 
+までご連絡ください。"
+settings_feedback_button_email,Email,開発者にメールを送る
+settings_feedback_button_tweet,Tweet,Twitter へ投稿
 ,,
-input_select_title,Select an Input Method,
+input_select_title,Select an Input Method,入力方式を選択
 input_ranges_title,Expected Heartrate Ranges,心拍数の期待範囲
 input_ranges_tooltip,"Input your expected range of heartrates here. <b>%input_ranges_min</b> refers to your low-stress heartrate, while <b>%input_ranges_max</b> refers to your high-stress heartrate.
 
@@ -47,7 +55,7 @@ By clicking the <b>'%input_pulsoid_button_login' button</b>, you will be asked t
 input_pulsoid_button_login,Log In,ログイン
 input_pulsoid_button_visit,Visit pulsoid.net,pulsoid.net にアクセス
 input_pulsoid_token,Authentication Token,認証トークン
-input_pulsoid_token_placeholder,Enter your %input_pulsoid_token,
+input_pulsoid_token_placeholder,Enter your %input_pulsoid_token,%input_pulsoid_token をここに入力
 input_pulsoid_feed_title,Pulsoid (Widget Feed),Pulsoid (Widget Feed)
 input_pulsoid_feed_tooltip,"%input_pulsoid_overview
 
@@ -79,9 +87,13 @@ input_ant_plus_tooltip,"<b>ANT+</b> is a low-power protocol supported by many sp
 This input method allows for direct connection to your ANT+ device, provided that you have a <b>USB receiver</b> plugged in.\n\n
 By clicking the <b>'Refresh' button</b>, this plugin will begin a continuous scan for devices that output heartrate data.
 Then, simply select one from the dropdown and click the <b>'%input_ant_plus_button_connect' button</b>.\n\n
-Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.",
-input_ant_plus_button_visit,Visit thisisant.com,
-input_ant_devices,Available Devices,
+Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.","<b>ANT+</b> は、多くのスポーツやフィットネス系のウェアラブル端末で使用されている低電力プロトコルです。\n\n
+この入力方式により、<b>USB受信機</b>がPCに接続されていれば、ANT+ デバイスとの直接接続が可能です。\n\n
+<b>「更新」ボタン</b>をクリックすると、本プラグインは心拍数データを出力するデバイスのスキャンを開始します。
+その後、ドロップダウンリストから希望のデバイスを選択し、<b>「#input_ant_plus_button_connect」ボタン</b>をクリックするだけで、選択したデバイスと接続されます。\n\n
+このプラグインは ANT+ の公式ライセンスまたは認定ソフトウェアではありませんので、ご了承ください。"
+input_ant_plus_button_visit,Visit thisisant.com,thisisant.com へアクセス
+input_ant_devices,Available Devices,接続可能なデバイス
 ,,
 output_artmesh_title,Art Mesh Tint,アートメッシュの色付け
 output_artmesh_new,Create %output_artmesh_title,%output_artmesh_title の新規作成
@@ -105,23 +117,22 @@ output_artmesh_label_meshes_placeholder,Enter mesh names (comma separated),メ�
 ,,
 output_expressions_title,Expression Trigger,表情の切り替え
 output_expressions_new,Create %output_expressions_title,%output_expressions_title を新規作成する
-output_expressions_tooltip,"This output will cause an <b>Expression</b> to <b>activate or deactivate</b> when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings. ","この出力は、現在の心拍数が<b>所定のしきい値を超える</b>場合に、特定の<b>表情</b>を再生又は元の表情に戻させます。
-心拍数が所定のしきい値以下に下がると、表情は元の状態に戻ります。"
+output_expressions_tooltip,"This output will cause an <b>Expression</b> to <b>activate or deactivate</b> when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings. ",この出力は、選択された設定に基づき、現在の心拍数が<b>所定の閾値以上または以下</b>になったときに、特定の<b>表情</b>を</b>再生または元の表情に戻します</b>。
 output_expressions_behavior_aadb,"%output_expressions_behavior_aa, output_expressions_behavior_db","%output_expressions_behavior_aa, output_expressions_behavior_db"
 output_expressions_behavior_daab,"%output_expressions_behavior_da, output_expressions_behavior_ab","%output_expressions_behavior_da, output_expressions_behavior_ab"
-output_expressions_behavior_aa,Activate above,
-output_expressions_behavior_da,Deactivate above,
-output_expressions_behavior_db,Deactivate below,
-output_expressions_behavior_ab,Activate below,
+output_expressions_behavior_aa,Activate above,閾値以上になると再生
+output_expressions_behavior_da,Deactivate above,閾値以上になると停止
+output_expressions_behavior_db,Deactivate below,閾値以下になると停止
+output_expressions_behavior_ab,Activate below,閾値以下になると再生
 ,,
-output_hotkey_title,Hotkey Trigger,
-output_hotkey_new,Create %output_hotkey_title,%output_hotkey_title を新規作成する
-output_hotkey_tooltip,"This output will cause a <b>Hotkey</b> to be triggered when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings.",
+output_hotkey_title,Hotkey Trigger,ショートカットキートリガー
+output_hotkey_new,Create %output_hotkey_title,%output_hotkey_title を新規作成
+output_hotkey_tooltip,"This output will cause a <b>Hotkey</b> to be triggered when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings.",この出力は、選択された設定に基づき、現在の心拍数が<b>所定の閾値以上または以下</b>になったときに、特定の<b>ショートカットキー</b>を動作させます。
 output_hotkey_behavior_ab,"%output_hotkey_behavior_a, %output_hotkey_behavior_b","%output_hotkey_behavior_a, %output_hotkey_behavior_b"
-output_hotkey_behavior_a,Trigger above,
-output_hotkey_behavior_b,Trigger below,
+output_hotkey_behavior_a,Trigger above,閾値以上になると動作
+output_hotkey_behavior_b,Trigger below,閾値以下になると動作
 ,,
-output_custom_params_title,Custom Parameters,
+output_custom_params_title,Custom Parameters,カスタムパラメータ
 output_custom_params_tooltip,"This plugin outputs four custom tracking parameters for use. They are as follows:\n
 <b>VTS_Heartrate_Linear</b>: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.\n
 <b>VTS_Heartrate_Pulse</b>: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.\n
@@ -131,7 +142,7 @@ output_custom_params_tooltip,"This plugin outputs four custom tracking parameter
 <b>VTS_Heartrate_Pulse</b>：心拍数と一致する周波数で、0.0から1.0の間で振動する値。\n
 <b>VTS_Heartrate_Breath</b>：<b>VTS_Heartrate_Pulse</b>（心拍数）より遅い周波数で、0.0から1.0の間で振動する値。モデルの ParamBreath（呼吸パラメータ）をコントロールするのに適しています。\n
 <b>VTS_Heartrate_BPM</b>：0 から 255 まで、実際の現在の心拍数を表す値。\n"
-output_custom_params_button,Learn how to use Custom Parameters,
+output_custom_params_button,Learn how to use Custom Parameters,カスタムパラメータの使用方法についてはこちら
 ,,
 output_copy_profile_title,Copy Profile Settings,プロファイル設定のコピー
 output_copy_profile_tooltip,"This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
@@ -141,9 +152,10 @@ As a result, any settings configured for your currently loaded model will be per
 コピーする場合、現在読み込んでいるモデルに対する設定は永久的に削除されます。"
 ,,
 button_generic_copy,Copy,コピー
-button_generic_delete,Delete,消す
-button_tab_inputs,Inputs,
+button_generic_delete,Delete,削除
+button_tab_inputs,Inputs,入力
 button_tab_outputs,Outputs,出力
-button_tab_settings,Settings,
-button_generic_connect,Connect,
-button_generic_disconnect,Disconnect,
+button_tab_settings,Settings,設定
+button_generic_connect,Connect,接続
+button_generic_disconnect,Disconnect,接続解除
+end,,

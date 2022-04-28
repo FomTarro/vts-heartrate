@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class AntPlusDeviceSelector : RefreshableDropdown
 {
@@ -7,7 +9,11 @@ public class AntPlusDeviceSelector : RefreshableDropdown
     AntPlusManager.Instance.Devices[this._dropdown.value] : null; } }
     public override void Refresh()
     {
-        AntPlusManager.Instance.StartScan();
+        try{
+            AntPlusManager.Instance.StartScan();
+        }catch(Exception e){
+            Debug.LogError(e);
+        }
     }
 
     private void Update(){
