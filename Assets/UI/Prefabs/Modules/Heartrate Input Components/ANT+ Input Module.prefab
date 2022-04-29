@@ -277,6 +277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dropdown: {fileID: 8836135272069277809}
+  _status: {fileID: 4873843783968914590}
 --- !u!1 &2794805673853499662
 GameObject:
   m_ObjectHideFlags: 0

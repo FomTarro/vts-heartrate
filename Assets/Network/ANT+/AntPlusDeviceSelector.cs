@@ -4,16 +4,15 @@ using UnityEngine;
 
 public class AntPlusDeviceSelector : RefreshableDropdown
 {
+    [SerializeField]
+    private StatusIndicator _status = null;
     private List<string> _devices = new List<string>();
     public AntDevice Device { get { return AntPlusManager.Instance.Devices.Count > 0 ? 
     AntPlusManager.Instance.Devices[this._dropdown.value] : null; } }
     public override void Refresh()
     {
-        try{
-            AntPlusManager.Instance.StartScan();
-        }catch(Exception e){
-            Debug.LogError(e);
-        }
+        AntPlusManager.Instance.StartScan(this._status.SetStatus);
+    
     }
 
     private void Update(){

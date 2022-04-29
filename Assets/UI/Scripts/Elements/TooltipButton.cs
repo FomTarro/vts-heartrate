@@ -70,7 +70,7 @@ public class TooltipButton : MonoBehaviour
                     "output_artmesh_title",
                     "output_artmesh_tooltip",
                     new PopUp.PopUpOption(
-                        "Visit VTubeStudioTagger",
+                        "output_artmesh_button",
                         true,
                         () => { Application.OpenURL("https://hawk.bar/VTubeStudioTagger/"); })
                 );

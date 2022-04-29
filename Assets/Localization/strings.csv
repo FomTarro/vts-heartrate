@@ -114,6 +114,7 @@ If you are unsure of what your Art Meshes are named, a great web-tool was develo
 自分のモデルのアートメッシュの名前がわからない場合、<b>Hawkbar</b> により開発された <b>VTubeStudioTagger</b> という優れたウェブツールを利用することで、モデルのアートメッシュの名前をわかりやすく簡単に確認することができます。"
 output_artmesh_label_mesh,Meshes,メッシュ
 output_artmesh_label_meshes_placeholder,Enter mesh names (comma separated),メッシュ名を入力（カンマ区切り）
+output_artmesh_button,Visit VTubeStudioTagger, VTubeStudioTaggerにアクセス
 ,,
 output_expressions_title,Expression Trigger,表情の切り替え
 output_expressions_new,Create %output_expressions_title,%output_expressions_title を新規作成する

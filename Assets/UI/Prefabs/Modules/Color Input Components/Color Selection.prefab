@@ -383,7 +383,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   key: output_artmesh_label_mesh
   _prefix: 
-  _postfix: 
+  _postfix: ':'
 --- !u!1 &6932259840750054812
 GameObject:
   m_ObjectHideFlags: 0
@@ -705,6 +705,31 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3569776094588039521}
     m_Modifications:
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4321503657628375088, guid: a449af0aa1f11c247b0f5451402337af,
         type: 3}
       propertyPath: m_Pivot.x
@@ -819,6 +844,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Copy Button Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392800112339697968, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8788857475914668639, guid: a449af0aa1f11c247b0f5451402337af,
         type: 3}

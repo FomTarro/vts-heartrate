@@ -31,18 +31,29 @@ public class AntPlusManager : Singleton<AntPlusManager> {
     private const float TIMEOUT_SECONDS = 5f;
 
     //Start a background Scan to find the device
-    public void StartScan() {
-        Debug.Log("Looking for ANT + HeartRate sensor");
-        AntManager.Instance.Init();
-        this._scanResult = new List<AntDevice>();
-        if(this._connectedDevice.device != null){
-            this._scanResult.Add(this._connectedDevice.device);
+    public void StartScan(Action<HttpUtils.ConnectionStatus> onStatus) {
+        try{
+            Debug.Log("Looking for ANT + HeartRate sensor");
+            AntManager.Instance.Init();
+            this._scanResult = new List<AntDevice>();
+            if(this._connectedDevice.device != null){
+                this._scanResult.Add(this._connectedDevice.device);
+            }
+            this._backgroundScanChannel = AntManager.Instance.OpenBackgroundScanChannel(0);
+            this._backgroundScanChannel.onReceiveData += OnReceivedBackgroundScanData;
+        }catch(Exception e){
+            Debug.LogError(e);
+            HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
+            if(e.GetType() == typeof(ANT_Exception)){
+                errorStatus.message = "Unable to initialize USB:0";
+            }else{
+                errorStatus.message = e.Message;
+            }
+            errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
+            onStatus.Invoke(errorStatus); 
         }
-        this._backgroundScanChannel = AntManager.Instance.OpenBackgroundScanChannel(0);
-        this._backgroundScanChannel.onReceiveData += OnReceivedBackgroundScanData;
     }
 
-    //Windows and mac 
     //If the device is found 
     void OnReceivedBackgroundScanData(Byte[] data) {
         byte deviceType = (data[12]); // extended info Device Type byte
