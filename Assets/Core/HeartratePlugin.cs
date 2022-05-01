@@ -540,18 +540,17 @@ public class HeartratePlugin : VTSPlugin
 
     public void CopyModelData(string modelID, string modelName){
         UIManager.Instance.ShowPopUp(
-            "Confrim Data Copy",
-            String.Format("Are you sure that you want to <b>copy model settings data</b> from <b>{0}</b> to your currently loaded model, <b>{1}</b>?\n"+
-            "Doing so will <b>permanently erase</b> any settings your currently loaded model has configured.", modelName, this._currentModel.data.modelName),
+            "output_copy_profile_title",
+            String.Format("output_copy_profile_warning", modelName, this._currentModel.data.modelName),
             new PopUp.PopUpOption(
-                "Proceed",
+                "output_copy_profile_button_yes",
                 true,
                 () => {
                     LoadModelData(modelID);
                     UIManager.Instance.HidePopUp();
                 }),
             new PopUp.PopUpOption(
-                "Cancel",
+                "output_copy_profile_button_no",
                 false,
                 () => {
                     UIManager.Instance.HidePopUp();

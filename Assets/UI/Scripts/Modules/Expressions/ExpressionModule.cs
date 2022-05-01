@@ -170,12 +170,18 @@ public class ExpressionModule : MonoBehaviour
 
     private static List<string> Names(){
         return new List<String> ( new String[] {
-            "Activate above, Deactivate below",
-            "Deactivate above, Activate below",
-            "Activate above",
-            "Deactivate above",
-            "Activate below",
-            "Deactivate below",
+            "output_expressions_behavior_aadb",
+            "output_expressions_behavior_daab",
+            "output_expressions_behavior_aa",
+            "output_expressions_behavior_da",
+            "output_expressions_behavior_db",
+            "output_expressions_behavior_ab"
+            // "Activate above, Deactivate below",
+            // "Deactivate above, Activate below",
+            // "Activate above",
+            // "Deactivate above",
+            // "Activate below",
+            // "Deactivate below",
         } ); 
     }
 }

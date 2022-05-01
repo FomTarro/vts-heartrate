@@ -160,9 +160,12 @@ public class HotkeyModule : MonoBehaviour
     }
     private static List<string> Names(){
         return new List<String> ( new String[] {
-            "Activate above, Activate below",
-            "Activate above",
-            "Activate below",
+            "output_hotkey_behavior_ab",
+            "output_hotkey_behavior_a",
+            "output_hotkey_behavior_b"
+            // "Activate above, Activate below",
+            // "Activate above",
+            // "Activate below",
         } ); 
     }
 }

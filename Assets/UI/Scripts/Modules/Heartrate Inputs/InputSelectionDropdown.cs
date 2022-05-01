@@ -12,7 +12,7 @@ public class InputSelectionDropdown : RefreshableDropdown
     {
         this._modules.Clear();
         foreach(HeartrateInputModule module in HeartrateManager.Instance.Plugin.HeartrateInputs){
-            this._modules.Add(LocalizationManager.Instance.GetString(module.ToString()), module);
+            this._modules.Add(module.ToString(), module);
         }
         RefreshValues(this._modules.Keys);
     }
@@ -23,8 +23,8 @@ public class InputSelectionDropdown : RefreshableDropdown
     }
 
     private void Update(){
-        //TODO: this is janked up
-        string activeModule = LocalizationManager.Instance.GetString(HeartrateManager.Instance.Plugin.ActiveInputModule);
+        //TODO: this is janked up, but polls to check what the active input module is so as to make the UI reflect that
+        string activeModule = HeartrateManager.Instance.Plugin.ActiveInputModule;
         if(HeartrateManager.Instance.Plugin.ActiveInputModule != null && this._dropdown.value >= 0 && 
         (this._dropdown.options[this._dropdown.value].text != activeModule)){
             int index = this.StringToIndex(activeModule);

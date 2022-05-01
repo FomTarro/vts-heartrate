@@ -23,13 +23,10 @@ public class HeartrateManager : Singleton<HeartrateManager>
                 Debug.Log(CompareVersion(info) ? "Newer version needed: " + info.url : "Up to date.");
                 if(CompareVersion(info)){
                     UIManager.Instance.ShowPopUp(
-                        "New Version Available!",
-                        string.Format("A newer version of this Plugin is now available.\n"+
-                        "<b>Version</b>: {0}\n"+
-                        "<b>Release Date:</b> {1}\n\n"+
-                        "You can download it at: {2}", info.version, info.date, info.url),
+                        "settings_new_version_title",
+                        string.Format("settings_new_version_body", info.version, info.date, info.url),
                         new PopUp.PopUpOption(
-                            "Download", 
+                            "settings_new_version_button_download", 
                             true, 
                             () => { Application.OpenURL(info.url); })
                         );

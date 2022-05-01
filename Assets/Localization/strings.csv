@@ -8,6 +8,7 @@ settings_system_current_version,Current version,現在のバージョン
 ,,
 settings_port_title,VTube Studio Port,VTube Studio ポート
 ,,
+settings_current_version,Current Version: {0},カレントバージョン: {0}
 settings_new_version_title,New Version Available!,新しいバージョンが入手可能です。
 settings_new_version_body,"A newer version of this plugin is now available.
 <b>Version</b>: {0}
@@ -83,14 +84,20 @@ Useful if you have another program that can output heartrate data.","この入�
 input_file_path,File Path,ファイルパス
 input_file_path_paceholder,Enter absolute file path,ファイルの絶対パスを入力
 input_ant_plus_title,ANT+,ANT+
-input_ant_plus_tooltip,"<b>ANT+</b> is a low-power protocol supported by many sport and fitness sensors.\n\n
-This input method allows for direct connection to your ANT+ device, provided that you have a <b>USB receiver</b> plugged in.\n\n
+input_ant_plus_tooltip,"<b>ANT+</b> is a low-power protocol supported by many sport and fitness sensors.
+
+This input method allows for direct connection to your ANT+ device, provided that you have a <b>USB receiver</b> plugged in.
+
 By clicking the <b>'Refresh' button</b>, this plugin will begin a continuous scan for devices that output heartrate data.
-Then, simply select one from the dropdown and click the <b>'%input_ant_plus_button_connect' button</b>.\n\n
-Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.","<b>ANT+</b> は、多くのスポーツやフィットネス系のウェアラブル端末で使用されている低電力プロトコルです。\n\n
-この入力方式により、<b>USB受信機</b>がPCに接続されていれば、ANT+ デバイスとの直接接続が可能です。\n\n
+Then, simply select one from the dropdown and click the <b>'%input_ant_plus_button_connect' button</b>.
+
+Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.","<b>ANT+</b> は、多くのスポーツやフィットネス系のウェアラブル端末で使用されている低電力プロトコルです。
+
+この入力方式により、<b>USB受信機</b>がPCに接続されていれば、ANT+ デバイスとの直接接続が可能です。
+
 <b>「更新」ボタン</b>をクリックすると、本プラグインは心拍数データを出力するデバイスのスキャンを開始します。
-その後、ドロップダウンリストから希望のデバイスを選択し、<b>「#input_ant_plus_button_connect」ボタン</b>をクリックするだけで、選択したデバイスと接続されます。\n\n
+その後、ドロップダウンリストから希望のデバイスを選択し、<b>「#input_ant_plus_button_connect」ボタン</b>をクリックするだけで、選択したデバイスと接続されます。
+
 このプラグインは ANT+ の公式ライセンスまたは認定ソフトウェアではありませんので、ご了承ください。"
 input_ant_plus_button_visit,Visit thisisant.com,thisisant.com へアクセス
 input_ant_devices,Available Devices,接続可能なデバイス
@@ -99,28 +106,24 @@ output_artmesh_title,Art Mesh Tint,アートメッシュの色付け
 output_artmesh_new,Create %output_artmesh_title,%output_artmesh_title の新規作成
 output_artmesh_tooltip,"This output will gradually tint the matched <b>Art Meshes</b> the desired color, based on your current heartrate.
 
-
 <b>Art Meshes</b> are matched as long as their names or tags contain <b>any</b> of the provided list of text to match. For example, providing the text '<b>head,mouth,neck</b>' will match Art Meshes with names like '<b>forehead</b>', '<b>outermouth2</b>', and '<b>leftneckside1</b>'.
-
 
 Text to match must be <b>comma separated</b> and should <b>not contain spaces</b>.
 If you are unsure of what your Art Meshes are named, a great web-tool was developed by <b>Hawkbar</b> called <b>VTubeStudioTagger</b>, which offers an intuitive way to discover the names of your model's Art Meshes.","この出力は、現在の心拍数に基づいて、徐々にマッチされる<b>アートメッシュ</b>に所望の色を薄く付けます。
 
-
 <b>アートメッシュ</b>は、その名前またはタグのテキストが、入力した検索対象リストのいずれかとマッチすればマッチされます。例えば、「<b>鼻,頬,唇</b>」を入力すると、「<b>鼻</b>」、「<b>右頬1</b>」、「<b>上唇</b>」などの名前が付いているアートメッシュがマッチされます。
-
 
 検索対象となるテキストは<b>カンマ「,」で区切り</b>、<b>スペースを含んではいけません</b>。
 自分のモデルのアートメッシュの名前がわからない場合、<b>Hawkbar</b> により開発された <b>VTubeStudioTagger</b> という優れたウェブツールを利用することで、モデルのアートメッシュの名前をわかりやすく簡単に確認することができます。"
 output_artmesh_label_mesh,Meshes,メッシュ
 output_artmesh_label_meshes_placeholder,Enter mesh names (comma separated),メッシュ名を入力（カンマ区切り）
-output_artmesh_button,Visit VTubeStudioTagger, VTubeStudioTaggerにアクセス
+output_artmesh_button,Visit VTubeStudioTagger,VTubeStudioTagger にアクセス
 ,,
 output_expressions_title,Expression Trigger,表情の切り替え
 output_expressions_new,Create %output_expressions_title,%output_expressions_title を新規作成する
 output_expressions_tooltip,"This output will cause an <b>Expression</b> to <b>activate or deactivate</b> when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings. ",この出力は、選択された設定に基づき、現在の心拍数が<b>所定の閾値以上または以下</b>になったときに、特定の<b>表情</b>を</b>再生または元の表情に戻します</b>。
-output_expressions_behavior_aadb,"%output_expressions_behavior_aa, output_expressions_behavior_db","%output_expressions_behavior_aa, output_expressions_behavior_db"
-output_expressions_behavior_daab,"%output_expressions_behavior_da, output_expressions_behavior_ab","%output_expressions_behavior_da, output_expressions_behavior_ab"
+output_expressions_behavior_aadb,"%output_expressions_behavior_aa, %output_expressions_behavior_db","%output_expressions_behavior_aa, %output_expressions_behavior_db"
+output_expressions_behavior_daab,"%output_expressions_behavior_da, %output_expressions_behavior_ab","%output_expressions_behavior_da, %output_expressions_behavior_ab"
 output_expressions_behavior_aa,Activate above,閾値以上になると再生
 output_expressions_behavior_da,Deactivate above,閾値以上になると停止
 output_expressions_behavior_db,Deactivate below,閾値以下になると停止
@@ -134,15 +137,24 @@ output_hotkey_behavior_a,Trigger above,閾値以上になると動作
 output_hotkey_behavior_b,Trigger below,閾値以下になると動作
 ,,
 output_custom_params_title,Custom Parameters,カスタムパラメータ
-output_custom_params_tooltip,"This plugin outputs four custom tracking parameters for use. They are as follows:\n
-<b>VTS_Heartrate_Linear</b>: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.\n
-<b>VTS_Heartrate_Pulse</b>: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.\n
-<b>VTS_Heartrate_Breath</b>: A value that oscillates between 0.0 and 1.0 with a frequency slower than <b>VTS_Heartrate_Pulse</b>, suitable for controlling your model's <b>ParamBreath</b> output.\n
-<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM from 0 to 255, rather than an interpolated value.\n","このプラグインは次のように、四つのカスタムトラッキングパラメータを出力します。\n
-<b>VTS_Heartrate_Linear</b>：心拍数が期待される範囲内で変化する際、比例して 0.0 から 1.0 にスケールする値。\n
-<b>VTS_Heartrate_Pulse</b>：心拍数と一致する周波数で、0.0から1.0の間で振動する値。\n
-<b>VTS_Heartrate_Breath</b>：<b>VTS_Heartrate_Pulse</b>（心拍数）より遅い周波数で、0.0から1.0の間で振動する値。モデルの ParamBreath（呼吸パラメータ）をコントロールするのに適しています。\n
-<b>VTS_Heartrate_BPM</b>：0 から 255 まで、実際の現在の心拍数を表す値。\n"
+output_custom_params_tooltip,"This plugin outputs four custom tracking parameters for use. They are as follows:
+
+<b>VTS_Heartrate_Linear</b>: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.
+
+<b>VTS_Heartrate_Pulse</b>: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.
+
+<b>VTS_Heartrate_Breath</b>: A value that oscillates between 0.0 and 1.0 with a frequency slower than <b>VTS_Heartrate_Pulse</b>, suitable for controlling your model's <b>ParamBreath</b> output.
+
+<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM from 0 to 255, rather than an interpolated value.
+","このプラグインは次のように、四つのカスタムトラッキングパラメータを出力します。
+
+<b>VTS_Heartrate_Linear</b>：心拍数が期待される範囲内で変化する際、比例して 0.0 から 1.0 にスケールする値。
+
+<b>VTS_Heartrate_Pulse</b>：心拍数と一致する周波数で、0.0から1.0の間で振動する値。
+
+<b>VTS_Heartrate_Breath</b>：<b>VTS_Heartrate_Pulse</b>（心拍数）より遅い周波数で、0.0から1.0の間で振動する値。モデルの ParamBreath（呼吸パラメータ）をコントロールするのに適しています。
+
+<b>VTS_Heartrate_BPM</b>：0 から 255 まで、実際の現在の心拍数を表す値。（この出力値は実際値であり、スケーリングされた値ではありません）"
 output_custom_params_button,Learn how to use Custom Parameters,カスタムパラメータの使用方法についてはこちら
 ,,
 output_copy_profile_title,Copy Profile Settings,プロファイル設定のコピー
@@ -151,6 +163,10 @@ output_copy_profile_tooltip,"This feature allows you to <b>copy all of your outp
 As a result, any settings configured for your currently loaded model will be permanently erased.","この機能により、あるモデルの<b>すべての出力設定</b>（アートメッシュの色付け、表情の切り替えなど）を、現在読み込んでいるモデルにコピーすることが可能です。
 
 コピーする場合、現在読み込んでいるモデルに対する設定は永久的に削除されます。"
+output_copy_profile_warning,"Are you sure that you want to <b>copy model settings data</b> from <b>{0}</b> to your currently loaded model, <b>{1}</b>?
+Doing so will <b>permanently erase</b> any settings your currently loaded model has configured.",
+output_copy_profile_button_yes,Copy,コピー
+output_copy_profile_button_no,Cancel,キャンセル
 ,,
 button_generic_copy,Copy,コピー
 button_generic_delete,Delete,削除
@@ -159,4 +175,6 @@ button_tab_outputs,Outputs,出力
 button_tab_settings,Settings,設定
 button_generic_connect,Connect,接続
 button_generic_disconnect,Disconnect,接続解除
+label_generic_settings,Settings,設定
+label_generic_threshold,Threshold,閾
 end,,
