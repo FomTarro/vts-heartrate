@@ -121,7 +121,7 @@ namespace Localization
         /// Returns true if the current language is fullwidth, false if halfwidth
         /// </summary>
         /// <returns></returns>
-        public bool IsLanguageCurrentFullwidth(){
+        public bool IsFullwidth(){
             return this.CurrentLanguage == SupportedLanguage.JAPANESE;
         }
 
@@ -254,6 +254,10 @@ namespace Localization
                 // here, you can insert your own method of doing RTL text cleanup.
                 // I'd recommend using https://github.com/Konash/arabic-support-unity 
                 // big thanks to Open Source code from Abdullah Konash!
+            }
+            if(IsFullwidth()){
+                // List<string> split = Mikan.Mikan.Split(value);
+                // value = String.Join("\u200B", split); // the no-width space character
             }
             return value;
         }

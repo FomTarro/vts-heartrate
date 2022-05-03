@@ -38,9 +38,9 @@ input_select_title,Select an Input Method,入力方式を選択
 input_ranges_title,Expected Heartrate Ranges,心拍数の期待範囲
 input_ranges_tooltip,"Input your expected range of heartrates here. <b>%input_ranges_min</b> refers to your low-stress heartrate, while <b>%input_ranges_max</b> refers to your high-stress heartrate.
 
-The values of the various <b>Outputs</b> will be scaled based on where your current heartrate lands along this range.","こちらに期待される心拍数の範囲を入力してください。<b>%input_ranges_min</b> は最低心拍数、<b>%input_ranges_max</b> は最大心拍数です。 
+The values of the various <b>%button_tab_outputs</b> will be scaled based on where your current heartrate lands along this range.","こちらに期待される心拍数の範囲を入力してください。<b>%input_ranges_min</b> は最低心拍数、<b>%input_ranges_max</b> は最大心拍数です。 
 
-各出力値 <b>%button_outputs</b> は、現在の心拍数が入力した心拍数の範囲内のどこに位置するかによってスケーリングされます。"
+各出力値 <b>%button_tab_outputs</b> は、現在の心拍数が入力した心拍数の範囲内のどこに位置するかによってスケーリングされます。"
 input_ranges_min,Resting,安静時
 input_ranges_max,Maximum,最大
 input_slider_title,Test Slider,テストスライダー
