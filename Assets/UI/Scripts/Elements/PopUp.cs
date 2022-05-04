@@ -4,14 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using UI.InputTools;
 using UI.Animation;
+using TMPro;
 
 public class PopUp : MonoBehaviour
 {
 
     [SerializeField]
-    private Text _title = null;
+    private TMP_Text _title = null;
     [SerializeField]
-    private Text _content = null;
+    private TMP_Text _content = null;
 
     [SerializeField]
     private ExtendedButton _buttonPrefab = null;

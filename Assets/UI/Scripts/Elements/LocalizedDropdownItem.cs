@@ -14,4 +14,10 @@ public class LocalizedDropdownItem : MonoBehaviour
     private void Start(){
         this._localizedText.ChangeKey(this._text.text);
     }
+
+    private void Update(){
+        if(!this._text.text.Equals(this._localizedText.Key)){
+            this._localizedText.ChangeKey(this._text.text);
+        }
+    }
 }
