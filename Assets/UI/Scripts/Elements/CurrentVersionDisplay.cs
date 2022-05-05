@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class CurrentVersionDisplay : MonoBehaviour
 {
     [SerializeField]
-    private Text _text = null;
+    private TMP_Text _text = null;
 
     // Start is called before the first frame update
     void Start()

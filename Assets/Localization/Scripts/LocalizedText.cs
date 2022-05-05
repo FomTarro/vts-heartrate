@@ -1,17 +1,18 @@
 ﻿using UnityEngine.UI;
 using UnityEngine;
 using System.Text;
+using TMPro;
 
 namespace Localization
 {
-    [RequireComponent(typeof(Text))]
+    [RequireComponent(typeof(TMP_Text))]
     public class LocalizedText : MonoBehaviour {
 
         [SerializeField]
         private string key = string.Empty;
         public string Key { get { return this.key; } }
 
-        private Text _text;
+        private TMP_Text _text;
 
         [SerializeField]
         private string _prefix = "";
@@ -21,7 +22,7 @@ namespace Localization
 
         void Awake()
         {
-            _text = GetComponent<Text>();
+            _text = GetComponent<TMP_Text>();
             LocalizationManager.RegisterLocalizedText(this);
         }
 
@@ -52,7 +53,7 @@ namespace Localization
         {
             if (_text == null)
             {
-                _text = GetComponent<Text>();
+                _text = GetComponent<TMP_Text>();
             }
             string val = LocalizationManager.Instance.GetString(key);
             _text.text = _prefix + val + _postfix;

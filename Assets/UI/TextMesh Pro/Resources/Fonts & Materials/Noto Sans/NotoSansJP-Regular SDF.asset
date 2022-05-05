@@ -110,9 +110,9 @@ Material:
     - _OutlineWidth: 0
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
-    - _ScaleRatioA: 1
-    - _ScaleRatioB: 1
-    - _ScaleRatioC: 1
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 0.73125
+    - _ScaleRatioC: 0.73125
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
@@ -156,15 +156,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: NotoSansJP-Regular SDF
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: 311269161
   material: {fileID: -1838112848264866091}
-  materialHashCode: 0
+  materialHashCode: 33873257
   m_Version: 1.1.0
   m_SourceFontFileGUID: 29bf93bd5144adf4a998927f7c941066
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 29bf93bd5144adf4a998927f7c941066,
     type: 3}
-  m_SourceFontFile: {fileID: 12800000, guid: 29bf93bd5144adf4a998927f7c941066, type: 3}
-  m_AtlasPopulationMode: 1
+  m_SourceFontFile: {fileID: 0}
+  m_AtlasPopulationMode: 0
   m_FaceInfo:
     m_FaceIndex: 0
     m_FamilyName: Noto Sans JP

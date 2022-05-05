@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class CustomParameterEntry : MonoBehaviour
 {
     [SerializeField]
-    private Text _title = null;
+    private TMP_Text _title = null;
     [SerializeField]
-    private Text _value = null;
+    private TMP_Text _value = null;
 
     public void SetValue(string title, float value){
         this._title.text = title;

@@ -28,6 +28,7 @@ settings_feedback_body,"This plugin is being developed by
 Twitter: <b>@FomTarro</b>
 Email: <b>tom@skeletom.net</b>","このプラグインは、<b>Tom ""Skeletom"" Farro</b> によって開発中です。
 ご質問・ご用件は 
+
 Twitter <b>@FomTarro</b>、
 もしくはEメール <b>tom@skeletom.net</b> 
 までご連絡ください。"
@@ -89,14 +90,14 @@ input_ant_plus_tooltip,"<b>ANT+</b> is a low-power protocol supported by many sp
 This input method allows for direct connection to your ANT+ device, provided that you have a <b>USB receiver</b> plugged in.
 
 By clicking the <b>'Refresh' button</b>, this plugin will begin a continuous scan for devices that output heartrate data.
-Then, simply select one from the dropdown and click the <b>'%input_ant_plus_button_connect' button</b>.
+Then, simply select one from the dropdown and click the <b>'%button_generic_connect' button</b>.
 
 Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.","<b>ANT+</b> は、多くのスポーツやフィットネス系のウェアラブル端末で使用されている低電力プロトコルです。
 
 この入力方式により、<b>USB受信機</b>がPCに接続されていれば、ANT+ デバイスとの直接接続が可能です。
 
 <b>「更新」ボタン</b>をクリックすると、本プラグインは心拍数データを出力するデバイスのスキャンを開始します。
-その後、ドロップダウンリストから希望のデバイスを選択し、<b>「#input_ant_plus_button_connect」ボタン</b>をクリックするだけで、選択したデバイスと接続されます。
+その後、ドロップダウンリストから希望のデバイスを選択し、<b>「%button_generic_connect」ボタン</b>をクリックするだけで、選択したデバイスと接続されます。
 
 このプラグインは ANT+ の公式ライセンスまたは認定ソフトウェアではありませんので、ご了承ください。"
 input_ant_plus_button_visit,Visit thisisant.com,thisisant.com へアクセス
@@ -145,8 +146,7 @@ output_custom_params_tooltip,"This plugin outputs four custom tracking parameter
 
 <b>VTS_Heartrate_Breath</b>: A value that oscillates between 0.0 and 1.0 with a frequency slower than <b>VTS_Heartrate_Pulse</b>, suitable for controlling your model's <b>ParamBreath</b> output.
 
-<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM from 0 to 255, rather than an interpolated value.
-","このプラグインは次のように、四つのカスタムトラッキングパラメータを出力します。
+<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM from 0 to 255, rather than a normalized value from 0.0 to 1.0","このプラグインは次のように、四つのカスタムトラッキングパラメータを出力します。
 
 <b>VTS_Heartrate_Linear</b>：心拍数が期待される範囲内で変化する際、比例して 0.0 から 1.0 にスケールする値。
 
@@ -176,5 +176,6 @@ button_tab_settings,Settings,設定
 button_generic_connect,Connect,接続
 button_generic_disconnect,Disconnect,接続解除
 label_generic_settings,Settings,設定
-label_generic_threshold,Threshold,閾
+label_generic_threshold,Threshold,閾値
+RGBA,,
 end,,

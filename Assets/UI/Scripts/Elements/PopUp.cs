@@ -50,7 +50,7 @@ public class PopUp : MonoBehaviour
                 Quaternion.identity, 
                 this._buttonParent);
             button.GetComponent<Image>().color = option.positive ? ColorUtils.GREEN : ColorUtils.RED;
-            button.GetComponentInChildren<Text>().text = Localization.LocalizationManager.Instance.GetString(option.text);
+            button.GetComponentInChildren<TMP_Text>().text = Localization.LocalizationManager.Instance.GetString(option.text);
             button.onPointerUp.AddListener(() => {option.callback();});
         }
         this._buttonParent.gameObject.SetActive(options.Length > 0);

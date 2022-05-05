@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public abstract class HeartrateInputModule : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
     public InputType Type { get { return this._type; } }
 
     [SerializeField]
-    private Text _label = null;
+    private TMP_Text _label = null;
     private Localization.LocalizedText _localizedLabel = null;
 
     public void Start(){

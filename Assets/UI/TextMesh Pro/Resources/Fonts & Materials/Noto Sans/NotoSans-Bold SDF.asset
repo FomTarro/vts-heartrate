@@ -54,15 +54,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: NotoSans-Bold SDF
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: 514071788
   material: {fileID: 8563325617296964290}
-  materialHashCode: 0
+  materialHashCode: 625010380
   m_Version: 1.1.0
   m_SourceFontFileGUID: 76bb6e96ca3bd3546a62d8e90f59449e
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 76bb6e96ca3bd3546a62d8e90f59449e,
     type: 3}
-  m_SourceFontFile: {fileID: 12800000, guid: 76bb6e96ca3bd3546a62d8e90f59449e, type: 3}
-  m_AtlasPopulationMode: 1
+  m_SourceFontFile: {fileID: 0}
+  m_AtlasPopulationMode: 0
   m_FaceInfo:
     m_FaceIndex: 0
     m_FamilyName: Noto Sans
@@ -2121,9 +2121,9 @@ Material:
     - _OutlineWidth: 0
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
-    - _ScaleRatioA: 1
-    - _ScaleRatioB: 1
-    - _ScaleRatioC: 1
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 0.73125
+    - _ScaleRatioC: 0.73125
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
