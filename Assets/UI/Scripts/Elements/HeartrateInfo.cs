@@ -1,13 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 using UI.Animation;
 
 public class HeartrateInfo : MonoBehaviour
 {
     [SerializeField]
-    private Text _heartRate = null;
+    private TMP_Text _heartRate = null;
     [SerializeField]
     private AnimatedScale _heartRateAnimation = null;
 

@@ -218,7 +218,7 @@ public class HeartratePlugin : VTSPlugin
                     this._hotkeys.Clear();
                     foreach(HotkeyData hotkey in s.data.availableHotkeys){
                         this._hotkeys.Add(new HotkeyListItem(
-                            String.Format("[{0}] {1}", hotkey.type, hotkey.name),
+                            String.Format("[{0}] {1} <size=0>{2}</size>", hotkey.type, hotkey.name, hotkey.hotkeyID),
                             hotkey.hotkeyID));
                     }
                     foreach(HotkeyModule module in this._hotkeyModules){
@@ -371,7 +371,7 @@ public class HeartratePlugin : VTSPlugin
         foreach(string s in Directory.GetFiles(this.MODEL_SAVE_PATH)){
             string text = File.ReadAllText(s);
             ModelSaveData data = JsonUtility.FromJson<ModelSaveData>(text);
-            dict.Add(String.Format("{0} ({1})", data.modelName, data.modelID), data.modelID);
+            dict.Add(String.Format("{0} <size=0>{1}</size>", data.modelName, data.modelID), data.modelID);
         }
         return dict;
     }

@@ -14,13 +14,6 @@ public abstract class HeartrateInputModule : MonoBehaviour
     private TMP_Text _label = null;
     private Localization.LocalizedText _localizedLabel = null;
 
-    public void Start(){
-    }
-
-    private void OnValidate(){
-
-    }
-
     public void Activate(){
         HeartrateManager.Instance.Plugin.SetActiveHeartrateInput(this);
         OnStatusChange(true);

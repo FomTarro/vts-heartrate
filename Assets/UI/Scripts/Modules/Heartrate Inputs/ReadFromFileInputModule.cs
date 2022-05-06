@@ -9,9 +9,14 @@ public class ReadFromFileInputModule : HeartrateInputModule
     private TMP_InputField _input = null;
     private string _path = "";
 
+    private void Start(){
+        this._input.onEndEdit.AddListener(SetPath);
+    }
+
     public void SetPath(string path){
         this._path = path;
     }
+
     public override int GetHeartrate()
     {
         try{

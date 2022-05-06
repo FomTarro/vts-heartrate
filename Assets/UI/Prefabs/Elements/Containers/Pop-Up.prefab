@@ -1012,12 +1012,37 @@ PrefabInstance:
     - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: m_text
-      value: x
+      value: "\u2715"
+      objectReference: {fileID: 0}
+    - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: m_margin.y
+      value: -10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: m_uvLineOffset
+      value: 0.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 8192
+      objectReference: {fileID: 0}
+    - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: checkPaddingRequired
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: m_enableExtraPadding
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: m_HorizontalAlignment
-      value: 32
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5343286638955544330, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}

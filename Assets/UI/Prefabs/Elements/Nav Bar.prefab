@@ -255,7 +255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64d4b2f438e79124bb81fd83da124316, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _dropdown: {fileID: 2287609155896595244}
+  _dropdown: {fileID: 0}
 --- !u!114 &6852447608060866771
 MonoBehaviour:
   m_ObjectHideFlags: 0

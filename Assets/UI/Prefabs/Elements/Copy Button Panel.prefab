@@ -224,6 +224,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: m_text
+      value: "\u2715 Delete"
+      objectReference: {fileID: 0}
+    - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 8192
+      objectReference: {fileID: 0}
     - target: {fileID: 4354000376095387835, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: key

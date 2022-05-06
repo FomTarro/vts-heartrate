@@ -10,6 +10,10 @@ public class PulsoidInputModule : HeartrateInputModule
     [SerializeField]
     private StatusIndicator _status = null;
 
+    private void Start(){
+        this._input.onEndEdit.AddListener(SetAuthToken);
+    }
+
     public void Login(){
         PulsoidManager.Instance.Login();
     }

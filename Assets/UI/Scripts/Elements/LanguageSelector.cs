@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using System.Collections.Generic;
 using Localization;
 
 public class LanguageSelector : RefreshableDropdown
@@ -15,10 +12,10 @@ public class LanguageSelector : RefreshableDropdown
     public override void Refresh()
     {
         List<string> languageOptions = new List<string>();
-        foreach(SupportedLanguage language in 
-        System.Enum.GetValues(typeof(SupportedLanguage))){
+        foreach(SupportedLanguage language in System.Enum.GetValues(typeof(SupportedLanguage))){
             languageOptions.Add(LocalizationManager.Instance.GetString("language", language));
         }
         RefreshValues(languageOptions);
+        this._dropdown.SetValueWithoutNotify((int)Localization.LocalizationManager.Instance.CurrentLanguage - 1);
     }
 }
