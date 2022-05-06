@@ -2,15 +2,16 @@
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
+using TMPro;
 
 public class ExpressionModule : MonoBehaviour
 {
     [SerializeField]
-    private InputField _threshold = null;
+    private TMP_InputField _threshold = null;
     public int Threshold { get { return MathUtils.StringToByte(this._threshold.text); } }
     private int _priorThreshold = 0;
     [SerializeField]
-    private Dropdown _dropdown = null;
+    private TMP_Dropdown _dropdown = null;
     // Because the dropdown is populated by an async method, 
     // we load the expression that should be selected from a profile load into this buffer
     // until the async method resolves.
@@ -27,7 +28,7 @@ public class ExpressionModule : MonoBehaviour
     }
 
     [SerializeField]
-    private Dropdown _behavior = null;
+    private TMP_Dropdown _behavior = null;
     public TriggerBehavior Behavior { get { return (TriggerBehavior)this._behavior.value; } }
     private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW;
 

@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public abstract class RefreshableDropdown : MonoBehaviour
 {
     [SerializeField]
-    protected Dropdown _dropdown = null;
+    protected TMP_Dropdown _dropdown = null;
 
     // Start is called before the first frame update
     void Start(){
@@ -35,7 +35,9 @@ public abstract class RefreshableDropdown : MonoBehaviour
             this._dropdown.options[this._dropdown.value].text : 
             null;
         List<string> options = new List<string>();
-        foreach(object value in values){;
+        Debug.Log("REFRESHING");
+        foreach(object value in values){
+            Debug.Log(value.ToString());
             options.Add(value.ToString());
         }
         this._dropdown.ClearOptions();

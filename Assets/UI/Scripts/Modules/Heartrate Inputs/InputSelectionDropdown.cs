@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Localization;
+﻿using System.Collections.Generic;
 
 public class InputSelectionDropdown : RefreshableDropdown
 {

@@ -218,7 +218,7 @@ public class HeartratePlugin : VTSPlugin
                     this._hotkeys.Clear();
                     foreach(HotkeyData hotkey in s.data.availableHotkeys){
                         this._hotkeys.Add(new HotkeyListItem(
-                            String.Format("[{0}] {1} ({2})", hotkey.type, hotkey.name, hotkey.hotkeyID),
+                            String.Format("[{0}] {1}", hotkey.type, hotkey.name),
                             hotkey.hotkeyID));
                     }
                     foreach(HotkeyModule module in this._hotkeyModules){
@@ -423,6 +423,7 @@ public class HeartratePlugin : VTSPlugin
             ModernizeLegacyGlobalSaveData(data, content);
     
         }else{
+            // first-time data setup
             data = new GlobalSaveData();
             HeartrateInputModule.SaveData defaultData = new HeartrateInputModule.SaveData();
             defaultData.type = HeartrateInputModule.InputType.SLIDER;
@@ -430,12 +431,17 @@ public class HeartratePlugin : VTSPlugin
             data.inputs.Add(defaultData);
             data.activeInput = HeartrateInputModule.InputType.SLIDER;
         }
+
         this._maxRate = data.maxRate;
         this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
         this._minRate = data.minRate;
         this._heartrateRanges.SetMinRate(this._minRate.ToString());
-        this.SetActiveHeartrateInput(this._heartrateInputs.Find((x => x.Type == data.activeInput)));
+        // Default to SLIDER if we can't find the provided input type
+        HeartrateInputModule activeModule = this._heartrateInputs.Find((x => x.Type == data.activeInput));
+        activeModule = activeModule != null ? activeModule : this._heartrateInputs.Find((x => x.Type == HeartrateInputModule.InputType.SLIDER));
+        this.SetActiveHeartrateInput(activeModule);
     
+        // Load settings for all input modules
         foreach(HeartrateInputModule.SaveData module in data.inputs){
             foreach(HeartrateInputModule m in this._heartrateInputs){
                 if(m.Type == module.type){
@@ -443,6 +449,7 @@ public class HeartratePlugin : VTSPlugin
                 }
             }
         }
+
         if(data.language != 0){
             Localization.LocalizationManager.Instance.SwitchLanguage(data.language);
         }

@@ -733,6 +733,16 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6053366092523907703, guid: 84a85925520895f429a539c02502ba3e,
+        type: 3}
+      propertyPath: _textAsKey
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6083119485581286493, guid: 84a85925520895f429a539c02502ba3e,
+        type: 3}
+      propertyPath: _textAsKey
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7154649277078767631, guid: 84a85925520895f429a539c02502ba3e,
         type: 3}
       propertyPath: _dropdown

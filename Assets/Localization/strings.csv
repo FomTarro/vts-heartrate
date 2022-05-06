@@ -177,5 +177,5 @@ button_generic_connect,Connect,接続
 button_generic_disconnect,Disconnect,接続解除
 label_generic_settings,Settings,設定
 label_generic_threshold,Threshold,閾値
-RGBA,,
+RGBA…,,
 end,,

@@ -4,35 +4,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using Localization;
 
-public class LanguageSelector : MonoBehaviour
+public class LanguageSelector : RefreshableDropdown
 {
-    [SerializeField]
-    private Dropdown _dropdown = null;
-
-    // Start is called before the first frame update
-
-    private void OnEnable(){
-        SetOptions();
+    protected override void SetValue(int index)
+    {
+        SupportedLanguage language = (SupportedLanguage)index+1;
+        LocalizationManager.Instance.SwitchLanguage(language);
     }
 
-    void Start(){
-        SetOptions();
-        this._dropdown.onValueChanged.AddListener(SelectLanguage);
-    }
-
-    private void SetOptions(){
+    public override void Refresh()
+    {
         List<string> languageOptions = new List<string>();
         foreach(SupportedLanguage language in 
         System.Enum.GetValues(typeof(SupportedLanguage))){
             languageOptions.Add(LocalizationManager.Instance.GetString("language", language));
         }
-        this._dropdown.ClearOptions();
-        this._dropdown.AddOptions(languageOptions);
-        this._dropdown.SetValueWithoutNotify((int)Localization.LocalizationManager.Instance.CurrentLanguage - 1);
-    }
-
-    private void SelectLanguage(int index){
-        SupportedLanguage language = (SupportedLanguage)index+1;
-        LocalizationManager.Instance.SwitchLanguage(language);
+        RefreshValues(languageOptions);
     }
 }

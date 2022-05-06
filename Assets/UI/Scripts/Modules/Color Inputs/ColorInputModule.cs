@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using VTS.Models;
+using TMPro;
 
 public class ColorInputModule : MonoBehaviour
 {
@@ -15,15 +16,15 @@ public class ColorInputModule : MonoBehaviour
     public String[] ModuleMatchers { get { return this._matchers; } }
 
     [SerializeField]
-    private InputField _redField = null;
+    private TMP_InputField _redField = null;
     [SerializeField]
-    private InputField _greenField = null;
+    private TMP_InputField _greenField = null;
     [SerializeField]
-    private InputField _blueField = null;
+    private TMP_InputField _blueField = null;
     [SerializeField]
-    private InputField _alphaField = null;
+    private TMP_InputField _alphaField = null;
     [SerializeField]
-    private InputField _matchersField = null;
+    private TMP_InputField _matchersField = null;
 
     [SerializeField]
     private Image _background = null;
