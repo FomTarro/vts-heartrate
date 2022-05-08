@@ -2145,6 +2145,11 @@ PrefabInstance:
       propertyPath: key
       value: button_tab_settings
       objectReference: {fileID: 0}
+    - target: {fileID: 4354000376095387835, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: _prefix
+      value: "\u2699 "
+      objectReference: {fileID: 0}
     - target: {fileID: 5343286638955544330, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: m_Text
@@ -2533,6 +2538,26 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5980160507770382918, guid: 688b19e9f4b9ffc48a077221d64fae33,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7146573491440784552, guid: 688b19e9f4b9ffc48a077221d64fae33,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7146573491440784552, guid: 688b19e9f4b9ffc48a077221d64fae33,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7146573491440784552, guid: 688b19e9f4b9ffc48a077221d64fae33,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7146573491440784552, guid: 688b19e9f4b9ffc48a077221d64fae33,
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
@@ -3184,6 +3209,11 @@ PrefabInstance:
       propertyPath: key
       value: button_tab_inputs
       objectReference: {fileID: 0}
+    - target: {fileID: 4354000376095387835, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: _prefix
+      value: "\U0001F4E5 "
+      objectReference: {fileID: 0}
     - target: {fileID: 5343286638955544330, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: m_Text
@@ -3361,6 +3391,11 @@ PrefabInstance:
         type: 3}
       propertyPath: key
       value: button_tab_outputs
+      objectReference: {fileID: 0}
+    - target: {fileID: 4354000376095387835, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: _prefix
+      value: "\U0001F4E4 "
       objectReference: {fileID: 0}
     - target: {fileID: 5343286638955544330, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
