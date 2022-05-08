@@ -298,20 +298,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 1
---- !u!114 &3581172740943719247
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8096887109175632959}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef2357c4a1afe5e4e9a318d56a4bc059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _dropdown: {fileID: 0}
-  _fileNameDisplay: {fileID: 0}
 --- !u!1001 &3989914352773845951
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -717,12 +703,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b743370ac3e4ec2a1668f5455a8ef8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &8096887109175632959 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3905916706590721480, guid: 84a85925520895f429a539c02502ba3e,
-    type: 3}
-  m_PrefabInstance: {fileID: 5073711120431243767}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6416278813681752580
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -864,7 +844,7 @@ PrefabInstance:
         type: 3}
       propertyPath: onPointerUp.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 3581172740943719247}
+      objectReference: {fileID: 567698393619094601}
     - target: {fileID: 8919311446027583278, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: onPointerUp.m_PersistentCalls.m_Calls.Array.data[0].m_CallState

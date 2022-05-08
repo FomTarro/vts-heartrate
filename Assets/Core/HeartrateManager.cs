@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class HeartrateManager : Singleton<HeartrateManager>
 {
@@ -9,6 +10,7 @@ public class HeartrateManager : Singleton<HeartrateManager>
     private const string VERSION_URL = @"https://www.skeletom.net/vts-heartrate/version";
 
     public override void Initialize(){
+        this.Plugin.OnLaunch();
         CheckVersion();
     }
 
@@ -22,9 +24,16 @@ public class HeartrateManager : Singleton<HeartrateManager>
                 VersionInfo info = JsonUtility.FromJson<VersionInfo>(s);
                 Debug.Log(CompareVersion(info) ? "Newer version needed: " + info.url : "Up to date.");
                 if(CompareVersion(info)){
+                    Dictionary<string, string> strings = new Dictionary<string, string>();
+                    strings.Add("settings_new_version_body_populated", 
+                        string.Format(Localization.LocalizationManager.Instance.GetString("settings_new_version_body"), 
+                        info.version, 
+                        info.date, 
+                        info.url));
+                    Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
                     UIManager.Instance.ShowPopUp(
                         "settings_new_version_title",
-                        string.Format("settings_new_version_body", info.version, info.date, info.url),
+                        string.Format("settings_new_version_body_populated", info.version, info.date, info.url),
                         new PopUp.PopUpOption(
                             "settings_new_version_button_download", 
                             true, 

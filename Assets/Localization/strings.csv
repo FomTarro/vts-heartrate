@@ -8,7 +8,7 @@ settings_system_current_version,Current version,現在のバージョン
 ,,
 settings_port_title,VTube Studio Port,VTube Studio ポート
 ,,
-settings_current_version,Current Version: {0},カレントバージョン: {0}
+settings_current_version,Current Version: ,カレントバージョン: 
 settings_new_version_title,New Version Available!,新しいバージョンが入手可能です。
 settings_new_version_body,"A newer version of this plugin is now available.
 <b>Version</b>: {0}
@@ -33,6 +33,8 @@ Twitter <b>@FomTarro</b>、
 までご連絡ください。"
 settings_feedback_button_email,Email,開発者にメールを送る
 settings_feedback_button_tweet,Tweet,Twitter へ投稿
+,,
+settings_credits_title,Credits,
 ,,
 input_select_title,Select an Input Method,入力方式を選択
 input_ranges_title,Expected Heartrate Ranges,心拍数の期待範囲
@@ -145,7 +147,7 @@ output_custom_params_tooltip,"This plugin outputs four custom tracking parameter
 
 <b>VTS_Heartrate_Breath</b>: A value that oscillates between 0.0 and 1.0 with a frequency slower than <b>VTS_Heartrate_Pulse</b>, suitable for controlling your model's <b>ParamBreath</b> output.
 
-<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM from 0 to 255, rather than a normalized value from 0.0 to 1.0","このプラグインは次のように、四つのカスタムトラッキングパラメータを出力します。
+<b>VTS_Heartrate_BPM</b>: A value that represents the actual current BPM from 0 to 255, rather than a normalized value from 0.0 to 1.0.","このプラグインは次のように、四つのカスタムトラッキングパラメータを出力します。
 
 <b>VTS_Heartrate_Linear</b>：心拍数が期待される範囲内で変化する際、比例して 0.0 から 1.0 にスケールする値。
 

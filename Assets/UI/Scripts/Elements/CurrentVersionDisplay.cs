@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
-using TMPro;
+using Localization;
 
 public class CurrentVersionDisplay : MonoBehaviour
 {
     [SerializeField]
-    private TMP_Text _text = null;
+    private LocalizedText _localizedText = null;
 
     // Start is called before the first frame update
-    void Start()
-    {
-        this._text.text = string.Format(Localization.LocalizationManager.Instance.GetString("settings_current_version"), Application.version);
+
+    void Start(){
+        this._localizedText.SetPostfix(Application.version);
+        this._localizedText.Localize();
     }
 }

@@ -46,6 +46,10 @@ namespace Localization
             Localize();
         }
 
+        public void SetPostfix(string postfix){
+            this._postfix = postfix;
+        }
+
         /// <summary>
         /// Updates the display of the associated text object based on current language settings
         /// </summary>

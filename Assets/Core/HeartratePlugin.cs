@@ -78,8 +78,7 @@ public class HeartratePlugin : VTSPlugin
     
     #region Lifecycle
 
-    private void Start()
-    {
+    public void OnLaunch(){
         this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
         this.MODEL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "models");
         LoadGlobalData(); 
@@ -218,7 +217,7 @@ public class HeartratePlugin : VTSPlugin
                     this._hotkeys.Clear();
                     foreach(HotkeyData hotkey in s.data.availableHotkeys){
                         this._hotkeys.Add(new HotkeyListItem(
-                            String.Format("[{0}] {1} <size=0>{2}</size>", hotkey.type, hotkey.name, hotkey.hotkeyID),
+                            string.Format("[{0}] {1} <size=0>{2}</size>", hotkey.type, hotkey.name, hotkey.hotkeyID),
                             hotkey.hotkeyID));
                     }
                     foreach(HotkeyModule module in this._hotkeyModules){
@@ -371,7 +370,7 @@ public class HeartratePlugin : VTSPlugin
         foreach(string s in Directory.GetFiles(this.MODEL_SAVE_PATH)){
             string text = File.ReadAllText(s);
             ModelSaveData data = JsonUtility.FromJson<ModelSaveData>(text);
-            dict.Add(String.Format("{0} <size=0>{1}</size>", data.modelName, data.modelID), data.modelID);
+            dict.Add(string.Format("{0}<size=0>{1}</size>", data.modelName, data.modelID), data.modelID);
         }
         return dict;
     }
@@ -459,13 +458,13 @@ public class HeartratePlugin : VTSPlugin
         //TODO: this should be some kind of iterative function so that it migrates adjacent versions in order,
         // ie 0.1.0 to 0.2.0 to 1.0.0 to 1.1.0 etc
         // this should probably also return a modern save file?
-        string version = data.version;
-        switch(version){
+        string oldVersion = data.version;
+        switch(oldVersion){
             case null:
             case "":
             case "0.1.0":
             LegacyGlobalSaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
-            Debug.Log("Legacy Global Data detected: v"+version);
+            Debug.Log("Legacy Global Data detected: v"+oldVersion);
             if(legacyData.colors != null && legacyData.colors.Count > 0){
                 // make a new ModelSaveData, apply it to the first loaded model.
                 ModelSaveData modelData = new ModelSaveData();
@@ -546,9 +545,15 @@ public class HeartratePlugin : VTSPlugin
     }
 
     public void CopyModelData(string modelID, string modelName){
+        Dictionary<string, string> strings = new Dictionary<string, string>();
+        strings.Add("output_copy_profile_warning_populated", 
+            string.Format(Localization.LocalizationManager.Instance.GetString("output_copy_profile_warning"), 
+                modelName, 
+                this._currentModel.data.modelName));
+        Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
         UIManager.Instance.ShowPopUp(
             "output_copy_profile_title",
-            String.Format("output_copy_profile_warning", modelName, this._currentModel.data.modelName),
+            "output_copy_profile_warning_populated",
             new PopUp.PopUpOption(
                 "output_copy_profile_button_yes",
                 true,

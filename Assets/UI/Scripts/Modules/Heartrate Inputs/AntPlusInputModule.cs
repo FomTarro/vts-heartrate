@@ -12,9 +12,8 @@ public class AntPlusInputModule : HeartrateInputModule
         return AntPlusManager.Instance.Heartrate;
     }
 
-    protected override void FromValues(SaveData.Values values)
-    {
-        // TODO
+    protected override void FromValues(SaveData.Values values){
+        // No settings to load
     }
 
     public void Connect(){

@@ -46,7 +46,14 @@ public class HotkeyModule : MonoBehaviour
             // forces a re-assessment of the module status
             // TODO: if the behavior changes from ABOVE AND BELOW to just ABOVE, 
             // it will try to trigger AGAIN which just turns it off
-            this._priorThreshold = -1;
+            if(
+                !(((this._priorBehavior == TriggerBehavior.ACTIVATE_ABOVE || this._priorBehavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW) &&
+                (this.Behavior == TriggerBehavior.ACTIVATE_ABOVE || this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW)) ||
+                ((this._priorBehavior == TriggerBehavior.ACTIVATE_BELOW || this._priorBehavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW) &&
+                (this.Behavior == TriggerBehavior.ACTIVATE_BELOW || this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW))) 
+            ){
+                this._priorThreshold = -1;
+            }
         }
         // rising edge
         if(
