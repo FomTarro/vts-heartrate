@@ -54,7 +54,7 @@ This input method allows for direct connection to your ANT+ device, provided tha
 By clicking the <b>'Refresh' button</b>, this plugin will begin a continuous scan for devices that output heartrate data.
 Then, simply select one from the dropdown and click the <b>'Connect' button</b>.
 
-Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand."
+Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.
  
  
 ## Outputs

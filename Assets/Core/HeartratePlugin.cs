@@ -449,8 +449,15 @@ public class HeartratePlugin : VTSPlugin
             }
         }
 
-        if(data.language != 0){
+        if(!Application.version.Equals(data.version)){
+            Debug.Log("Applying system language settings on new version");
+            Localization.LocalizationManager.Instance.SwitchLanguage(Application.systemLanguage);
+        }
+        else if(data.language != 0){
             Localization.LocalizationManager.Instance.SwitchLanguage(data.language);
+        }else{
+            Debug.Log("Defaulting language to English as no settings were found");
+            Localization.LocalizationManager.Instance.SwitchLanguage(Localization.SupportedLanguage.ENGLISH);
         }
     }
 

@@ -29,12 +29,12 @@ Twitter: <b>@FomTarro</b>
 Email: <b>tom@skeletom.net</b>","このプラグインは、<b>Tom ""Skeletom"" Farro</b> によって開発中です。ご質問・ご用件は 
 
 Twitter <b>@FomTarro</b>、
-もしくはEメール <b>tom@skeletom.net</b> 
+もしくはメール <b>tom@skeletom.net</b> 
 までご連絡ください。"
 settings_feedback_button_email,Email,開発者にメールを送る
-settings_feedback_button_tweet,Tweet,Twitter へ投稿
+settings_feedback_button_tweet,Tweet,開発者に@ツイートを送る
 ,,
-settings_credits_title,Credits,
+settings_credits_title,Credits,貢献者
 ,,
 input_select_title,Select an Input Method,入力方式を選択
 input_ranges_title,Expected Heartrate Ranges,心拍数の期待範囲
@@ -155,7 +155,7 @@ output_custom_params_tooltip,"This plugin outputs four custom tracking parameter
 
 <b>VTS_Heartrate_Breath</b>：VTS_Heartrate_Pulse（心拍数）より遅い周波数で、0.0から1.0の間で振動する値。モデルの <b>ParamBreath</b>（呼吸パラメータ）をコントロールするのに適しています。
 
-<b>VTS_Heartrate_BPM</b>：0 から 255 まで、実際の現在の心拍数を表す値。（この出力値は実際値であり、スケーリングされた値ではありません）"
+<b>VTS_Heartrate_BPM</b>：0 から 255 まで、実際の現在の心拍数を表す値。（この出力値は実際値であり、最小値 0.0 〜最大値 1.0 にスケーリングされた値ではありません）"
 output_custom_params_button,Learn how to use Custom Parameters,カスタムパラメータの使用方法についてはこちら
 ,,
 output_copy_profile_title,Copy Profile Settings,プロファイル設定のコピー
@@ -165,7 +165,8 @@ As a result, any settings configured for your currently loaded model will be per
 
 コピーする場合、現在読み込んでいるモデルに対する設定は永久的に削除されます。"
 output_copy_profile_warning,"Are you sure that you want to <b>copy model settings data</b> from <b>'{0}'</b> to your currently loaded model, <b>'{1}'</b>?
-Doing so will <b>permanently erase</b> any settings your currently loaded model has configured.",
+Doing so will <b>permanently erase</b> any settings your currently loaded model has configured.","現在読み込んでいるモデル <b>{1}</b> に、モデル <b>{0}</b> の設定をコピーしますか？
+コピーすると、現在読み込んでいるモデルに対する設定は<b>永久的に削除</b>されます。"
 output_copy_profile_button_yes,Copy,コピー
 output_copy_profile_button_no,Cancel,キャンセル
 ,,
