@@ -29,7 +29,7 @@ public class HeartrateRangesInputModule : MonoBehaviour
 
     private int RateToInt(string rate){
         try{
-            return int.Parse(rate);
+            return Mathf.Clamp(int.Parse(rate), 0, 255);
         }catch(System.Exception e){
             Debug.LogWarning(e);
         }
