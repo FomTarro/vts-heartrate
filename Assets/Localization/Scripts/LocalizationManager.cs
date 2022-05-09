@@ -122,7 +122,8 @@ namespace Localization
         /// </summary>
         /// <returns></returns>
         public bool IsFullwidth(){
-            return this.CurrentLanguage == SupportedLanguage.JAPANESE;
+            return false;
+            // return this.CurrentLanguage == SupportedLanguage.JAPANESE;
         }
 
         /// <summary>
@@ -139,9 +140,9 @@ namespace Localization
                 case SystemLanguage.English:
                     lang = SupportedLanguage.ENGLISH;
                     break;
-                case SystemLanguage.Japanese:
-                    lang = SupportedLanguage.JAPANESE;
-                    break;
+                // case SystemLanguage.Japanese:
+                //     lang = SupportedLanguage.JAPANESE;
+                //     break;
                 // case SystemLanguage.Italian:
                 //     lang = SupportedLanguage.ITALIAN;
                 //     break;
@@ -450,7 +451,7 @@ namespace Localization
     public enum SupportedLanguage : int
     {
         ENGLISH = 1,
-        JAPANESE = 2,
+        // JAPANESE = 2,
     }
 
 }

@@ -35,6 +35,9 @@ settings_feedback_button_email,Email,開発者にメールを送る
 settings_feedback_button_tweet,Tweet,開発者に@ツイートを送る
 ,,
 settings_credits_title,Credits,貢献者
+settings_credits_body,"Tom ""Skeletom"" Farro
+JoshuaTapioca","Tom ""Skeletom"" Farro
+JoshuaTapioca"
 ,,
 input_select_title,Select an Input Method,入力方式を選択
 input_ranges_title,Expected Heartrate Ranges,心拍数の期待範囲
