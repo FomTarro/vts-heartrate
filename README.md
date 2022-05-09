@@ -7,26 +7,27 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
  
 # Features
 
-💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](https://www.pulsoid.net)!  
+💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](https://www.pulsoid.net) and [ANT+](https://www.thisisant.com/consumer/ant-101/what-is-ant)!  
 
 💓 Configurable <b>model tinting</b> that scales with pulse!
 
-💓 Automatic <b>expression triggering</b> at desired heartrate thresholds!
+💓 Automatic <b>expression and hotkey triggering</b> at desired heartrate thresholds!
 
 💓 Custom <b>tracking parameters</b> for pulse and breath!
 
 # About
-This plugin is developed by Tom "Skeletom" Farro. If you need to contact him, the best way to do so is via Twitter.
+This plugin is developed by Tom "Skeletom" Farro. If you need to contact him, the best way to do so is via [Twitter](https://www.twitter.com/FomTarro).
 
-If you're more of an email-oriented person, you can contact his support email: tom@skeletom.net.
+If you're more of an email-oriented person, you can contact his support email: [tom@skeletom.net](mailto:tom@skeletom.net).
 
 # Usage
 Getting up and running is relatively straightforward. The plugin will automatically connect to VTube Studio on launch. From there, do the following steps:
 
 * Input an estimated <b>minimum</b> and <b>maximum</b> heartrate.
-* Select a desired heartrate <b>input method</b>. Currently, in order to connect to a heart rate monitor, a [pulsoid.net](https://www.pulsoid.net) account is needed. More input methods, such as direct device connection, are on the way!
+* Select a desired heartrate <b>input method</b>. You can connect over bluetooth using your phone and [pulsoid.net](https://www.pulsoid.net), or connect directly to your PC with an [ANT+](https://www.thisisant.com/consumer/ant-101/what-is-ant) USB dongle.
 * Add [<b>Art Mesh Tint modules</b>](#art-mesh-tinting) and configure them to parts of your model!
-* Hook up your model to [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), if you want!
+* Add [<b>Expression and Hotkey Trigger modules</b>](#automatic-expression-triggering) and configure them to activate model functions automatically!
+* Hook up [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), to your model for things like breathing speed!
  
 
  
@@ -40,15 +41,20 @@ The slider is primarily useful for quick testing of different heartrate values. 
 This input method allows you to read heartrate data from an external file.
 The file must simply contain the <b>numeric heartrate value</b> in <b>plain text</b>. File path must be absolute. Useful if you have another program that can output heartrate data.
  
-### Pulsoid App
+### Pulsoid
 [<b>Pulsoid</b>](https://www.pulsoid.net) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
  
 By clicking the <b>'Login' button</b> in the plugin, you will be asked to grant this plugin permission to connect to your account. You will then be given an <b>'Authentication Token'</b> which you must paste into the plugin.
  
-### Pulsoid Feed Reference 
-To use this input method, navigate to your <b>Pulsoid account page</b>, and then go to [<b>Widgets -> Advanced</b>](https://pulsoid.net/ui/configuration). From there, you should find a <b>'Feed URL'</b> which you must paste into the plugin.
- 
-Please note that Pulsoid may be deprecating this input method in the future, in favor of direct app connectivity.
+### ANT+
+[<b>ANT+</b>](https://www.thisisant.com/consumer/ant-101/what-is-ant) is a low-power protocol supported by many sport and fitness sensors.
+
+This input method allows for direct connection to your ANT+ device, provided that you have a <b>USB receiver</b> plugged in.
+
+By clicking the <b>'Refresh' button</b>, this plugin will begin a continuous scan for devices that output heartrate data.
+Then, simply select one from the dropdown and click the <b>'Connect' button</b>.
+
+Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.
  
  
 ## Outputs
@@ -64,19 +70,26 @@ If you are unsure of what your Art Meshes are named, a great web-tool was develo
 ![Working Example](img/color_setup.png)
 
 ### Automatic Expression Triggering
-This output will cause an <b>Expression</b> to activate or deactivate when the current heartrate <b>exceeds a given threshold</b>. The Expression will then resume its original state once the heartrate dips back below the given threshold. 
+This output will cause an <b>Expression</b> to <b>activate or deactivate</b> when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings.
 
 For example, the configuration in the provided image will cause the `angry` Expression to automatically activate when the heartrate exceeds 125 BPM, and will deactivate when the heartrate falls back beneath 125 BPM.
 
 ![Working Example](img/expression_trigger.png)
+
+### Automatic Hotkey Triggering
+This output will cause a <b>Hotkey</b> to be triggered when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings.
  
+For example, the configuration in the provided image will cause the `panic` Item Scene to automatically toggle when the heartrate exceeds 125 BPM, and will toggle again when the heartrate falls back beneath 125 BPM.
+
+![Working Example](img/hotkey_trigger.png)
+
 ### Custom Tracking Parameters
 This plugin outputs <b>four custom tracking parameters</b> for use. They are as follows:
  
 * `VTS_Heartrate_Linear`: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.
 * `VTS_Heartrate_Pulse`: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.
-* `VTS_Heartrate_Breath`: A value that oscillates between 0.0 and 1.0 with a frequency slower than Pulse, suitable for controlling your model's <b>ParamBreath</b> output.
-* `VTS_Heartrate_BPM`: A value that represents the actual current heartrate in BPM.
+* `VTS_Heartrate_Breath`: A value that oscillates between 0.0 and 1.0 with a frequency slower than `VTS_Heartrate_Pulse`, suitable for controlling your model's `ParamBreath` output parameter.
+* `VTS_Heartrate_BPM`: A value that represents the actual current BPM from 0 to 255, rather than a normalized value from 0.0 to 1.0.
 
 For more information on how to integrate these tracking parameters into your model, please refer to the [Official VTube Studio documentation](https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters).
  
@@ -90,7 +103,6 @@ As a result, any settings configured for your currently loaded model will be per
 # Roadmap
  
 Planned features include the following:
-* The ability to directly connect to your Bluetooth HRM via Windows as an input method (I have been working at this for months, and it is not very reliable currently! Sorry!!!)
 * Localization into additional languages
 * More robust system logging
 

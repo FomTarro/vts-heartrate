@@ -1,14 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
+using TMPro;
 
 public class HeartrateRangesInputModule : MonoBehaviour
 {
     [SerializeField]
-    private InputField _minField = null;
+    private TMP_InputField _minField = null;
     [SerializeField]
-    private InputField _maxField = null;
+    private TMP_InputField _maxField = null;
 
     
     void Start()

@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
+using Localization;
 
 public class CurrentVersionDisplay : MonoBehaviour
 {
     [SerializeField]
-    private Text _text = null;
+    private LocalizedText _localizedText = null;
 
     // Start is called before the first frame update
-    void Start()
-    {
-        this._text.text = string.Format("Current Version: {0}", Application.version);
+
+    void Start(){
+        this._localizedText.SetPostfix(Application.version);
+        this._localizedText.Localize();
     }
 }

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class PulsoidFeedInputModule : HeartrateInputModule
 {
     [SerializeField]
-    private InputField _input = null;
+    private TMP_InputField _input = null;
 
     [SerializeField]
     private StatusIndicator _status = null;

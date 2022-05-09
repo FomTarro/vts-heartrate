@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class StatusIndicator : MonoBehaviour
 {
     [SerializeField]
     private Image _indicatorImage = null;
     [SerializeField]
-    private Text _statusText = null;
+    private TMP_Text _statusText = null;
 
     [SerializeField]
     private Color32 _connectedColor = Color.green;

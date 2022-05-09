@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using VTS.Models;
+using TMPro;
 
 public class ColorInputModule : MonoBehaviour
 {
@@ -14,15 +16,15 @@ public class ColorInputModule : MonoBehaviour
     public String[] ModuleMatchers { get { return this._matchers; } }
 
     [SerializeField]
-    private InputField _redField = null;
+    private TMP_InputField _redField = null;
     [SerializeField]
-    private InputField _greenField = null;
+    private TMP_InputField _greenField = null;
     [SerializeField]
-    private InputField _blueField = null;
+    private TMP_InputField _blueField = null;
     [SerializeField]
-    private InputField _alphaField = null;
+    private TMP_InputField _alphaField = null;
     [SerializeField]
-    private InputField _matchersField = null;
+    private TMP_InputField _matchersField = null;
 
     [SerializeField]
     private Image _background = null;
@@ -35,71 +37,84 @@ public class ColorInputModule : MonoBehaviour
         this._matchersField.onEndEdit.AddListener(SetMatchers);
     }
 
-    private void FixedUpdate(){
-        _background.color = this._color;
-    }
-
     public void Clone(){
         HeartrateManager.Instance.Plugin.CreateColorInputModule(this.ToSaveData());
     }
 
     public void Delete(){
         HeartrateManager.Instance.Plugin.DestroyColorInputModule(this);
+        ApplyColor(0);
+    }
+
+    public void ApplyColor(float interpolation){
+        ArtMeshMatcher matcher = new ArtMeshMatcher();
+        matcher.tintAll = false;
+        matcher.nameContains = this.ModuleMatchers;
+        HeartrateManager.Instance.Plugin.TintArtMesh(
+            Color32.Lerp(Color.white, this.ModuleColor, interpolation),  
+            0.5f, 
+            matcher,
+            (success) => {},
+            (error) => {});
     }
 
     public void SetRed(string value){
-        byte v = StringToByte(value);
+        byte v = MathUtils.StringToByte(value);
         this._color = new Color32(
             v, 
             this._color.g, 
             this._color.b, 
             this._color.a);
         this._redField.text = v.ToString();
+        this._background.color = this._color;
     }
+    
     public void SetGreen(string value){
-        byte v = StringToByte(value);
+        byte v = MathUtils.StringToByte(value);
         this._color = new Color32(
             this._color.r, 
             v, 
             this._color.b,
             this._color.a);
         this._greenField.text = v.ToString();
+        this._background.color = this._color;
     }
+
     public void SetBlue(string value){
-        byte v = StringToByte(value);
+        byte v = MathUtils.StringToByte(value);
         this._color = new Color32(
             this._color.r, 
             this._color.g, 
             v, 
             this._color.a);
         this._blueField.text = v.ToString();
+        this._background.color = this._color;
     }
+
     public void SetAlpha(string value){
-        byte v = StringToByte(value);
+        byte v = MathUtils.StringToByte(value);
         this._color = new Color32(
             this._color.r, 
             this._color.g, 
             this._color.b,
             v);
         this._alphaField.text = v.ToString();
+        this._background.color = this._color;
     }
+
     public void SetMatchers(string value){
-        string[] sanitized = value.Trim().Split(' ', ',');
-        for(int i = 0; i < sanitized.Length; i++){
-            sanitized[i] = sanitized[i].Trim();
+        string[] split = value.Trim().Split(' ', ',');
+        List<string> sanitized = new List<string>();
+        for(int i = 0; i < split.Length; i++){
+            split[i] = split[i].Trim();
+            if(split[i].Length > 0){
+                sanitized.Add(split[i]);
+            }
         }
-        this._matchers = sanitized;
+        // wipes old colors in cases where matchers are removed
+        ApplyColor(0);
+        this._matchers = sanitized.ToArray();
         this._matchersField.text = string.Join(",", sanitized);
-    }
-
-
-    private byte StringToByte(string value){
-        try{
-            return Convert.ToByte(value);
-        }catch(Exception e){
-            Debug.LogWarning(e);
-            return 0;
-        }
     }
 
     [System.Serializable]

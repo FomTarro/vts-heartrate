@@ -115,7 +115,8 @@ PrefabInstance:
     - target: {fileID: 8095749044357934530, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: m_Name
-      value: Pop-Up Button
+      value: Pop-Up Button Variant
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4354000376095387835, guid: ed4acb700a96fa54189c7bcb521b4dc9, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ed4acb700a96fa54189c7bcb521b4dc9, type: 3}

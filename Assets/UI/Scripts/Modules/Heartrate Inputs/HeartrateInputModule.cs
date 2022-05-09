@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public abstract class HeartrateInputModule : MonoBehaviour
 {
@@ -10,38 +11,15 @@ public abstract class HeartrateInputModule : MonoBehaviour
     public InputType Type { get { return this._type; } }
 
     [SerializeField]
-    private Toggle _toggle = null;
+    private TMP_Text _label = null;
+    private Localization.LocalizedText _localizedLabel = null;
 
-    public bool IsActive { get { return this._toggle.isOn; } } 
-
-    public void Start(){
-        this._toggle.onValueChanged.AddListener(SetStatus);
-    }
-
-    private void OnValidate(){
-        this._toggle = GetComponentInChildren<Toggle>();
-    }
-
-    /// <summary>
-    /// Sets the active status of the input module. 
-    /// </summary>
-    /// <param name="value"></param>
-    public void SetStatus(bool value){
-        if(value){
-            Activate();
-        }else{
-            Deactivate();
-        }
-    }
-
-    protected void Activate(){
+    public void Activate(){
         HeartrateManager.Instance.Plugin.SetActiveHeartrateInput(this);
-        this._toggle.isOn = true;
         OnStatusChange(true);
     }
 
-    protected void Deactivate(){
-        this._toggle.isOn = false;
+    public void Deactivate(){
         OnStatusChange(false);
     }
 
@@ -53,14 +31,14 @@ public abstract class HeartrateInputModule : MonoBehaviour
     public enum InputType : int {
         SLIDER = 1,
         FILE = 2,
-        DEVICE = 3,
+        // BLUETOOTH_DEVICE = 3,
         PULSOID = 4,
-        PULSOID_RSS = 5
+        PULSOID_RSS = 5,
+        ANT_PLUS = 6,
     }
 
     [System.Serializable]
     public class SaveData{
-        public bool isActive = false;
         public InputType type;
         public Values values = new Values();
 
@@ -85,10 +63,8 @@ public abstract class HeartrateInputModule : MonoBehaviour
     protected abstract SaveData.Values ToValues();
     protected abstract void FromValues(SaveData.Values values);
 
-
     public SaveData ToSaveData(){
         SaveData data = new SaveData();
-        data.isActive = this.IsActive;
         data.type = this.Type;
         data.values = ToValues();
         return data;
@@ -96,6 +72,13 @@ public abstract class HeartrateInputModule : MonoBehaviour
 
     public void FromSaveData(SaveData data){
         FromValues(data.values);
-        SetStatus(data.isActive);
+    }
+
+    public override string ToString()
+    {
+        if(this._localizedLabel == null){
+            this._localizedLabel = this._label.GetComponent<Localization.LocalizedText>();
+        }
+        return this._localizedLabel.Key;
     }
 }

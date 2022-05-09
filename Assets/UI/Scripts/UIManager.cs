@@ -40,14 +40,17 @@ public class UIManager : Singleton<UIManager>
     public void GoTo(Tabs tab){
         foreach(TabMapper entry in this._tabs){
             entry.element.gameObject.SetActive(entry.tab == tab);
+            foreach(RectTransform other in entry.others){
+                other.gameObject.SetActive(entry.tab == tab);
+            }
             if(entry.tab == tab){
                 _selected = entry.element;
             }
         }
     }
 
-    public void ShowPopUp(string title, string body, params PopUp.PopUpOption[] options){
-        this._popUp.Show(title, body, options);
+    public void ShowPopUp(string titleKey, string bodyKey, params PopUp.PopUpOption[] options){
+        this._popUp.Show(titleKey, bodyKey, options);
     }
 
     public void HidePopUp(){
@@ -58,12 +61,13 @@ public class UIManager : Singleton<UIManager>
     public class TabMapper {
         public Tabs tab;
         public RectTransform element;
+        public RectTransform[] others;
     }
 
     [System.Serializable]
     public enum Tabs : int {
         HEARTRATE_INPUTS = 1,
-        COLOR_INPUTS = 2,
+        OUTPUTS = 2,
         DEBUG_LOGS = 3,
         SETTINGS = 4,
     }

@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public abstract class RefreshableDropdown : MonoBehaviour
 {
     [SerializeField]
-    protected Dropdown _dropdown = null;
+    protected TMP_Dropdown _dropdown = null;
 
     // Start is called before the first frame update
     void Start(){
@@ -47,7 +47,7 @@ public abstract class RefreshableDropdown : MonoBehaviour
             StringToIndex(currentSelection)));
     }
 
-    private int StringToIndex(string val){
+    protected int StringToIndex(string val){
         return this._dropdown.options.FindIndex((o) 
             => { return o.text.Equals(val); });
     }

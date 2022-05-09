@@ -1,16 +1,22 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
+using TMPro;
 
 public class ReadFromFileInputModule : HeartrateInputModule
 {
     [SerializeField]
-    private InputField _input = null;
+    private TMP_InputField _input = null;
     private string _path = "";
+
+    private void Start(){
+        this._input.onEndEdit.AddListener(SetPath);
+    }
 
     public void SetPath(string path){
         this._path = path;
     }
+
     public override int GetHeartrate()
     {
         try{

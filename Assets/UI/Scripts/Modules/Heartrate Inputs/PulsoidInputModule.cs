@@ -1,13 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class PulsoidInputModule : HeartrateInputModule
 {
     [SerializeField]
-    private InputField _input = null;
+    private TMP_InputField _input = null;
 
     [SerializeField]
     private StatusIndicator _status = null;
+
+    private void Start(){
+        this._input.onEndEdit.AddListener(SetAuthToken);
+    }
 
     public void Login(){
         PulsoidManager.Instance.Login();

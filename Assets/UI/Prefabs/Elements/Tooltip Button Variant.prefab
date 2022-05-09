@@ -125,12 +125,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3127871674792448453, guid: ed4acb700a96fa54189c7bcb521b4dc9,
+        type: 3}
+      propertyPath: m_text
+      value: '?'
+      objectReference: {fileID: 0}
     - target: {fileID: 5343286638955544330, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: m_Text
-      value: '?
-
-'
+      value: '?'
       objectReference: {fileID: 0}
     - target: {fileID: 6606979861038441958, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
@@ -150,9 +153,10 @@ PrefabInstance:
     - target: {fileID: 8095749044357934530, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: m_Name
-      value: Tooltip Button
+      value: Tooltip Button Variant
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4354000376095387835, guid: ed4acb700a96fa54189c7bcb521b4dc9, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ed4acb700a96fa54189c7bcb521b4dc9, type: 3}
 --- !u!1 &4788354272054854432 stripped
 GameObject:

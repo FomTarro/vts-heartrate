@@ -4,14 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using UI.InputTools;
 using UI.Animation;
+using TMPro;
 
 public class PopUp : MonoBehaviour
 {
 
     [SerializeField]
-    private Text _title = null;
+    private TMP_Text _title = null;
     [SerializeField]
-    private Text _content = null;
+    private TMP_Text _content = null;
 
     [SerializeField]
     private ExtendedButton _buttonPrefab = null;
@@ -36,9 +37,9 @@ public class PopUp : MonoBehaviour
         // this.Hide();
     }
 
-    public void Show(string title, string body, params PopUpOption[] options){
-        this._title.text = title;
-        this._content.text = body;
+    public void Show(string titleKey, string bodyKey, params PopUpOption[] options){
+        this._title.text = Localization.LocalizationManager.Instance.GetString(titleKey);
+        this._content.text = Localization.LocalizationManager.Instance.GetString(bodyKey);
         foreach(Transform child in this._buttonParent){
             Destroy(child.gameObject);
         }
@@ -49,7 +50,7 @@ public class PopUp : MonoBehaviour
                 Quaternion.identity, 
                 this._buttonParent);
             button.GetComponent<Image>().color = option.positive ? ColorUtils.GREEN : ColorUtils.RED;
-            button.GetComponentInChildren<Text>().text = option.text;
+            button.GetComponentInChildren<TMP_Text>().text = Localization.LocalizationManager.Instance.GetString(option.text);
             button.onPointerUp.AddListener(() => {option.callback();});
         }
         this._buttonParent.gameObject.SetActive(options.Length > 0);
