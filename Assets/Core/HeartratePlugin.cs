@@ -101,6 +101,7 @@ public class HeartratePlugin : VTSPlugin
                 (s) => {
                     _linear.id = PARAMETER_LINEAR;
                     _linear.value = 0;
+                    _linear.weight = 1;
                     _paramValues.Add(_linear);
                 },
                 (e) => {
@@ -110,6 +111,7 @@ public class HeartratePlugin : VTSPlugin
                 (s) => {
                     _pulse.id = PARAMETER_SINE_PULSE;
                     _pulse.value = 0;
+                    _pulse.weight = 1;
                     _paramValues.Add(_pulse);
                 },
                 (e) => {
@@ -119,6 +121,7 @@ public class HeartratePlugin : VTSPlugin
                 (s) => {
                     _breath.id = PARAMETER_SINE_BREATH;
                     _breath.value = 0;
+                    _breath.weight = 1;
                     _paramValues.Add(_breath);
                 },
                 (e) => {
@@ -128,6 +131,7 @@ public class HeartratePlugin : VTSPlugin
                 (s) => {
                     _bpm.id = PARAMETER_BPM;
                     _bpm.value = 0;
+                    _bpm.weight = 1;
                     _paramValues.Add(_bpm);
                 },
                 (e) => {
@@ -178,8 +182,9 @@ public class HeartratePlugin : VTSPlugin
         int priorHeartrate = this._heartRate;
         this._average.AddValue(this._activeModule != null ? this._activeModule.GetHeartrate() : 0);
         this._heartRate = Mathf.RoundToInt(this._average.Average);
-        float interpolation = Mathf.Clamp01((float)(this._heartRate-this._minRate)/(float)(this._maxRate - this._minRate));
-
+        float numerator =  Math.Max(0, (float)(this._heartRate-this._minRate));
+        float demominator = Math.Max(1, (float)(this._maxRate - this._minRate));
+        float interpolation = Mathf.Clamp01(numerator/demominator);
         if(this.IsAuthenticated){
             // see which model is currently loaded
             GetCurrentModel(
@@ -258,7 +263,7 @@ public class HeartratePlugin : VTSPlugin
                     InjectedParamValuesToDictionary(_paramValues.ToArray());
                 },
                 (e) => {
-                    Debug.Log(JsonUtility.ToJson(e));
+                    Debug.LogError(JsonUtility.ToJson(e));
                 });
             }
         }

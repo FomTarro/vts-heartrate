@@ -160,6 +160,7 @@ namespace VTS {
             authRequest.data.pluginName = this._pluginName;
             authRequest.data.pluginDeveloper = this._pluginAuthor;
             authRequest.data.authenticationToken = this._token;
+            authRequest.data.pluginIcon = EncodeIcon(this.PluginIcon);
             this._socket.Send<VTSAuthData>(authRequest, onSuccess, onError);
         }
 
