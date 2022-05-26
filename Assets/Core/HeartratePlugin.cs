@@ -27,8 +27,8 @@ public class HeartratePlugin : VTSPlugin
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
     private const string PARAMETER_SINE_BREATH = "VTS_Heartrate_Breath";
     private const string PARAMETER_BPM = "VTS_Heartrate_BPM";
-    private Dictionary<String, float> _parameterMap = new Dictionary<string, float>();
-    public Dictionary<String, float> ParameterMap { get { return this._parameterMap; } }
+    private Dictionary<string, float> _parameterMap = new Dictionary<string, float>();
+    public Dictionary<string, float> ParameterMap { get { return this._parameterMap; } }
     private List<VTSParameterInjectionValue> _paramValues = new List<VTSParameterInjectionValue>();
     private VTSParameterInjectionValue _linear = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _pulse = new VTSParameterInjectionValue();
@@ -266,6 +266,8 @@ public class HeartratePlugin : VTSPlugin
                     Debug.LogError(JsonUtility.ToJson(e));
                 });
             }
+
+            APIServer.Instance.SendData();
         }
     }
 
