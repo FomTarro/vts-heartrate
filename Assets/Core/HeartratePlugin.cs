@@ -215,7 +215,7 @@ public class HeartratePlugin : VTSPlugin
                     Debug.LogError(e.data.message);
                 }
             );
-
+            // get all hotkeys in currently loaded model
             GetHotkeysInCurrentModel(
                 this._currentModel.data.modelID,
                 (s) => {
@@ -244,7 +244,8 @@ public class HeartratePlugin : VTSPlugin
             foreach(ExpressionModule module in this._expressionModules){
                 module.CheckModuleCondition(priorHeartrate, this._heartRate);
             }
-
+            SortHotkeyModules();
+            // apply hotkeys
             foreach(HotkeyModule module in this._hotkeyModules){
                 module.CheckModuleCondition(priorHeartrate, this._heartRate);
             }
@@ -263,12 +264,11 @@ public class HeartratePlugin : VTSPlugin
                     InjectedParamValuesToDictionary(_paramValues.ToArray());
                 },
                 (e) => {
-                    Debug.LogError(JsonUtility.ToJson(e));
+                    Debug.LogError(e.data.message);
                 });
             }
-
-            APIServer.Instance.SendData();
         }
+        APIManager.Instance.SendData();
     }
 
     #endregion
@@ -354,7 +354,7 @@ public class HeartratePlugin : VTSPlugin
         int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
         instance.transform.SetSiblingIndex(index);
         this._hotkeyModules.Add(instance);
-        SortExpressionModules();
+        SortHotkeyModules();
         if(module != null){
             instance.FromSaveData(module);
         }
@@ -363,9 +363,13 @@ public class HeartratePlugin : VTSPlugin
     public void DestroyHotkeyModule(HotkeyModule module){
         if(this._hotkeyModules.Contains(module)){
             this._hotkeyModules.Remove(module);
-            SortExpressionModules();
+            SortHotkeyModules();
             Destroy(module.gameObject);
         }
+    }
+
+    private void SortHotkeyModules(){
+        this._hotkeyModules.Sort((a, b) => { return a.Threshold.CompareTo(b.Threshold); });
     }
 
     #endregion

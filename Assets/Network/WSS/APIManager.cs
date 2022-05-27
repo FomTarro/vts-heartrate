@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using WebSocketSharp.Server;
 
-public class APIServer : Singleton<APIServer>
+public class APIManager : Singleton<APIManager>
 {
     private WebSocketServer _server = null;
 
@@ -33,7 +32,8 @@ public class APIServer : Singleton<APIServer>
     public void SendData(){
         WebSocketServiceHost dataHost;
         if(this._server.WebSocketServices.TryGetServiceHost(DATA_PATH, out dataHost)){
-            Data data = new Data();
+            DataMessage data = new DataMessage();
+            data.heartrate = HeartrateManager.Instance.Plugin.HeartRate;
             Dictionary<string, float> paramMap = HeartrateManager.Instance.Plugin.ParameterMap;
             data.parameters.vts_heartrate_bpm = GetValueFromDictionary(paramMap, "VTS_Heartrate_BPM");
             data.parameters.vts_heartrate_pulse = GetValueFromDictionary(paramMap, "VTS_Heartrate_Pulse");
@@ -50,13 +50,23 @@ public class APIServer : Singleton<APIServer>
         }
     }
 
-    public float GetValueFromDictionary(Dictionary<string, float> dict, string key){
+    private float GetValueFromDictionary(Dictionary<string, float> dict, string key){
         return dict.ContainsKey(key) ? dict[key] : 0.0f;
     }
 
     [System.Serializable]
-    public class Data {
+    public class APIMessage {
         public long timestamp = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+    }
+
+    public class DataService : WebSocketService {
+        protected override void OnOpen(){
+            Debug.Log("Connection established to Data API...");
+        }
+    }
+
+    public class DataMessage : APIMessage {
+        public int heartrate;
         public Parameters parameters = new Parameters();
     }
 
@@ -66,12 +76,6 @@ public class APIServer : Singleton<APIServer>
         public float vts_heartrate_pulse;
         public float vts_heartrate_breath;
         public float vts_heartrate_linear;
-    }
-    
-    public class DataService : WebSocketService {
-        protected override void OnOpen(){
-            Debug.Log("Connection established to Data API...");
-        }
     }
 
     public class EventService : WebSocketService {
