@@ -396,6 +396,7 @@ public class HeartratePlugin : VTSPlugin
             data.inputs.Add(module.ToSaveData());
         }
         data.language = Localization.LocalizationManager.Instance.CurrentLanguage;
+        data.apiServerPort = APIManager.Instance.Port;
         File.WriteAllText(this.GLOBAL_SAVE_PATH, data.ToString());
     }
 
@@ -470,6 +471,8 @@ public class HeartratePlugin : VTSPlugin
             Debug.Log("Defaulting language to English as no settings were found");
             Localization.LocalizationManager.Instance.SwitchLanguage(Localization.SupportedLanguage.ENGLISH);
         }
+
+        APIManager.Instance.SetPort(data.apiServerPort);
     }
 
     private void ModernizeLegacyGlobalSaveData(GlobalSaveData data, string content){
@@ -596,6 +599,8 @@ public class HeartratePlugin : VTSPlugin
         public HeartrateInputModule.InputType activeInput;
         public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>(); 
         public Localization.SupportedLanguage language;
+
+        public int apiServerPort;
 
         public override string ToString()
         {
