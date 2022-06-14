@@ -13,7 +13,8 @@ public class HeartrateManager : Singleton<HeartrateManager>
         this.Plugin.OnLaunch();
         CheckVersion();
     }
-
+    
+    #region Version
     private void CheckVersion(){
         StartCoroutine(HttpUtils.GetRequest(
             VERSION_URL,
@@ -66,4 +67,5 @@ public class HeartrateManager : Singleton<HeartrateManager>
             return JsonUtility.ToJson(this);
         }
     }
+    #endregion
 }

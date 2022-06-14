@@ -103,6 +103,12 @@ public class TooltipButton : MonoBehaviour
                     "output_hotkey_tooltip"
                 );
                 break;
+            case Tooltips.SETTINGS_API:
+                UIManager.Instance.ShowPopUp(
+                    "settings_api_port_title",
+                    "settings_api_tooltip"
+                );
+                break;
             default:
             break;
         }
@@ -123,5 +129,7 @@ public class TooltipButton : MonoBehaviour
         OUTPUT_EXPRESSION = 203,
         OUTPUT_COPY = 204,
         OUTPUT_HOTKEY = 205,
+
+        SETTINGS_API = 301,
     }
 }

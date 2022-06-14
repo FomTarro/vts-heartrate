@@ -22,7 +22,7 @@ public class APIManager : Singleton<APIManager>
 
     public override void Initialize()
     {
-        // StartOnPort(8081);
+        
     }
 
     public void SetPort(int port){
@@ -35,6 +35,7 @@ public class APIManager : Singleton<APIManager>
             HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
             status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
             onStatus.Invoke(status);
+            Debug.Log("API Server stopped.");
         }
     }
 
@@ -48,6 +49,7 @@ public class APIManager : Singleton<APIManager>
             HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
             status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
             onStatus.Invoke(status);
+            Debug.LogFormat("API Server started on port {0}.", port);
         }catch(System.Exception e){
             Debug.LogError(e);
             HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
@@ -58,13 +60,15 @@ public class APIManager : Singleton<APIManager>
     }
 
     private void Update(){
-        WebSocketServiceHost dataHost;
-        if(this._server.WebSocketServices.TryGetServiceHost(DATA_PATH, out dataHost)){
-            this._dataClients = dataHost.Sessions.Count;
-        }
-        WebSocketServiceHost eventHost;
-        if(this._server.WebSocketServices.TryGetServiceHost(EVENTS_PATH, out eventHost)){
-            
+        if(this._server != null){
+            WebSocketServiceHost dataHost;
+            if(this._server.WebSocketServices.TryGetServiceHost(DATA_PATH, out dataHost)){
+                this._dataClients = dataHost.Sessions.Count;
+            }
+            WebSocketServiceHost eventHost;
+            if(this._server.WebSocketServices.TryGetServiceHost(EVENTS_PATH, out eventHost)){
+                
+            }
         }
     }
 

@@ -11,6 +11,7 @@ settings_port_title,VTube Studio Port,VTube Studio ポート
 settings_api_port_title,API Server Settings,
 settings_api_port_input,Enter a port number...,
 settings_api_server_button_start,Start API Server,
+settings_api_server_button_stop,Stop API Server,
 settings_api_server_connection_count,Connected Clients: %api_connection_count,
 ,,
 settings_current_version,Current Version: ,現在のバージョン：

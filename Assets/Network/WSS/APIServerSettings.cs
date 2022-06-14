@@ -39,4 +39,8 @@ public class APIServerSettings : MonoBehaviour
         int port = ValidatePortValue(this._portInput.text);
         APIManager.Instance.StartOnPort(port, this._status.SetStatus);
     }
+
+    public void StopServer(){
+        APIManager.Instance.Stop(this._status.SetStatus);
+    }
 }
