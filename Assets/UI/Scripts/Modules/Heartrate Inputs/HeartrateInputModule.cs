@@ -35,6 +35,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
         PULSOID = 4,
         PULSOID_RSS = 5,
         ANT_PLUS = 6,
+        HYPERATE = 7,
     }
 
     [System.Serializable]
