@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using VTS.Networking;
 using VTS.Networking.Impl;
 
@@ -12,9 +10,14 @@ public class HypeRateManager : Singleton<HypeRateManager>
     public string HypeRateID { get { return this._hyperateID; } }
     private string KEEP_ALIVE_MESSAGE;
 
+    private float _timeout = 0f;
+    private const float TIMEOUT_MAX = 2f;
+
     [SerializeField]
     private int _heartrate = 0;
     public int Heartrate { get { return this._heartrate; } }
+
+    private System.Action<string> _onError; 
 
     public override void Initialize()
     {
@@ -32,6 +35,19 @@ public class HypeRateManager : Singleton<HypeRateManager>
         HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
         status.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
         onStatus.Invoke(status);
+        this._timeout = TIMEOUT_MAX;
+
+        this._onError = (message) => {
+            Debug.LogError("An error occured while connecting to the HypeRate socket...");
+            status.status = HttpUtils.ConnectionStatus.Status.ERROR;
+            status.message = message;
+            onStatus.Invoke(status);
+            if(!this._socket.IsConnectionOpen()){
+                Debug.Log("Attempting to reconnect to HypeRate socket...");
+                Connect(onStatus);
+            }
+        };
+
         this._socket.Start(string.Format(HYPERATE_SOCKET_URL, HypeRateCredentials.API_KEY),
         () => {
             Debug.Log("Connected to HypeRate socket");
@@ -42,19 +58,16 @@ public class HypeRateManager : Singleton<HypeRateManager>
             onStatus.Invoke(status);
         },
         () => {
+            this._timeout = 0f;
             Debug.Log("Disconnected from the HypeRate socket");
             status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
             onStatus.Invoke(status);
         },
-        () => {
-            Debug.LogError("An error occured while connecting to the HypeRate socket...");
-            status.status = HttpUtils.ConnectionStatus.Status.ERROR;
-            onStatus.Invoke(status);
-            // Connect(onStatus);
-        });
+        () => { this._onError.Invoke("error"); });
     }
 
     public void Disconnect(System.Action<HttpUtils.ConnectionStatus> onStatus){
+        this._timeout = 0f;
         if(this._socket.IsConnecting() || this._socket.IsConnectionOpen()){
             this._socket.Stop();
         }
@@ -71,6 +84,7 @@ public class HypeRateManager : Singleton<HypeRateManager>
             HypeRateMessage message = JsonUtility.FromJson<HypeRateMessage>(response);
             if(message != null){
                 if(message.@event.Equals("hr_update")){
+                    this._timeout = 2f;
                     this._heartrate = message.payload.hr;
                 }else if(message.@event.Equals("phx_reply")){
                     // {"event":"phx_reply","payload":{"response":{},"status":"ok"},"ref":0,"topic":"phoenix"}
@@ -87,6 +101,24 @@ public class HypeRateManager : Singleton<HypeRateManager>
             }
             // {\"topic\": \"phoenix\",\"event\": \"heartbeat\",\"payload\": {},\"ref\": 0}
             this._socket.Send(KEEP_ALIVE_MESSAGE);
+        }
+        if(this._timeout > 0f){
+            this._timeout = this._timeout - Time.deltaTime;
+            if(this._timeout <= 0f && this._onError != null){
+                if(this._socket.IsConnectionOpen()){
+                    // if we don't get data packets and the connection is open, probably a bad ID
+                    this._onError.Invoke("error: invalid User ID");
+                }else{
+                    // if we don't get data packets because the socket is closed, that's a timeout
+                     this._onError.Invoke("error: connection timed out");
+                }
+            }
+        }
+    }
+
+    private void OnApplicationQuit(){
+        if(this._socket != null){
+            this._socket.Stop();
         }
     }
 
