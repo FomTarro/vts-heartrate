@@ -156,9 +156,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: NotoSansSymbols-Regular SDF
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: 380641894
   material: {fileID: -2365608174063154943}
-  materialHashCode: 0
+  materialHashCode: 365375494
   m_Version: 1.1.0
   m_SourceFontFileGUID: 5c2d1db3f44b2fe429208bf4a1c58b1a
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 5c2d1db3f44b2fe429208bf4a1c58b1a,

@@ -12,9 +12,12 @@ public class ShowPasswordButton : MonoBehaviour
         this._input = GetComponentInParent<TMP_InputField>();
         if(this._input != null && this._input.contentType == TMP_InputField.ContentType.Password){
             this.gameObject.SetActive(true);
-            // this._input.textViewport.offsetMax = new Vector2(-30;
+            this._input.textViewport.offsetMax = new Vector2(-30, this._input.textViewport.offsetMax.y);
         }else{
             this.gameObject.SetActive(false);
+            if(this._input != null){
+                this._input.textViewport.offsetMax = new Vector2(-10, this._input.textViewport.offsetMax.y);
+            }
         }
     }
 
