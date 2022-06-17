@@ -7,7 +7,7 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
  
 # Features
 
-💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](https://www.pulsoid.net) and [ANT+](https://www.thisisant.com/consumer/ant-101/what-is-ant)!  
+💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](https://www.pulsoid.net), [hyperate.io](https://www.hyperate.io/) and [ANT+](https://www.thisisant.com/consumer/ant-101/what-is-ant)!  
 
 💓 Configurable <b>model tinting</b> that scales with pulse!
 
@@ -24,7 +24,7 @@ If you're more of an email-oriented person, you can contact his support email: [
 Getting up and running is relatively straightforward. The plugin will automatically connect to VTube Studio on launch. From there, do the following steps:
 
 * Input an estimated <b>minimum</b> and <b>maximum</b> heartrate.
-* Select a desired heartrate <b>input method</b>. You can connect over bluetooth using your phone and [pulsoid.net](https://www.pulsoid.net), or connect directly to your PC with an [ANT+](https://www.thisisant.com/consumer/ant-101/what-is-ant) USB dongle.
+* Select a desired heartrate <b>input method</b>. You can connect over bluetooth using your phone and [pulsoid.net](https://www.pulsoid.net) or [hyperate.io](https://www.hyperate.io/), or connect directly to your PC with an [ANT+](https://www.thisisant.com/consumer/ant-101/what-is-ant) USB dongle.
 * Add [<b>Art Mesh Tint modules</b>](#art-mesh-tinting) and configure them to parts of your model!
 * Add [<b>Expression and Hotkey Trigger modules</b>](#automatic-expression-triggering) and configure them to activate model functions automatically!
 * Hook up [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), to your model for things like breathing speed!
@@ -55,7 +55,9 @@ By clicking the <b>'Refresh' button</b>, this plugin will begin a continuous sca
 Then, simply select one from the dropdown and click the <b>'Connect' button</b>.
 
 Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.
- 
+
+### HypeRate
+[<b>HypeRate</b>](https://www.hyperate.io/) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. Once you have a HypeRate account, you can use this input method to collect heartrate data from the service.
  
 ## Outputs
  

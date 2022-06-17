@@ -113,6 +113,13 @@ Please note that this plugin is not an officially licensed or certified affiliat
 input_ant_plus_button_visit,Visit thisisant.com,thisisant.com にアクセス
 input_ant_devices,Available Devices,接続可能なデバイス
 ,,
+input_hyperate_title,HypeRate,
+input_hyperate_tooltip,"<b>HypeRate</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.
+Once you have a HypeRate account, you can use this input method to collect heartrate data from the service.",
+input_hyperate_button_visit,Visit hyperate.io,
+input_hyperate_id,HypeRate User ID,
+input_hyperate_id_placeholder,Enter your %input_hyperate_id,
+,,
 output_artmesh_title,Art Mesh Tint,アートメッシュの色付け
 output_artmesh_new,Create %output_artmesh_title,%output_artmesh_title を新規作成
 output_artmesh_tooltip,"This output will gradually tint the matched <b>Art Meshes</b> the desired color, based on your current heartrate.
