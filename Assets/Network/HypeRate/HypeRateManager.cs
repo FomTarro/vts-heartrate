@@ -23,6 +23,7 @@ public class HypeRateManager : Singleton<HypeRateManager>
     {
         HypeRateMessage message = new HypeRateMessage("phoenix");
         message.@event = "heartbeat";
+        // {\"topic\": \"phoenix\",\"event\": \"heartbeat\",\"payload\": {},\"ref\": 0}
         this.KEEP_ALIVE_MESSAGE = JsonUtility.ToJson(message);
     }
 
@@ -76,10 +77,8 @@ public class HypeRateManager : Singleton<HypeRateManager>
         onStatus.Invoke(status);
     }
 
-    public void FixedUpdate(){
-
+    private void FixedUpdate(){
         if(this._socket.IsConnectionOpen()){
-            // Debug.Log(this._socket.GetNextResponse());
             string response = this._socket.GetNextResponse();
             HypeRateMessage message = JsonUtility.FromJson<HypeRateMessage>(response);
             if(message != null){
@@ -88,18 +87,23 @@ public class HypeRateManager : Singleton<HypeRateManager>
                     this._heartrate = message.payload.hr;
                 }else if(message.@event.Equals("phx_reply")){
                     // {"event":"phx_reply","payload":{"response":{},"status":"ok"},"ref":0,"topic":"phoenix"}
-                    if(message.payload.status.Equals("ok")){
+                    if(message.payload != null && message.payload.status.Equals("ok")){
                         // all good
                     }
                     else{
-                        Debug.LogError("Error from HypeRate socket with status: " + message.payload.status);
+                        Debug.LogError("Error from HypeRate socket with status: " + message.payload.status + " and error: " + message.payload.response);
+                        if(this._onError != null){
+                            this._onError.Invoke("error: " + message.payload.response);
+                        }
                     }
                 }else{
                     // error of some kind
-                    Debug.LogError(response);
+                    Debug.LogError("Error from HypeRate socket with status: " + message.payload.status + " and error: " + message.payload.response);
+                    if(this._onError != null){
+                        this._onError.Invoke("error: " + message.payload.response);
+                    }
                 }
             }
-            // {\"topic\": \"phoenix\",\"event\": \"heartbeat\",\"payload\": {},\"ref\": 0}
             this._socket.Send(KEEP_ALIVE_MESSAGE);
         }
         if(this._timeout > 0f){
@@ -110,7 +114,7 @@ public class HypeRateManager : Singleton<HypeRateManager>
                     this._onError.Invoke("error: invalid User ID");
                 }else{
                     // if we don't get data packets because the socket is closed, that's a timeout
-                     this._onError.Invoke("error: connection timed out");
+                    this._onError.Invoke("error: connection timed out");
                 }
             }
         }
@@ -125,7 +129,7 @@ public class HypeRateManager : Singleton<HypeRateManager>
     [System.Serializable]
     public class HypeRateMessage{
         public string topic = "";
-        public string @event = "phx_join"; // lmao don't name your variables like this in your API schema, please!
+        public string @event = "phx_join"; // lmao don't name your variables after reserved keywords in your API schema, please!
         public HypeRatePayload payload = new HypeRatePayload();
         public int @ref = 0;
 
@@ -138,7 +142,6 @@ public class HypeRateManager : Singleton<HypeRateManager>
             public int hr;
             public string response;
             public string status;
-
         }
     }
 
