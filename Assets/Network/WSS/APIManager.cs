@@ -1,19 +1,25 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using WebSocketSharp;
 using WebSocketSharp.Server;
 
 public class APIManager : Singleton<APIManager>
 {
     private WebSocketServer _server = null;
 
-    private const string DATA_PATH = "/data";
-    private const string EVENTS_PATH = "/events";
 
+    // data api
+    private const string DATA_PATH = "/data";
     protected int _dataClients = 0;
     public int DataClientCount { get { return this._dataClients; }}
+    protected long _dataMessages = 0;
+    public long DataMessages { get { return this._dataMessages; }}
+
+    // event api
+    private const string EVENTS_PATH = "/events";
     protected int _eventClients = 0;
     public int EventClientCount { get { return this._eventClients; }}
+    protected long _eventMessages = 0;
+    public long EventMessages { get { return this._eventMessages; }}
 
     public int TotalClientCount { get { return this._eventClients + this._dataClients; }}
 
@@ -44,6 +50,7 @@ public class APIManager : Singleton<APIManager>
         try{
             this._server = new WebSocketServer(port, false);
             this._server.AddWebSocketService<DataService>(DATA_PATH);
+            this._dataMessages = 0;
             this._server.AddWebSocketService<EventService>(EVENTS_PATH);
             this._server.Start();
             HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
@@ -84,13 +91,15 @@ public class APIManager : Singleton<APIManager>
             data.data.vts_heartrate_breath = GetValueFromDictionary(paramMap, "VTS_Heartrate_Breath");
             data.data.vts_heartrate_linear = GetValueFromDictionary(paramMap, "VTS_Heartrate_Linear");
             dataHost.Sessions.Broadcast(JsonUtility.ToJson(data));
+            this._dataMessages = this._dataMessages + dataHost.Sessions.Count;
         }
     }
 
     public void SendEvent(object eventInfo){
         WebSocketServiceHost eventHost;
         if(this._server.WebSocketServices.TryGetServiceHost(EVENTS_PATH, out eventHost)){
-        
+            eventHost.Sessions.Broadcast(JsonUtility.ToJson(""));
+            this._eventMessages = this._eventMessages + eventHost.Sessions.Count;
         }
     }
 
@@ -118,15 +127,15 @@ public class APIManager : Singleton<APIManager>
             this.messageType = "DataResponse";
             this.data = new Data();
         }
-    }
 
-    [System.Serializable]
-    public class Data{
-        public float heartrate;
-        public float vts_heartrate_bpm;
-        public float vts_heartrate_pulse;
-        public float vts_heartrate_breath;
-        public float vts_heartrate_linear;
+        [System.Serializable]
+        public class Data{
+            public float heartrate;
+            public float vts_heartrate_bpm;
+            public float vts_heartrate_pulse;
+            public float vts_heartrate_breath;
+            public float vts_heartrate_linear;
+        }
     }
 
     public class EventService : WebSocketService {

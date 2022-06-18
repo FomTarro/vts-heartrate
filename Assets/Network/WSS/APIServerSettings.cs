@@ -10,7 +10,14 @@ public class APIServerSettings : MonoBehaviour
     private TMP_InputField _portInput = null;
 
     [SerializeField]
-    private TMP_Text _connectionCount = null;
+    private APIEndpointStatistics _dataStats = null;
+    [SerializeField]
+    private APIEndpointStatistics _eventStats = null;
+
+    [SerializeField]
+    private TMP_Text _wsUrl = null;
+
+    private const string SERVER_URL = "ws://localhost:{0}/{1}";
 
     // Start is called before the first frame update
     void Start()
@@ -22,7 +29,15 @@ public class APIServerSettings : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        this._connectionCount.text = APIManager.Instance.TotalClientCount + "";
+        int port = APIManager.Instance.Port;
+        this._dataStats.SetStatistics(
+            APIManager.Instance.DataClientCount, 
+            string.Format(SERVER_URL, port, "data"),
+            APIManager.Instance.DataMessages);
+        this._eventStats.SetStatistics(
+            APIManager.Instance.EventClientCount, 
+            string.Format(SERVER_URL, port, "events"),
+            APIManager.Instance.EventMessages);
     }
 
     public int ValidatePortValue(string value){
