@@ -47,15 +47,17 @@ public class ColorInputModule : MonoBehaviour
     }
 
     public void ApplyColor(float interpolation){
-        ArtMeshMatcher matcher = new ArtMeshMatcher();
-        matcher.tintAll = false;
-        matcher.nameContains = this.ModuleMatchers;
-        HeartrateManager.Instance.Plugin.TintArtMesh(
-            Color32.Lerp(Color.white, this.ModuleColor, interpolation),  
-            0.5f, 
-            matcher,
-            (success) => {},
-            (error) => {});
+        if(HeartrateManager.Instance.Plugin.IsAuthenticated){
+            ArtMeshMatcher matcher = new ArtMeshMatcher();
+            matcher.tintAll = false;
+            matcher.nameContains = this.ModuleMatchers;
+            HeartrateManager.Instance.Plugin.TintArtMesh(
+                Color32.Lerp(Color.white, this.ModuleColor, interpolation),  
+                0.5f, 
+                matcher,
+                (success) => {},
+                (error) => {});
+        }
     }
 
     public void SetRed(string value){

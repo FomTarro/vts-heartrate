@@ -95,10 +95,11 @@ public class APIManager : Singleton<APIManager>
         }
     }
 
-    public void SendEvent(object eventInfo){
+    public void SendEvent(EventMessage message){
         WebSocketServiceHost eventHost;
-        if(this._server.WebSocketServices.TryGetServiceHost(EVENTS_PATH, out eventHost)){
-            eventHost.Sessions.Broadcast(JsonUtility.ToJson(""));
+        if(this._server != null 
+        && this._server.WebSocketServices.TryGetServiceHost(EVENTS_PATH, out eventHost)){
+            eventHost.Sessions.Broadcast(JsonUtility.ToJson(message));
             this._eventMessages = this._eventMessages + eventHost.Sessions.Count;
         }
     }
@@ -142,6 +143,107 @@ public class APIManager : Singleton<APIManager>
         protected override void OnOpen(){
             Debug.Log("Connection established to Event API...");
         }
+    }
+
+    public abstract class EventMessage : APIMessage {
+
+    }
+
+    public class ExpressionEventMessage : EventMessage {
+
+        public Data data = new Data();
+        public ExpressionEventMessage(
+            int threshold, 
+            string expression,
+            ExpressionModule.TriggerBehavior behavior,
+            bool activated){
+            this.messageType = "ExpressionEventResponse";
+            this.data = new Data();
+            this.data.threshold = threshold;
+            this.data.expression = expression;
+            this.data.behavior = MapBehavior(behavior);
+            this.data.activated = activated;
+        }
+
+        private ExpressionTriggerBehavior MapBehavior(ExpressionModule.TriggerBehavior behavior){
+            switch(behavior){
+                case ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE:
+                    return ExpressionTriggerBehavior.ACTIVATE_ABOVE;
+                case ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW:
+                    return ExpressionTriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW;
+                case ExpressionModule.TriggerBehavior.ACTIVATE_BELOW:
+                    return ExpressionTriggerBehavior.ACTIVATE_BELOW;
+                case ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE:
+                    return ExpressionTriggerBehavior.DEACTIVATE_ABOVE;
+                case ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW:
+                    return ExpressionTriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW;
+                case ExpressionModule.TriggerBehavior.DEACTIVATE_BELOW:
+                    return ExpressionTriggerBehavior.DEACTIVATE_BELOW;
+            }
+            return ExpressionTriggerBehavior.UNKNOWN;
+        }
+
+        [System.Serializable]
+        public class Data {
+            public int threshold;
+            public string expression;
+            public ExpressionTriggerBehavior behavior;
+            public bool activated;
+        }
+
+        [System.Serializable]
+        public enum ExpressionTriggerBehavior : int {   
+            UNKNOWN = -1,     
+            ACTIVATE_ABOVE_DEACTIVATE_BELOW = 0,
+            DEACTIVATE_ABOVE_ACTIVATE_BELOW = 1,
+            ACTIVATE_ABOVE = 2,
+            DEACTIVATE_ABOVE = 3,
+            ACTIVATE_BELOW = 4,
+            DEACTIVATE_BELOW = 5,
+        }
+    }
+
+    public class HotkeyEventMessage : EventMessage {
+        public Data data = new Data();
+        public HotkeyEventMessage(
+            int threshold, 
+            string hotkey,
+            HotkeyModule.TriggerBehavior behavior
+            ){
+            this.messageType = "HotkeyEventResponse";
+            this.data = new Data();
+            this.data.threshold = threshold;
+            this.data.hotkey = hotkey;
+            this.data.behavior = MapBehavior(behavior);
+        }
+
+        private HotkeyTriggerBehavior MapBehavior(HotkeyModule.TriggerBehavior behavior){
+            switch(behavior){
+                case HotkeyModule.TriggerBehavior.ACTIVATE_ABOVE:
+                    return HotkeyTriggerBehavior.ACTIVATE_ABOVE;
+                case HotkeyModule.TriggerBehavior.ACTIVATE_BELOW:
+                    return HotkeyTriggerBehavior.ACTIVATE_BELOW;
+                case HotkeyModule.TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW:
+                    return HotkeyTriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW;
+            }
+            return HotkeyTriggerBehavior.UNKNOWN;
+        }
+
+        [System.Serializable]
+        public class Data {
+            public int threshold;
+            public string hotkey;
+            public HotkeyTriggerBehavior behavior;
+        }
+
+        [System.Serializable]
+        public enum HotkeyTriggerBehavior : int {   
+            UNKNOWN = -1,     
+            ACTIVATE_ABOVE_ACTIVATE_BELOW = 0,
+            ACTIVATE_ABOVE = 1,
+            ACTIVATE_BELOW = 2,
+        }
+
     }
 }
     

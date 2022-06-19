@@ -185,8 +185,8 @@ public class HeartratePlugin : VTSPlugin
         float numerator =  Math.Max(0, (float)(this._heartRate-this._minRate));
         float demominator = Math.Max(1, (float)(this._maxRate - this._minRate));
         float interpolation = Mathf.Clamp01(numerator/demominator);
+        // see which model is currently loaded
         if(this.IsAuthenticated){
-            // see which model is currently loaded
             GetCurrentModel(
                 (s) => {
                     if(!s.data.modelID.Equals(this._currentModel.data.modelID)){
@@ -200,7 +200,9 @@ public class HeartratePlugin : VTSPlugin
                     this._currentModel = new VTSCurrentModelData();
                 }
             );
-            // get all expressions for currently loaded model
+        }
+        // get all expressions for currently loaded model
+        if(this.IsAuthenticated){
             GetExpressionStateList(
                 (s) => {
                     this._expressions.Clear();
@@ -215,7 +217,9 @@ public class HeartratePlugin : VTSPlugin
                     Debug.LogError(e.data.message);
                 }
             );
-            // get all hotkeys in currently loaded model
+        }
+        // get all hotkeys in currently loaded model
+        if(this.IsAuthenticated){
             GetHotkeysInCurrentModel(
                 this._currentModel.data.modelID,
                 (s) => {
@@ -233,40 +237,40 @@ public class HeartratePlugin : VTSPlugin
                     Debug.LogError(e.data.message);
                 }
             );
+        }
 
-            // apply art mesh tints
-            foreach(ColorInputModule module in this._colors){
-                module.ApplyColor(interpolation);
-            }
+        // apply art mesh tints
+        foreach(ColorInputModule module in this._colors){
+            module.ApplyColor(interpolation);
+        }
 
-            SortExpressionModules();
-            // apply expressions
-            foreach(ExpressionModule module in this._expressionModules){
-                module.CheckModuleCondition(priorHeartrate, this._heartRate);
-            }
-            SortHotkeyModules();
-            // apply hotkeys
-            foreach(HotkeyModule module in this._hotkeyModules){
-                module.CheckModuleCondition(priorHeartrate, this._heartRate);
-            }
+        SortExpressionModules();
+        // apply expressions
+        foreach(ExpressionModule module in this._expressionModules){
+            module.CheckModuleCondition(priorHeartrate, this._heartRate);
+        }
+        SortHotkeyModules();
+        // apply hotkeys
+        foreach(HotkeyModule module in this._hotkeyModules){
+            module.CheckModuleCondition(priorHeartrate, this._heartRate);
+        }
 
-            // calculate tracking parameters
-            _linear.value = interpolation;
-            _bpm.value = this._heartRate;
-            _breath.value = _oscillatingBreath.GetValue(
-                Mathf.Clamp(((float)this.HeartRate - this._minRate) / 60f, 0.35f, PARAMETER_MAX_VALUE));
-            _pulse.value = _oscillatingPulse.GetValue(
-                Mathf.Clamp(((float)this.HeartRate) / 60f, 0f, PARAMETER_MAX_VALUE));
+        // calculate tracking parameters
+        _linear.value = interpolation;
+        _bpm.value = this._heartRate;
+        _breath.value = _oscillatingBreath.GetValue(
+            Mathf.Clamp(((float)this.HeartRate - this._minRate) / 60f, 0.35f, PARAMETER_MAX_VALUE));
+        _pulse.value = _oscillatingPulse.GetValue(
+            Mathf.Clamp(((float)this.HeartRate) / 60f, 0f, PARAMETER_MAX_VALUE));
 
-            if(_paramValues.Count > 0){
-                this.InjectParameterValues(_paramValues.ToArray(),
-                (s) => {
-                    InjectedParamValuesToDictionary(_paramValues.ToArray());
-                },
-                (e) => {
-                    Debug.LogError(e.data.message);
-                });
-            }
+        if(_paramValues.Count > 0 && this.IsAuthenticated){
+            this.InjectParameterValues(_paramValues.ToArray(),
+            (s) => {
+                InjectedParamValuesToDictionary(_paramValues.ToArray());
+            },
+            (e) => {
+                Debug.LogError(e.data.message);
+            });
         }
         APIManager.Instance.SendData();
     }
