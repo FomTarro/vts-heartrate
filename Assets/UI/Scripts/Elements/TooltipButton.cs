@@ -29,6 +29,12 @@ public class TooltipButton : MonoBehaviour
                     "input_slider_tooltip"
                 );
                 break;
+            case Tooltips.HEARTRATE_WEBSOCKET:
+                UIManager.Instance.ShowPopUp(
+                    "input_websocket_title",
+                    "input_websocket_tooltip"
+                );
+                break;
             case Tooltips.HEARTRATE_PULSOID_CONNECT:
                 UIManager.Instance.ShowPopUp(
                     "input_pulsoid_app_title",
@@ -134,6 +140,7 @@ public class TooltipButton : MonoBehaviour
         HEARTRATE_BLUETOOTH = 106,
         HEARTRATE_ANT_PLUS = 107,
         HEARTRATE_HYPERATE = 108,
+        HEARTRATE_WEBSOCKET = 109,
  
         OUTPUT_PARAMS = 201,
         OUTPUT_COLOR = 202,

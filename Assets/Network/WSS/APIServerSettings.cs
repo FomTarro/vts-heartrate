@@ -13,6 +13,8 @@ public class APIServerSettings : MonoBehaviour
     private APIEndpointStatistics _dataStats = null;
     [SerializeField]
     private APIEndpointStatistics _eventStats = null;
+    [SerializeField]
+    private APIEndpointStatistics _inputStats = null;
 
     [SerializeField]
     private TMP_Text _wsUrl = null;
@@ -38,6 +40,10 @@ public class APIServerSettings : MonoBehaviour
             APIManager.Instance.EventClientCount, 
             string.Format(SERVER_URL, port, "events"),
             APIManager.Instance.EventMessages);
+        this._inputStats.SetStatistics(
+            APIManager.Instance.InputClientCount, 
+            string.Format(SERVER_URL, port, "input"),
+            APIManager.Instance.InputMessages);
     }
 
     public int ValidatePortValue(string value){

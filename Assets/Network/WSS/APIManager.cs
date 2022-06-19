@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using WebSocketSharp;
 using WebSocketSharp.Server;
 
 public class APIManager : Singleton<APIManager>
@@ -21,7 +22,17 @@ public class APIManager : Singleton<APIManager>
     protected long _eventMessages = 0;
     public long EventMessages { get { return this._eventMessages; }}
 
-    public int TotalClientCount { get { return this._eventClients + this._dataClients; }}
+    // input api
+    private const string INPUT_PATH = "/input";
+    protected int _inputClients = 0;
+    public int InputClientCount { get { return this._inputClients; }}
+    protected long _inputMessages = 0;
+    public long InputMessages { get { return this._inputMessages; }}
+
+    private int _heartrate = 0;
+    public int Heartrate { get { return this._heartrate; } }
+
+    public int TotalClientCount { get { return this._eventClients + this._dataClients + this._inputClients; }}
 
     private int _port;
     public int Port { get { return this._port; } }
@@ -52,6 +63,9 @@ public class APIManager : Singleton<APIManager>
             this._server.AddWebSocketService<DataService>(DATA_PATH);
             this._dataMessages = 0;
             this._server.AddWebSocketService<EventService>(EVENTS_PATH);
+            this._eventMessages = 0;
+            this._server.AddWebSocketService<InputService>(INPUT_PATH);
+            this._inputMessages = 0;
             this._server.Start();
             HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
             status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
@@ -74,7 +88,11 @@ public class APIManager : Singleton<APIManager>
             }
             WebSocketServiceHost eventHost;
             if(this._server.WebSocketServices.TryGetServiceHost(EVENTS_PATH, out eventHost)){
-                
+                this._eventClients = eventHost.Sessions.Count;
+            }
+            WebSocketServiceHost inputHost;
+            if(this._server.WebSocketServices.TryGetServiceHost(INPUT_PATH, out inputHost)){
+                this._inputClients = inputHost.Sessions.Count;
             }
         }
     }
@@ -244,6 +262,34 @@ public class APIManager : Singleton<APIManager>
             ACTIVATE_BELOW = 2,
         }
 
+    }
+
+    public class InputService : WebSocketService {
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            try{
+                InputMessage message = JsonUtility.FromJson<InputMessage>(e.Data);
+                Debug.Log(message.data.heartrate);
+                APIManager.Instance._heartrate = message.data.heartrate;
+                APIManager.Instance._inputMessages = APIManager.Instance._inputMessages + 1;
+            }catch(System.Exception ex){
+                Debug.LogErrorFormat("Error parsing Input socket message: {0}, {1}",
+                e.Data, ex);
+            }
+        }
+    }
+
+    public class InputMessage : APIMessage {
+        public Data data = new Data();
+        public InputMessage(){
+            this.messageType = "InputResponse";
+            this.data = new Data();
+        }
+
+        [System.Serializable]
+        public class Data{
+            public int heartrate;
+        }
     }
 }
     
