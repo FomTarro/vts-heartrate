@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class APIEndpointStatistics : MonoBehaviour
+public class APIEndpointStatisticsDisplay : MonoBehaviour
 {
 
     [SerializeField]
@@ -15,13 +15,13 @@ public class APIEndpointStatistics : MonoBehaviour
     [SerializeField]
     private string _messageKey = "settings_api_server_messages_sent";
 
-    public void SetStatistics(int connections, string url, long messageCount){
+    public void SetStatistics(APIManager.APIEndpoint.Statistics stats){
         this._connections.text = string.Format(
             Localization.LocalizationManager.Instance.GetString("settings_api_server_connection_count"),
-            connections);
-        this._url.text = url;
+            stats.clients);
+        this._url.text = stats.url;
         this._messages.text = string.Format(
             Localization.LocalizationManager.Instance.GetString(this._messageKey),
-            messageCount);
+            stats.messages);
     }
 }

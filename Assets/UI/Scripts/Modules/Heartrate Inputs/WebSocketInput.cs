@@ -1,5 +1,14 @@
-﻿public class WebSocketInput : HeartrateInputModule
+﻿using UnityEngine;
+
+public class WebSocketInput : HeartrateInputModule
 {
+    [SerializeField]
+    private APIEndpointStatisticsDisplay _inputStats = null;
+
+    private void Update(){
+        this._inputStats.SetStatistics(APIManager.Instance.InputEndpoint.Stats);
+    }
+    
     public override int GetHeartrate()
     {
        return APIManager.Instance.Heartrate;

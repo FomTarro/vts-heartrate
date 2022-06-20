@@ -10,16 +10,14 @@ public class APIServerSettings : MonoBehaviour
     private TMP_InputField _portInput = null;
 
     [SerializeField]
-    private APIEndpointStatistics _dataStats = null;
+    private APIEndpointStatisticsDisplay _dataStats = null;
     [SerializeField]
-    private APIEndpointStatistics _eventStats = null;
+    private APIEndpointStatisticsDisplay _eventStats = null;
     [SerializeField]
-    private APIEndpointStatistics _inputStats = null;
+    private APIEndpointStatisticsDisplay _inputStats = null;
 
     [SerializeField]
     private TMP_Text _wsUrl = null;
-
-    private const string SERVER_URL = "ws://localhost:{0}/{1}";
 
     // Start is called before the first frame update
     void Start()
@@ -32,18 +30,9 @@ public class APIServerSettings : MonoBehaviour
     void Update()
     {
         int port = APIManager.Instance.Port;
-        this._dataStats.SetStatistics(
-            APIManager.Instance.DataClientCount, 
-            string.Format(SERVER_URL, port, "data"),
-            APIManager.Instance.DataMessages);
-        this._eventStats.SetStatistics(
-            APIManager.Instance.EventClientCount, 
-            string.Format(SERVER_URL, port, "events"),
-            APIManager.Instance.EventMessages);
-        this._inputStats.SetStatistics(
-            APIManager.Instance.InputClientCount, 
-            string.Format(SERVER_URL, port, "input"),
-            APIManager.Instance.InputMessages);
+        this._dataStats.SetStatistics(APIManager.Instance.DataEndpoint.Stats);
+        this._eventStats.SetStatistics(APIManager.Instance.EventsEndpoint.Stats);
+        this._inputStats.SetStatistics(APIManager.Instance.InputEndpoint.Stats);
     }
 
     public int ValidatePortValue(string value){

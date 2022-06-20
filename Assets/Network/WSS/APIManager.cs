@@ -7,32 +7,18 @@ public class APIManager : Singleton<APIManager>
 {
     private WebSocketServer _server = null;
 
-
     // data api
-    private const string DATA_PATH = "/data";
-    protected int _dataClients = 0;
-    public int DataClientCount { get { return this._dataClients; }}
-    protected long _dataMessages = 0;
-    public long DataMessages { get { return this._dataMessages; }}
-
+    private APIEndpoint _dataService = new APIEndpoint("/data");
+    public APIEndpoint DataEndpoint { get { return this._dataService; } }
     // event api
-    private const string EVENTS_PATH = "/events";
-    protected int _eventClients = 0;
-    public int EventClientCount { get { return this._eventClients; }}
-    protected long _eventMessages = 0;
-    public long EventMessages { get { return this._eventMessages; }}
-
+    private APIEndpoint _eventsService = new APIEndpoint("/events");
+    public APIEndpoint EventsEndpoint { get { return this._eventsService; } }
     // input api
-    private const string INPUT_PATH = "/input";
-    protected int _inputClients = 0;
-    public int InputClientCount { get { return this._inputClients; }}
-    protected long _inputMessages = 0;
-    public long InputMessages { get { return this._inputMessages; }}
+    private APIEndpoint _inputService = new APIEndpoint("/input");
+    public APIEndpoint InputEndpoint { get { return this._inputService; } }
 
     private int _heartrate = 0;
     public int Heartrate { get { return this._heartrate; } }
-
-    public int TotalClientCount { get { return this._eventClients + this._dataClients + this._inputClients; }}
 
     private int _port;
     public int Port { get { return this._port; } }
@@ -60,12 +46,9 @@ public class APIManager : Singleton<APIManager>
         Stop(onStatus);
         try{
             this._server = new WebSocketServer(port, false);
-            this._server.AddWebSocketService<DataService>(DATA_PATH);
-            this._dataMessages = 0;
-            this._server.AddWebSocketService<EventService>(EVENTS_PATH);
-            this._eventMessages = 0;
-            this._server.AddWebSocketService<InputService>(INPUT_PATH);
-            this._inputMessages = 0;
+            this._dataService.Start<DataService>(this._server);
+            this._eventsService.Start<EventsService>(this._server);
+            this._inputService.Start<InputService>(this._server);
             this._server.Start();
             HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
             status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
@@ -79,52 +62,95 @@ public class APIManager : Singleton<APIManager>
             onStatus.Invoke(status);
         }
     }
-
-    private void Update(){
-        if(this._server != null){
-            WebSocketServiceHost dataHost;
-            if(this._server.WebSocketServices.TryGetServiceHost(DATA_PATH, out dataHost)){
-                this._dataClients = dataHost.Sessions.Count;
-            }
-            WebSocketServiceHost eventHost;
-            if(this._server.WebSocketServices.TryGetServiceHost(EVENTS_PATH, out eventHost)){
-                this._eventClients = eventHost.Sessions.Count;
-            }
-            WebSocketServiceHost inputHost;
-            if(this._server.WebSocketServices.TryGetServiceHost(INPUT_PATH, out inputHost)){
-                this._inputClients = inputHost.Sessions.Count;
-            }
-        }
-    }
-
     public void SendData(){
-        WebSocketServiceHost dataHost;
-        if(this._server != null 
-        && this._server.WebSocketServices.TryGetServiceHost(DATA_PATH, out dataHost)){
-            DataMessage data = new DataMessage();
-            data.data.heartrate = HeartrateManager.Instance.Plugin.HeartRate;
-            Dictionary<string, float> paramMap = HeartrateManager.Instance.Plugin.ParameterMap;
-            data.data.vts_heartrate_bpm = GetValueFromDictionary(paramMap, "VTS_Heartrate_BPM");
-            data.data.vts_heartrate_pulse = GetValueFromDictionary(paramMap, "VTS_Heartrate_Pulse");
-            data.data.vts_heartrate_breath = GetValueFromDictionary(paramMap, "VTS_Heartrate_Breath");
-            data.data.vts_heartrate_linear = GetValueFromDictionary(paramMap, "VTS_Heartrate_Linear");
-            dataHost.Sessions.Broadcast(JsonUtility.ToJson(data));
-            this._dataMessages = this._dataMessages + dataHost.Sessions.Count;
-        }
+        DataMessage data = new DataMessage();
+        data.data.heartrate = HeartrateManager.Instance.Plugin.HeartRate;
+        Dictionary<string, float> paramMap = HeartrateManager.Instance.Plugin.ParameterMap;
+        data.data.vts_heartrate_bpm = GetValueFromDictionary(paramMap, "VTS_Heartrate_BPM");
+        data.data.vts_heartrate_pulse = GetValueFromDictionary(paramMap, "VTS_Heartrate_Pulse");
+        data.data.vts_heartrate_breath = GetValueFromDictionary(paramMap, "VTS_Heartrate_Breath");
+        data.data.vts_heartrate_linear = GetValueFromDictionary(paramMap, "VTS_Heartrate_Linear");
+        this._dataService.SendAll(JsonUtility.ToJson(data));
     }
 
     public void SendEvent(EventMessage message){
-        WebSocketServiceHost eventHost;
-        if(this._server != null 
-        && this._server.WebSocketServices.TryGetServiceHost(EVENTS_PATH, out eventHost)){
-            eventHost.Sessions.Broadcast(JsonUtility.ToJson(message));
-            this._eventMessages = this._eventMessages + eventHost.Sessions.Count;
-        }
+        this._eventsService.SendAll(JsonUtility.ToJson(message));
     }
 
     private float GetValueFromDictionary(Dictionary<string, float> dict, string key){
         return dict.ContainsKey(key) ? dict[key] : 0.0f;
     }
+
+    public class APIEndpoint {
+        protected string _path  = "/input";
+        public string Path { get { return this._path; } }
+        public int ClientCount { get { 
+            WebSocketServiceHost host;
+            if(this._server != null 
+            && this._server.WebSocketServices.TryGetServiceHost(this._path, out host)){
+                return host.Sessions.Count;
+            }
+            return 0;
+        } }
+        protected long _messages = 0;
+        public long MessageCount { get { return this._messages; }}
+
+        private WebSocketServer _server = null;
+
+        public Statistics Stats { get { 
+            return new Statistics(
+            this.ClientCount, 
+            this.MessageCount, 
+            this._server != null ? "ws://localhost:" + this._server.Port + this._path : "Unavailable"); } }
+
+        public APIEndpoint(string path){
+            this._path = path;
+        }
+
+        public void Start<T>(WebSocketServer server) where T : WebSocketService, new(){
+            this._server = server;
+            this._server.RemoveWebSocketService(this._path);
+            this._server.AddWebSocketService<T>(this._path);
+            this._messages = 0;
+        }
+
+        public bool SendAll(string message){
+            WebSocketServiceHost host;
+            if(this._server != null 
+            && this._server.WebSocketServices.TryGetServiceHost(this._path, out host)){
+                host.Sessions.Broadcast(JsonUtility.ToJson(message));
+                this._messages = this._messages + host.Sessions.Count;
+                return true;
+            }
+            return false;
+        }
+
+        public void Receive(string message){
+            try{
+                InputMessage input = JsonUtility.FromJson<InputMessage>(message);
+                Debug.Log(input.data.heartrate);
+                APIManager.Instance._heartrate = input.data.heartrate;
+                this._messages = this._messages + 1;
+            }catch(System.Exception ex){
+                Debug.LogErrorFormat("Error parsing incoming socket message on path {0}: {1}, {2}",
+                this._path, message, ex);
+            }
+        }
+
+        public struct Statistics {
+            public int clients;
+            public long messages;
+            public string url;
+
+            public Statistics(int clients, long messages, string url){
+                this.clients = clients;
+                this.messages = messages;
+                this.url = url;
+            }
+        }
+    }
+
+    #region Data Classes
 
     [System.Serializable]
     public class APIMessage {
@@ -157,7 +183,10 @@ public class APIManager : Singleton<APIManager>
         }
     }
 
-    public class EventService : WebSocketService {
+    #endregion
+
+    #region Event Classes
+    public class EventsService : WebSocketService {
         protected override void OnOpen(){
             Debug.Log("Connection established to Event API...");
         }
@@ -264,18 +293,13 @@ public class APIManager : Singleton<APIManager>
 
     }
 
+    #endregion
+
+    #region Input Classes
     public class InputService : WebSocketService {
         protected override void OnMessage(MessageEventArgs e)
         {
-            try{
-                InputMessage message = JsonUtility.FromJson<InputMessage>(e.Data);
-                Debug.Log(message.data.heartrate);
-                APIManager.Instance._heartrate = message.data.heartrate;
-                APIManager.Instance._inputMessages = APIManager.Instance._inputMessages + 1;
-            }catch(System.Exception ex){
-                Debug.LogErrorFormat("Error parsing Input socket message: {0}, {1}",
-                e.Data, ex);
-            }
+            APIManager.Instance.InputEndpoint.Receive(e.Data);
         }
     }
 
@@ -291,5 +315,7 @@ public class APIManager : Singleton<APIManager>
             public int heartrate;
         }
     }
+
+    #endregion
 }
     
