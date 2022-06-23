@@ -24,6 +24,7 @@ public class APIServerSettings : MonoBehaviour
     {
         this._portInput.onEndEdit.AddListener((v) => { ValidatePortValue(v); });
         ValidatePortValue(APIManager.Instance.Port + "");
+        RestartServer();
     }
 
     // Update is called once per frame

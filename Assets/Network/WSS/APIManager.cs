@@ -2,6 +2,7 @@
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using VTS.Networking.Impl;
 
 public class APIManager : Singleton<APIManager>
 {
@@ -22,6 +23,8 @@ public class APIManager : Singleton<APIManager>
 
     private int _port;
     public int Port { get { return this._port; } }
+
+    private Dictionary<string, string> _tokenToSessionMap = new Dictionary<string, string>();
 
     public override void Initialize()
     {
@@ -70,15 +73,31 @@ public class APIManager : Singleton<APIManager>
         data.data.vts_heartrate_pulse = GetValueFromDictionary(paramMap, "VTS_Heartrate_Pulse");
         data.data.vts_heartrate_breath = GetValueFromDictionary(paramMap, "VTS_Heartrate_Breath");
         data.data.vts_heartrate_linear = GetValueFromDictionary(paramMap, "VTS_Heartrate_Linear");
-        this._dataService.SendAll(JsonUtility.ToJson(data));
+        this._dataService.SendToAll(JsonUtility.ToJson(data));
     }
 
     public void SendEvent(EventMessage message){
-        this._eventsService.SendAll(JsonUtility.ToJson(message));
+        this._eventsService.SendToAll(JsonUtility.ToJson(message));
     }
 
     private float GetValueFromDictionary(Dictionary<string, float> dict, string key){
         return dict.ContainsKey(key) ? dict[key] : 0.0f;
+    }
+
+    private void SaveTokenData(){
+        // TokenSaveData data = new TokenSaveData();
+    }
+
+    private void LoadTokenData(){
+
+    }
+
+    [System.Serializable]
+    public class TokenSaveData{
+        public List<string> tokens = new List<string>();
+        public TokenSaveData(IEnumerable<string> tokens){
+
+        }
     }
 
     public class APIEndpoint {
@@ -114,7 +133,7 @@ public class APIManager : Singleton<APIManager>
             this._messages = 0;
         }
 
-        public bool SendAll(string message){
+        public bool SendToAll(string message){
             WebSocketServiceHost host;
             if(this._server != null 
             && this._server.WebSocketServices.TryGetServiceHost(this._path, out host)){
@@ -125,11 +144,99 @@ public class APIManager : Singleton<APIManager>
             return false;
         }
 
-        public void Receive(string message){
+        public bool SendToID(string message, string sessionID){
+            WebSocketServiceHost host;
+            if(this._server != null 
+            && this._server.WebSocketServices.TryGetServiceHost(this._path, out host)){
+                try{
+                    host.Sessions.SendTo(sessionID, message);
+                    this._messages = this._messages + 1;
+                    return true;
+                }catch(System.Exception e){
+                    Debug.LogErrorFormat("Error sending message to session ID: {0}, {1}", sessionID, e);
+                }
+            }
+            return false;
+        }
+
+        public void Receive(string message, string sessionID){
             try{
-                InputMessage input = JsonUtility.FromJson<InputMessage>(message);
-                Debug.Log(input.data.heartrate);
-                APIManager.Instance._heartrate = input.data.heartrate;
+                APIMessage apiMessage = JsonUtility.FromJson<APIMessage>(message);
+                if("InputRequest".Equals(apiMessage.messageType)){
+                    if(APIManager.Instance._tokenToSessionMap.ContainsValue(sessionID)){
+                        InputMessage input = JsonUtility.FromJson<InputMessage>(message);
+                        Debug.Log(input.data.heartrate);
+                        APIManager.Instance._heartrate = input.data.heartrate;
+                    }else{
+                        ErrorMessage error = new ErrorMessage();
+                        error.data.message = string.Format("Client is not authenticated.", apiMessage.messageType);
+                        error.data.errorCode = ErrorMessage.StatusCode.FORBIDDEN;
+                        this.SendToID(JsonUtility.ToJson(error), sessionID);
+                    }
+                }else if("AuthenticationRequest".Equals(apiMessage.messageType)){
+                    AuthenticationMessage authRequest = JsonUtility.FromJson<AuthenticationMessage>(message);
+                    if(authRequest.data.token != null 
+                    && APIManager.Instance._tokenToSessionMap.ContainsKey(authRequest.data.token)){
+                        // they send us a token
+                        APIManager.Instance._tokenToSessionMap.Remove(authRequest.data.token);
+                        APIManager.Instance._tokenToSessionMap.Add(authRequest.data.token, sessionID);
+                        Debug.LogFormat("Authenticating session ID {0}", sessionID);
+
+                        AuthenticationMessage authResponse = new AuthenticationMessage();
+                        authResponse.messageType = "AuthenticationResponse";
+                        authResponse.data.token = authRequest.data.token;
+                        authResponse.data.pluginAuthor = authRequest.data.pluginAuthor;
+                        authResponse.data.pluginName = authRequest.data.pluginName;
+                        authResponse.data.authenticated = true;
+
+                        // TODO: write authentication file
+                    }else if(authRequest.data.pluginAuthor != null && authRequest.data.pluginName != null){
+                        // they are requesting a new token
+                        Dictionary<string, string> strings = new Dictionary<string, string>();
+                        strings.Add("settings_api_server_approve_plugin_tooltip_populated", 
+                            string.Format(Localization.LocalizationManager.Instance.GetString("settings_api_server_approve_plugin_tooltip"), 
+                                authRequest.data.pluginName, 
+                                authRequest.data.pluginAuthor));
+                        Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
+                        UIManager.Instance.ShowPopUp(
+                            "settings_api_server_approve_plugin_title",
+                            "settings_api_server_approve_plugin_tooltip_populated",
+                            new PopUp.PopUpOption(
+                                "settings_api_server_button_approve",
+                                true,
+                                () => {
+                                    AuthenticationMessage authResponse = new AuthenticationMessage();
+                                    authResponse.messageType = "AuthenticationResponse";
+                                    authResponse.data.token = System.Guid.NewGuid().ToString();
+                                    authResponse.data.pluginAuthor = authRequest.data.pluginAuthor;
+                                    authResponse.data.pluginName = authRequest.data.pluginName;
+                                    APIManager.Instance._tokenToSessionMap.Add(authResponse.data.token, sessionID);
+                                    this.SendToID(JsonUtility.ToJson(authResponse), sessionID);
+                                    UIManager.Instance.HidePopUp();
+                                }),
+                            new PopUp.PopUpOption(
+                                "settings_api_server_button_deny",
+                                false,
+                                () => { 
+                                    ErrorMessage error = new ErrorMessage();
+                                    error.data.message = "User had denied this authentication request.";
+                                    error.data.errorCode = ErrorMessage.StatusCode.FORBIDDEN;
+                                    this.SendToID(JsonUtility.ToJson(error), sessionID);
+                                    UIManager.Instance.HidePopUp();
+                                })
+                        );
+                    }else{
+                        ErrorMessage error = new ErrorMessage();
+                        error.data.message = "Message data must contain pluginName and pluginAuthor.";
+                        error.data.errorCode = ErrorMessage.StatusCode.BAD_REQUEST;
+                        this.SendToID(JsonUtility.ToJson(error), sessionID);
+                    }
+                }else{
+                    ErrorMessage error = new ErrorMessage();
+                    error.data.message = string.Format("Message type of {0} is not recognized.", apiMessage.messageType);
+                    error.data.errorCode = ErrorMessage.StatusCode.BAD_REQUEST;
+                    this.SendToID(JsonUtility.ToJson(error), sessionID);
+                }
                 this._messages = this._messages + 1;
             }catch(System.Exception ex){
                 Debug.LogErrorFormat("Error parsing incoming socket message on path {0}: {1}, {2}",
@@ -297,9 +404,12 @@ public class APIManager : Singleton<APIManager>
 
     #region Input Classes
     public class InputService : WebSocketService {
-        protected override void OnMessage(MessageEventArgs e)
-        {
-            APIManager.Instance.InputEndpoint.Receive(e.Data);
+
+        protected override void OnOpen(){
+            Debug.Log("Connection established to Input API...");
+        }
+        protected override void OnMessage(MessageEventArgs e){
+            MainThreadUtil.Run(() => { APIManager.Instance.InputEndpoint.Receive(e.Data, this.ID); });
         }
     }
 
@@ -313,6 +423,44 @@ public class APIManager : Singleton<APIManager>
         [System.Serializable]
         public class Data{
             public int heartrate;
+        }
+    }
+
+    public class AuthenticationMessage : APIMessage {
+        public Data data = new Data();
+        public AuthenticationMessage(){
+            this.messageType = "AuthenticationResponse";
+            this.data = new Data();
+        }
+
+        [System.Serializable]
+        public class Data{
+            public string pluginName;
+            public string pluginAuthor;
+            public string token;
+            public bool authenticated = false;
+        }
+    }
+
+    public class ErrorMessage : APIMessage {
+        public Data data = new Data();
+        public ErrorMessage(){
+            this.messageType = "ErrorResponse";
+            this.data = new Data();
+        }
+
+        [System.Serializable]
+        public class Data{
+            public StatusCode errorCode;
+            public string message;
+        }
+
+        [System.Serializable]
+        public enum StatusCode : int {
+            OK = 200,
+            BAD_REQUEST = 400,
+            FORBIDDEN = 403,
+            SERVER_ERROR = 500,
         }
     }
 

@@ -34,7 +34,7 @@ public class UIManager : Singleton<UIManager>
 
     public override void Initialize()
     {
-        
+
     }
 
     public void GoTo(Tabs tab){
