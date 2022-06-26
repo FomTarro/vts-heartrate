@@ -3,6 +3,7 @@ using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using VTS.Networking.Impl;
+using System.IO;
 
 public class APIManager : Singleton<APIManager>
 {
@@ -24,11 +25,14 @@ public class APIManager : Singleton<APIManager>
     private int _port;
     public int Port { get { return this._port; } }
 
-    private Dictionary<string, string> _tokenToSessionMap = new Dictionary<string, string>();
+    private Dictionary<string, PluginData> _tokenToSessionMap = new Dictionary<string, PluginData>();
+    public List<PluginData> ApprovedPlugins { get { return new List<PluginData>(this._tokenToSessionMap.Values); } }
+    private string GLOBAL_SAVE_PATH = "";
 
     public override void Initialize()
     {
-        
+        this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "plugins.json");
+        LoadTokenData();
     }
 
     public void SetPort(int port){
@@ -84,19 +88,61 @@ public class APIManager : Singleton<APIManager>
         return dict.ContainsKey(key) ? dict[key] : 0.0f;
     }
 
+    private PluginData PluginDataFromSessionID(string sessionID){
+        foreach(PluginData data in this._tokenToSessionMap.Values){
+            if(data.sessionID.Equals(sessionID)){
+                return data;
+            }
+        }
+        return null;
+    }
+
+    public void RevokeTokenData(string token){
+        if(this._tokenToSessionMap.ContainsKey(token)){
+            this._tokenToSessionMap.Remove(token);
+            SaveTokenData();
+        }
+    }
+
     private void SaveTokenData(){
-        // TokenSaveData data = new TokenSaveData();
+        TokenSaveData data = new TokenSaveData(this._tokenToSessionMap.Values);
+        File.WriteAllText(this.GLOBAL_SAVE_PATH, data.ToString());
     }
 
     private void LoadTokenData(){
-
+        if(File.Exists(this.GLOBAL_SAVE_PATH)){
+            string content = File.ReadAllText(this.GLOBAL_SAVE_PATH);
+            TokenSaveData data = JsonUtility.FromJson<TokenSaveData>(content);
+            foreach(PluginData p in data.tokens){
+                this._tokenToSessionMap.Add(p.token, p);
+            }
+        }
     }
 
     [System.Serializable]
     public class TokenSaveData{
-        public List<string> tokens = new List<string>();
-        public TokenSaveData(IEnumerable<string> tokens){
+        public List<PluginData> tokens = new List<PluginData>();
+        public TokenSaveData(IEnumerable<PluginData> data){
+            this.tokens = new List<PluginData>(data);
+        }
 
+        public override string ToString()
+        {
+            return JsonUtility.ToJson(this);
+        }
+    }
+
+    [System.Serializable]
+    public class PluginData{
+        public string token;
+        public string sessionID;
+        public string pluginName;
+        public string pluginAuthor;
+        public PluginData(string token, string sessionID, string pluginName, string pluginAuthor){
+            this.token = token;
+            this.sessionID = sessionID;
+            this.pluginName = pluginName;
+            this.pluginAuthor = pluginAuthor;
         }
     }
 
@@ -162,8 +208,9 @@ public class APIManager : Singleton<APIManager>
         public void Receive(string message, string sessionID){
             try{
                 APIMessage apiMessage = JsonUtility.FromJson<APIMessage>(message);
+                PluginData client = APIManager.Instance.PluginDataFromSessionID(sessionID);
                 if("InputRequest".Equals(apiMessage.messageType)){
-                    if(APIManager.Instance._tokenToSessionMap.ContainsValue(sessionID)){
+                    if(client != null){
                         InputMessage input = JsonUtility.FromJson<InputMessage>(message);
                         Debug.Log(input.data.heartrate);
                         APIManager.Instance._heartrate = input.data.heartrate;
@@ -179,7 +226,8 @@ public class APIManager : Singleton<APIManager>
                     && APIManager.Instance._tokenToSessionMap.ContainsKey(authRequest.data.token)){
                         // they send us a token
                         APIManager.Instance._tokenToSessionMap.Remove(authRequest.data.token);
-                        APIManager.Instance._tokenToSessionMap.Add(authRequest.data.token, sessionID);
+                        PluginData data = new PluginData(authRequest.data.token, sessionID, authRequest.data.pluginName, authRequest.data.pluginAuthor);
+                        APIManager.Instance._tokenToSessionMap.Add(authRequest.data.token, data);
                         Debug.LogFormat("Authenticating session ID {0}", sessionID);
 
                         AuthenticationMessage authResponse = new AuthenticationMessage();
@@ -188,10 +236,10 @@ public class APIManager : Singleton<APIManager>
                         authResponse.data.pluginAuthor = authRequest.data.pluginAuthor;
                         authResponse.data.pluginName = authRequest.data.pluginName;
                         authResponse.data.authenticated = true;
-
-                        // TODO: write authentication file
+                        this.SendToID(JsonUtility.ToJson(authResponse), sessionID);
+                        APIManager.Instance.SaveTokenData();
                     }else if(authRequest.data.pluginAuthor != null && authRequest.data.pluginName != null){
-                        // they are requesting a new token
+                        // New Token Request
                         Dictionary<string, string> strings = new Dictionary<string, string>();
                         strings.Add("settings_api_server_approve_plugin_tooltip_populated", 
                             string.Format(Localization.LocalizationManager.Instance.GetString("settings_api_server_approve_plugin_tooltip"), 
@@ -210,8 +258,10 @@ public class APIManager : Singleton<APIManager>
                                     authResponse.data.token = System.Guid.NewGuid().ToString();
                                     authResponse.data.pluginAuthor = authRequest.data.pluginAuthor;
                                     authResponse.data.pluginName = authRequest.data.pluginName;
-                                    APIManager.Instance._tokenToSessionMap.Add(authResponse.data.token, sessionID);
+                                    PluginData data = new PluginData(authResponse.data.token, sessionID, authResponse.data.pluginName, authResponse.data.pluginAuthor);
+                                    APIManager.Instance._tokenToSessionMap.Add(authResponse.data.token, data);
                                     this.SendToID(JsonUtility.ToJson(authResponse), sessionID);
+                                    APIManager.Instance.SaveTokenData();
                                     UIManager.Instance.HidePopUp();
                                 }),
                             new PopUp.PopUpOption(
@@ -226,12 +276,14 @@ public class APIManager : Singleton<APIManager>
                                 })
                         );
                     }else{
+                        // Malformed Authentication Request
                         ErrorMessage error = new ErrorMessage();
                         error.data.message = "Message data must contain pluginName and pluginAuthor.";
                         error.data.errorCode = ErrorMessage.StatusCode.BAD_REQUEST;
                         this.SendToID(JsonUtility.ToJson(error), sessionID);
                     }
                 }else{
+                    // Unknown Message Type
                     ErrorMessage error = new ErrorMessage();
                     error.data.message = string.Format("Message type of {0} is not recognized.", apiMessage.messageType);
                     error.data.errorCode = ErrorMessage.StatusCode.BAD_REQUEST;
@@ -257,152 +309,18 @@ public class APIManager : Singleton<APIManager>
         }
     }
 
-    #region Data Classes
-
-    [System.Serializable]
-    public class APIMessage {
-        public string apiVersion = "1.0";
-        public string messageType = "APIMessage";
-        public long timestamp = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-    }
-
     public class DataService : WebSocketService {
         protected override void OnOpen(){
             Debug.Log("Connection established to Data API...");
         }
     }
 
-    public class DataMessage : APIMessage {
-
-        public Data data = new Data();
-        public DataMessage(){
-            this.messageType = "DataResponse";
-            this.data = new Data();
-        }
-
-        [System.Serializable]
-        public class Data{
-            public float heartrate;
-            public float vts_heartrate_bpm;
-            public float vts_heartrate_pulse;
-            public float vts_heartrate_breath;
-            public float vts_heartrate_linear;
-        }
-    }
-
-    #endregion
-
-    #region Event Classes
     public class EventsService : WebSocketService {
         protected override void OnOpen(){
             Debug.Log("Connection established to Event API...");
         }
     }
 
-    public abstract class EventMessage : APIMessage {
-
-    }
-
-    public class ExpressionEventMessage : EventMessage {
-
-        public Data data = new Data();
-        public ExpressionEventMessage(
-            int threshold, 
-            string expression,
-            ExpressionModule.TriggerBehavior behavior,
-            bool activated){
-            this.messageType = "ExpressionEventResponse";
-            this.data = new Data();
-            this.data.threshold = threshold;
-            this.data.expression = expression;
-            this.data.behavior = MapBehavior(behavior);
-            this.data.activated = activated;
-        }
-
-        private ExpressionTriggerBehavior MapBehavior(ExpressionModule.TriggerBehavior behavior){
-            switch(behavior){
-                case ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE:
-                    return ExpressionTriggerBehavior.ACTIVATE_ABOVE;
-                case ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW:
-                    return ExpressionTriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW;
-                case ExpressionModule.TriggerBehavior.ACTIVATE_BELOW:
-                    return ExpressionTriggerBehavior.ACTIVATE_BELOW;
-                case ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE:
-                    return ExpressionTriggerBehavior.DEACTIVATE_ABOVE;
-                case ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW:
-                    return ExpressionTriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW;
-                case ExpressionModule.TriggerBehavior.DEACTIVATE_BELOW:
-                    return ExpressionTriggerBehavior.DEACTIVATE_BELOW;
-            }
-            return ExpressionTriggerBehavior.UNKNOWN;
-        }
-
-        [System.Serializable]
-        public class Data {
-            public int threshold;
-            public string expression;
-            public ExpressionTriggerBehavior behavior;
-            public bool activated;
-        }
-
-        [System.Serializable]
-        public enum ExpressionTriggerBehavior : int {   
-            UNKNOWN = -1,     
-            ACTIVATE_ABOVE_DEACTIVATE_BELOW = 0,
-            DEACTIVATE_ABOVE_ACTIVATE_BELOW = 1,
-            ACTIVATE_ABOVE = 2,
-            DEACTIVATE_ABOVE = 3,
-            ACTIVATE_BELOW = 4,
-            DEACTIVATE_BELOW = 5,
-        }
-    }
-
-    public class HotkeyEventMessage : EventMessage {
-        public Data data = new Data();
-        public HotkeyEventMessage(
-            int threshold, 
-            string hotkey,
-            HotkeyModule.TriggerBehavior behavior
-            ){
-            this.messageType = "HotkeyEventResponse";
-            this.data = new Data();
-            this.data.threshold = threshold;
-            this.data.hotkey = hotkey;
-            this.data.behavior = MapBehavior(behavior);
-        }
-
-        private HotkeyTriggerBehavior MapBehavior(HotkeyModule.TriggerBehavior behavior){
-            switch(behavior){
-                case HotkeyModule.TriggerBehavior.ACTIVATE_ABOVE:
-                    return HotkeyTriggerBehavior.ACTIVATE_ABOVE;
-                case HotkeyModule.TriggerBehavior.ACTIVATE_BELOW:
-                    return HotkeyTriggerBehavior.ACTIVATE_BELOW;
-                case HotkeyModule.TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW:
-                    return HotkeyTriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW;
-            }
-            return HotkeyTriggerBehavior.UNKNOWN;
-        }
-
-        [System.Serializable]
-        public class Data {
-            public int threshold;
-            public string hotkey;
-            public HotkeyTriggerBehavior behavior;
-        }
-
-        [System.Serializable]
-        public enum HotkeyTriggerBehavior : int {   
-            UNKNOWN = -1,     
-            ACTIVATE_ABOVE_ACTIVATE_BELOW = 0,
-            ACTIVATE_ABOVE = 1,
-            ACTIVATE_BELOW = 2,
-        }
-
-    }
-
-    #endregion
-
-    #region Input Classes
     public class InputService : WebSocketService {
 
         protected override void OnOpen(){
@@ -412,58 +330,5 @@ public class APIManager : Singleton<APIManager>
             MainThreadUtil.Run(() => { APIManager.Instance.InputEndpoint.Receive(e.Data, this.ID); });
         }
     }
-
-    public class InputMessage : APIMessage {
-        public Data data = new Data();
-        public InputMessage(){
-            this.messageType = "InputResponse";
-            this.data = new Data();
-        }
-
-        [System.Serializable]
-        public class Data{
-            public int heartrate;
-        }
-    }
-
-    public class AuthenticationMessage : APIMessage {
-        public Data data = new Data();
-        public AuthenticationMessage(){
-            this.messageType = "AuthenticationResponse";
-            this.data = new Data();
-        }
-
-        [System.Serializable]
-        public class Data{
-            public string pluginName;
-            public string pluginAuthor;
-            public string token;
-            public bool authenticated = false;
-        }
-    }
-
-    public class ErrorMessage : APIMessage {
-        public Data data = new Data();
-        public ErrorMessage(){
-            this.messageType = "ErrorResponse";
-            this.data = new Data();
-        }
-
-        [System.Serializable]
-        public class Data{
-            public StatusCode errorCode;
-            public string message;
-        }
-
-        [System.Serializable]
-        public enum StatusCode : int {
-            OK = 200,
-            BAD_REQUEST = 400,
-            FORBIDDEN = 403,
-            SERVER_ERROR = 500,
-        }
-    }
-
-    #endregion
 }
     

@@ -67,8 +67,8 @@ public class HotkeyModule : MonoBehaviour
                     (s) => {},
                     (e) => {});
                 }
-                APIManager.HotkeyEventMessage message = 
-                    new APIManager.HotkeyEventMessage(this.Threshold, this.SelectedHotkey, this.Behavior);
+                HotkeyEventMessage message = 
+                    new HotkeyEventMessage(this.Threshold, this.SelectedHotkey, this.Behavior);
                 APIManager.Instance.SendEvent(message);
             }
         // falling edge
@@ -84,8 +84,8 @@ public class HotkeyModule : MonoBehaviour
                     (e) => {});
                 }
             }
-            APIManager.HotkeyEventMessage message = 
-                new APIManager.HotkeyEventMessage(this.Threshold, this.SelectedHotkey, this.Behavior);
+            HotkeyEventMessage message = 
+                new HotkeyEventMessage(this.Threshold, this.SelectedHotkey, this.Behavior);
             APIManager.Instance.SendEvent(message);
         }
         this._priorThreshold = this.Threshold;

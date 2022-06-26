@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using TMPro;
 
 public class APIServerSettings : MonoBehaviour
@@ -17,7 +18,10 @@ public class APIServerSettings : MonoBehaviour
     private APIEndpointStatisticsDisplay _inputStats = null;
 
     [SerializeField]
-    private TMP_Text _wsUrl = null;
+    private RectTransform _authList = null;
+    [SerializeField]
+    private PluginAuthEntry _authPrefab = null;
+    private Dictionary<string, PluginAuthEntry> _pluginAuthEntries = new Dictionary<string, PluginAuthEntry>();
 
     // Start is called before the first frame update
     void Start()
@@ -28,8 +32,25 @@ public class APIServerSettings : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        foreach(APIManager.PluginData plugin in APIManager.Instance.ApprovedPlugins){
+            if(!this._pluginAuthEntries.ContainsKey(plugin.token)){
+                PluginAuthEntry entry = Instantiate<PluginAuthEntry>(this._authPrefab, 
+                    Vector3.zero, 
+                    Quaternion.identity, 
+                    this._authList);
+                entry.Configure(plugin);
+                entry.gameObject.SetActive(true);
+                this._pluginAuthEntries.Add(plugin.token, entry);
+            }
+        }
+        // List<string> tokens = new List<string>(this._pluginAuthEntries.Keys);
+        // foreach(string token in tokens){
+        //     if(this._pluginAuthEntries[token] == null){
+        //         this._pluginAuthEntries.Remove(token);
+        //     }
+        // }
         int port = APIManager.Instance.Port;
         this._dataStats.SetStatistics(APIManager.Instance.DataEndpoint.Stats);
         this._eventStats.SetStatistics(APIManager.Instance.EventsEndpoint.Stats);

@@ -375,6 +375,9 @@ MonoBehaviour:
   _eventStats: {fileID: 4146856720668746070}
   _inputStats: {fileID: 3983272079956365717}
   _wsUrl: {fileID: 0}
+  _authList: {fileID: 7830717212057754543}
+  _authPrefab: {fileID: 5150126256928774395, guid: fc8e325a2066b5046bbe966f38a27884,
+    type: 3}
 --- !u!1001 &832015016057085900
 PrefabInstance:
   m_ObjectHideFlags: 0

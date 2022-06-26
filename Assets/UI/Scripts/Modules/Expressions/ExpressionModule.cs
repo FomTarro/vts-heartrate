@@ -59,8 +59,8 @@ public class ExpressionModule : MonoBehaviour
                     (s) => {},
                     (e) => {});
                 }
-                APIManager.ExpressionEventMessage message = 
-                    new APIManager.ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, true);
+                ExpressionEventMessage message = 
+                    new ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, true);
                 APIManager.Instance.SendEvent(message);
             }else if( 
                 this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
@@ -70,8 +70,8 @@ public class ExpressionModule : MonoBehaviour
                     (s) => {},
                     (e) => {});
                 }
-                APIManager.ExpressionEventMessage message = 
-                    new APIManager.ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, false);
+                ExpressionEventMessage message = 
+                    new ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, false);
                 APIManager.Instance.SendEvent(message);
             }
         // falling edge
@@ -86,8 +86,8 @@ public class ExpressionModule : MonoBehaviour
                     (s) => {},
                     (e) => {});
                 }
-                APIManager.ExpressionEventMessage message = 
-                    new APIManager.ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, true);
+                ExpressionEventMessage message = 
+                    new ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, true);
                 APIManager.Instance.SendEvent(message);
             }else if( 
                 this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
@@ -97,8 +97,8 @@ public class ExpressionModule : MonoBehaviour
                     (s) => {},
                     (e) => {});
                 }
-                APIManager.ExpressionEventMessage message = 
-                    new APIManager.ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, false);
+                ExpressionEventMessage message = 
+                    new ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, false);
                 APIManager.Instance.SendEvent(message);
             }
         }
