@@ -15,7 +15,7 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
 
 💓 Custom <b>tracking parameters</b> for pulse and breath!
 
-💓 NEW! <b>Plugin API</b> so that you can build your own apps that use consume or write heartrate data!
+💓 NEW! <b>Plugin API</b> so that you can build your own apps that consume or write heartrate data!
 
 # About
 This plugin is developed by Tom "Skeletom" Farro. If you need to contact him, the best way to do so is via [Twitter](https://www.twitter.com/FomTarro).

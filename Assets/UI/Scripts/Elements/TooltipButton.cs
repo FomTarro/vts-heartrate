@@ -95,7 +95,7 @@ public class TooltipButton : MonoBehaviour
                 UIManager.Instance.ShowPopUp(
                     "output_custom_params_title",
                     "output_custom_params_tooltip",
-                     new PopUp.PopUpOption(
+                    new PopUp.PopUpOption(
                         "output_custom_params_button",
                         true,
                         () => { Application.OpenURL("https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters"); })
@@ -121,8 +121,12 @@ public class TooltipButton : MonoBehaviour
                 break;
             case Tooltips.SETTINGS_API:
                 UIManager.Instance.ShowPopUp(
-                    "settings_api_port_title",
-                    "settings_api_tooltip"
+                    "settings_api_server_title",
+                    "settings_api_server_tooltip",
+                    new PopUp.PopUpOption(
+                        "settings_api_server_button_open_readme",
+                        true,
+                        () => { Application.OpenURL("https://github.com/FomTarro/vts-heartrate/#api"); })
                 );
                 break;
             default:
