@@ -18,12 +18,18 @@ settings_api_server_event_title,Event API,
 settings_api_server_input_title,Input API,
 settings_api_server_messages_sent,Messages sent: {0},
 settings_api_server_messages_received,Messages received: {0},
+,,
+settings_api_server_approved_plugin_title,Approved Plugins,
 settings_api_server_approve_plugin_title,Approve this plugin?,
-settings_api_server_approve_plugin_tooltip,"Do you want to approve the plugin named <b>{0}</b>, made by <b>{1}</b>? 
+settings_api_server_approve_plugin_tooltip,"Do you want to approve access to the plugin named <b>{0}</b>, made by <b>{1}</b>? 
 
 Doing so will grant the plugin permission to write heartrate data via the <b>%input_websocket_title</b> input.",
 settings_api_server_button_approve,Approve,
 settings_api_server_button_deny,Deny,
+settings_api_server_revoke_plugin_title,Revoke this plugin?,
+settings_api_server_revoke_plugin_tooltip,"Do you want to revoke access from the plugin named <b>{0}</b>, made by <b>{1}</b>? ",
+settings_api_server_button_keep,Keep,
+settings_api_server_button_revoke,Revoke,
 ,,
 settings_current_version,Current Version: ,現在のバージョン：
 settings_new_version_title,New Version Available!,新しいバージョンが入手可能です。

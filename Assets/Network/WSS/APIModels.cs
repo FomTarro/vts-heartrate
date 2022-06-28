@@ -1,5 +1,4 @@
-﻿
-[System.Serializable]
+﻿[System.Serializable]
 public class APIMessage {
     public string apiVersion = "1.0";
     public string messageType = "APIMessage";

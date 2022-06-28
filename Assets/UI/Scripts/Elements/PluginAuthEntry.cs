@@ -18,8 +18,30 @@ public class PluginAuthEntry : MonoBehaviour
         this._title.text = data.pluginName;
         this._token = data.token;
         this._button.onPointerUp.AddListener(() => { 
-            APIManager.Instance.RevokeTokenData(this._token); 
-            Destroy(this.gameObject);
+            Dictionary<string, string> strings = new Dictionary<string, string>();
+            strings.Add("settings_api_server_revoke_plugin_tooltip_populated", 
+                string.Format(Localization.LocalizationManager.Instance.GetString("settings_api_server_revoke_plugin_tooltip"), 
+                    data.pluginName, 
+                    data.pluginAuthor));
+            Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
+            UIManager.Instance.ShowPopUp(
+                "settings_api_server_revoke_plugin_title",
+                "settings_api_server_revoke_plugin_tooltip_populated",
+                new PopUp.PopUpOption(
+                    "settings_api_server_button_keep",
+                    true,
+                    () => {
+                        UIManager.Instance.HidePopUp();
+                    }),
+                new PopUp.PopUpOption(
+                    "settings_api_server_button_revoke",
+                    false,
+                    () => {
+                        APIManager.Instance.RevokeTokenData(this._token); 
+                        Destroy(this.gameObject); 
+                        UIManager.Instance.HidePopUp();
+                    })
+            );
         });
 
     }
