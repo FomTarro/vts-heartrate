@@ -70,13 +70,19 @@ public class APIManager : Singleton<APIManager>
         }
     }
     public void SendData(){
-        DataMessage data = new DataMessage();
-        data.data.heartrate = HeartrateManager.Instance.Plugin.HeartRate;
+        // TODO: should this data mapping just be inside the heartrate plugin loop?
+        DataMessage data = new DataMessage(HeartrateManager.Instance.Plugin.HeartRate);
         Dictionary<string, float> paramMap = HeartrateManager.Instance.Plugin.ParameterMap;
-        data.data.vts_heartrate_bpm = GetValueFromDictionary(paramMap, "VTS_Heartrate_BPM");
-        data.data.vts_heartrate_pulse = GetValueFromDictionary(paramMap, "VTS_Heartrate_Pulse");
-        data.data.vts_heartrate_breath = GetValueFromDictionary(paramMap, "VTS_Heartrate_Breath");
-        data.data.vts_heartrate_linear = GetValueFromDictionary(paramMap, "VTS_Heartrate_Linear");
+        data.data.parameters.vts_heartrate_bpm = GetValueFromDictionary(paramMap, "VTS_Heartrate_BPM");
+        data.data.parameters.vts_heartrate_pulse = GetValueFromDictionary(paramMap, "VTS_Heartrate_Pulse");
+        data.data.parameters.vts_heartrate_breath = GetValueFromDictionary(paramMap, "VTS_Heartrate_Breath");
+        data.data.parameters.vts_heartrate_linear = GetValueFromDictionary(paramMap, "VTS_Heartrate_Linear");
+
+        foreach(ColorInputModule module in HeartrateManager.Instance.Plugin.ColorModules){
+            DataMessage.Tint colorModule = new DataMessage.Tint(module.ModuleColor, module.ModuleInterpolatedColor, module.ModuleMatchers);
+            data.data.tints.Add(colorModule);
+        }
+
         this._dataService.SendToAll(JsonUtility.ToJson(data));
     }
 
@@ -87,6 +93,8 @@ public class APIManager : Singleton<APIManager>
     private float GetValueFromDictionary(Dictionary<string, float> dict, string key){
         return dict.ContainsKey(key) ? dict[key] : 0.0f;
     }
+
+    #region Data Serialization
 
     private PluginData PluginDataFromSessionID(string sessionID){
         foreach(PluginData data in this._tokenToSessionMap.Values){
@@ -146,6 +154,10 @@ public class APIManager : Singleton<APIManager>
         }
     }
 
+    #endregion
+
+    #region Endpoints
+
     public class APIEndpoint {
         protected string _path  = "/input";
         public string Path { get { return this._path; } }
@@ -183,7 +195,7 @@ public class APIManager : Singleton<APIManager>
             WebSocketServiceHost host;
             if(this._server != null 
             && this._server.WebSocketServices.TryGetServiceHost(this._path, out host)){
-                host.Sessions.Broadcast(JsonUtility.ToJson(message));
+                host.Sessions.Broadcast(message);
                 this._messages = this._messages + host.Sessions.Count;
                 return true;
             }
@@ -208,9 +220,9 @@ public class APIManager : Singleton<APIManager>
         public void Receive(string message, string sessionID){
             try{
                 APIMessage apiMessage = JsonUtility.FromJson<APIMessage>(message);
-                PluginData client = APIManager.Instance.PluginDataFromSessionID(sessionID);
+                PluginData authenticatedClient = APIManager.Instance.PluginDataFromSessionID(sessionID);
                 if("InputRequest".Equals(apiMessage.messageType)){
-                    if(client != null){
+                    if(authenticatedClient != null){
                         InputMessage input = JsonUtility.FromJson<InputMessage>(message);
                         Debug.Log(input.data.heartrate);
                         APIManager.Instance._heartrate = input.data.heartrate;
@@ -224,14 +236,13 @@ public class APIManager : Singleton<APIManager>
                     AuthenticationMessage authRequest = JsonUtility.FromJson<AuthenticationMessage>(message);
                     if(authRequest.data.token != null 
                     && APIManager.Instance._tokenToSessionMap.ContainsKey(authRequest.data.token)){
-                        // they send us a token
+                        // they send us a token that has been approved by the user
                         APIManager.Instance._tokenToSessionMap.Remove(authRequest.data.token);
                         PluginData data = new PluginData(authRequest.data.token, sessionID, authRequest.data.pluginName, authRequest.data.pluginAuthor);
                         APIManager.Instance._tokenToSessionMap.Add(authRequest.data.token, data);
                         Debug.LogFormat("Authenticating session ID {0}", sessionID);
 
                         AuthenticationMessage authResponse = new AuthenticationMessage();
-                        authResponse.messageType = "AuthenticationResponse";
                         authResponse.data.token = authRequest.data.token;
                         authResponse.data.pluginAuthor = authRequest.data.pluginAuthor;
                         authResponse.data.pluginName = authRequest.data.pluginName;
@@ -239,7 +250,7 @@ public class APIManager : Singleton<APIManager>
                         this.SendToID(JsonUtility.ToJson(authResponse), sessionID);
                         APIManager.Instance.SaveTokenData();
                     }else if(authRequest.data.pluginAuthor != null && authRequest.data.pluginName != null){
-                        // New Token Request
+                        // they do not send us an approved token, but do include plugin name and plugin author
                         Dictionary<string, string> strings = new Dictionary<string, string>();
                         strings.Add("settings_api_server_approve_plugin_tooltip_populated", 
                             string.Format(Localization.LocalizationManager.Instance.GetString("settings_api_server_approve_plugin_tooltip"), 
@@ -254,7 +265,6 @@ public class APIManager : Singleton<APIManager>
                                 true,
                                 () => {
                                     AuthenticationMessage authResponse = new AuthenticationMessage();
-                                    authResponse.messageType = "AuthenticationResponse";
                                     authResponse.data.token = System.Guid.NewGuid().ToString();
                                     authResponse.data.pluginAuthor = authRequest.data.pluginAuthor;
                                     authResponse.data.pluginName = authRequest.data.pluginName;
@@ -330,5 +340,7 @@ public class APIManager : Singleton<APIManager>
             MainThreadUtil.Run(() => { APIManager.Instance.InputEndpoint.Receive(e.Data, this.ID); });
         }
     }
+
+    #endregion
 }
     

@@ -45,6 +45,7 @@ public class HeartratePlugin : VTSPlugin
     private RectTransform _colorListParent = null;
     [SerializeField]
     private List<ColorInputModule> _colors = new List<ColorInputModule>();
+    public List<ColorInputModule> ColorModules { get { return new List<ColorInputModule>(this._colors); } }
 
     [Header("Expressions")]
     [SerializeField]
@@ -53,6 +54,7 @@ public class HeartratePlugin : VTSPlugin
     public List<string> Expressions { get { return this._expressions; } }
     [SerializeField]
     private List<ExpressionModule> _expressionModules = new List<ExpressionModule>();
+    public List<ExpressionModule> ExpressionModules { get { return new List<ExpressionModule>(this._expressionModules); } }
 
     [Header("Hotkeys")]
     [SerializeField]
@@ -61,6 +63,7 @@ public class HeartratePlugin : VTSPlugin
     public List<HotkeyListItem> Hotkeys { get { return this._hotkeys; } }
     [SerializeField]
     private List<HotkeyModule> _hotkeyModules = new List<HotkeyModule>();
+    public List<HotkeyModule> HotkeyModules { get { return new List<HotkeyModule>(this._hotkeyModules); } }
 
     [Header("Input Modules")]
     [SerializeField]

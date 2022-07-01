@@ -124,14 +124,28 @@ The message structure is as follows:
     timestamp: 1656382245785
     data: {
         heartrate: 103,
-        vts_heartrate_bpm: 103,
-        vts_heartrate_pulse: 0.125
-        vts_heartrate_breath: 0.354
-        vts_heartrate_linear: 0.650
+        parameters: {
+            vts_heartrate_bpm: 103,
+            vts_heartrate_pulse: 0.125
+            vts_heartrate_breath: 0.354
+            vts_heartrate_linear: 0.650
+        },
+        tints: [
+            {
+                baseColor: { r: 255, g: 128, b: 128, a: 255 },
+                currentColor: { r: 255, g: 200, b: 200, a: 255 },
+                matchers: ['head', 'face']
+            },
+            {
+                baseColor: { r: 255, g: 128, b: 128, a: 255 },
+                currentColor: { r: 255, g: 200, b: 200, a: 255 },
+                matchers: ['mouth', 'neck']
+            }
+        ]
     }
 }
 ```
-For more information about the output parameters, consult the [Custom Tracking Parameter Documentation](#Custom-Tracking-Parameters).
+For more information about the output parameters, consult the [Custom Tracking Parameter Documentation](#Custom-Tracking-Parameters) and [Art Mesh Tinting Documentation](#Art-Mesh-Tinting).
  
 ### Event API
  
@@ -145,6 +159,7 @@ For <b>Expressions</b>, the message structure is as follows:
     timestamp: 1656382245785
     data: {
         threshold: 120,
+        heartrate: 121,
         expression: "angry.exp3.json",
         behavior: 2,
         activated: true
@@ -154,13 +169,13 @@ For <b>Expressions</b>, the message structure is as follows:
  
 The complete list of possible `behavior` values is as follows:
 ```
-    UNKNOWN = -1,    
-    ACTIVATE_ABOVE_DEACTIVATE_BELOW = 0,
-    DEACTIVATE_ABOVE_ACTIVATE_BELOW = 1,
-    ACTIVATE_ABOVE = 2,
-    DEACTIVATE_ABOVE = 3,
-    ACTIVATE_BELOW = 4,
-    DEACTIVATE_BELOW = 5,
+UNKNOWN = -1,    
+ACTIVATE_ABOVE_DEACTIVATE_BELOW = 0,
+DEACTIVATE_ABOVE_ACTIVATE_BELOW = 1,
+ACTIVATE_ABOVE = 2,
+DEACTIVATE_ABOVE = 3,
+ACTIVATE_BELOW = 4,
+DEACTIVATE_BELOW = 5,
 ```
  
 For <b>Hotkeys</b>, the message structure is as follows:
@@ -171,6 +186,7 @@ For <b>Hotkeys</b>, the message structure is as follows:
     timestamp: 1656382245785
     data: {
         threshold: 120,
+        heartrate: 121,
         hotkey: "Blush",
         behavior: 1
     }
@@ -179,10 +195,10 @@ For <b>Hotkeys</b>, the message structure is as follows:
  
 The complete list of possible `behavior` values is as follows:
 ```
-    UNKNOWN = -1,    
-    ACTIVATE_ABOVE_ACTIVATE_BELOW = 0,
-    ACTIVATE_ABOVE = 1,
-    ACTIVATE_BELOW = 2,
+UNKNOWN = -1,    
+ACTIVATE_ABOVE_ACTIVATE_BELOW = 0,
+ACTIVATE_ABOVE = 1,
+ACTIVATE_BELOW = 2,
 ```
  
 ### Input API
@@ -281,10 +297,10 @@ The message structure is as follows:
  
 The complete list of possible `errorCode` values is as follows (they are HTTP status codes):
 ```
-    OK = 200,
-    BAD_REQUEST = 400,
-    FORBIDDEN = 403,
-    SERVER_ERROR = 500,
+OK = 200,
+BAD_REQUEST = 400,
+FORBIDDEN = 403,
+SERVER_ERROR = 500,
 ```
 
 

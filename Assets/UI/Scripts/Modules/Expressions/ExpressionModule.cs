@@ -60,7 +60,7 @@ public class ExpressionModule : MonoBehaviour
                     (e) => {});
                 }
                 ExpressionEventMessage message = 
-                    new ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, true);
+                    new ExpressionEventMessage(this.Threshold, currentHeartrate, this.SelectedExpression, this.Behavior, true);
                 APIManager.Instance.SendEvent(message);
             }else if( 
                 this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
@@ -71,7 +71,7 @@ public class ExpressionModule : MonoBehaviour
                     (e) => {});
                 }
                 ExpressionEventMessage message = 
-                    new ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, false);
+                    new ExpressionEventMessage(this.Threshold, currentHeartrate, this.SelectedExpression, this.Behavior, false);
                 APIManager.Instance.SendEvent(message);
             }
         // falling edge
@@ -87,7 +87,7 @@ public class ExpressionModule : MonoBehaviour
                     (e) => {});
                 }
                 ExpressionEventMessage message = 
-                    new ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, true);
+                    new ExpressionEventMessage(this.Threshold, currentHeartrate, this.SelectedExpression, this.Behavior, true);
                 APIManager.Instance.SendEvent(message);
             }else if( 
                 this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
@@ -98,7 +98,7 @@ public class ExpressionModule : MonoBehaviour
                     (e) => {});
                 }
                 ExpressionEventMessage message = 
-                    new ExpressionEventMessage(this.Threshold, this.SelectedExpression, this.Behavior, false);
+                    new ExpressionEventMessage(this.Threshold, currentHeartrate, this.SelectedExpression, this.Behavior, false);
                 APIManager.Instance.SendEvent(message);
             }
         }

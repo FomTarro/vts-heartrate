@@ -1,8 +1,33 @@
-﻿[System.Serializable]
+﻿using UnityEngine;
+using System.Collections.Generic;
+
+[System.Serializable]
 public class APIMessage {
     public string apiVersion = "1.0";
     public string messageType = "APIMessage";
     public long timestamp = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+}
+
+public class ErrorMessage : APIMessage {
+    public Data data = new Data();
+    public ErrorMessage(){
+        this.messageType = "ErrorResponse";
+        this.data = new Data();
+    }
+
+    [System.Serializable]
+    public class Data{
+        public StatusCode errorCode;
+        public string message;
+    }
+
+    [System.Serializable]
+    public enum StatusCode : int {
+        OK = 200,
+        BAD_REQUEST = 400,
+        FORBIDDEN = 403,
+        SERVER_ERROR = 500,
+    }
 }
 
 #region Data Models
@@ -10,18 +35,36 @@ public class APIMessage {
 public class DataMessage : APIMessage {
 
     public Data data = new Data();
-    public DataMessage(){
+    public DataMessage(int heartrate){
         this.messageType = "DataResponse";
         this.data = new Data();
     }
 
     [System.Serializable]
     public class Data{
-        public float heartrate;
+        public int heartrate;
+        public VTSParamaters parameters = new VTSParamaters();
+        public List<Tint> tints = new List<Tint>();
+    }
+
+    [System.Serializable]
+    public class VTSParamaters{
         public float vts_heartrate_bpm;
         public float vts_heartrate_pulse;
         public float vts_heartrate_breath;
         public float vts_heartrate_linear;
+    }
+
+    [System.Serializable]
+    public class Tint{
+        public Tint(Color32 maximumColor, Color32 currentColor, string[] matchers){
+            this.maximumColor = maximumColor;
+            this.currentColor = currentColor;
+            this.matchers = matchers;
+        }
+        public Color32 maximumColor;
+        public Color32 currentColor; 
+        public string[] matchers;
     }
 }
 
@@ -34,10 +77,11 @@ public abstract class EventMessage : APIMessage { }
 public class ExpressionEventMessage : EventMessage {
 
     public Data data = new Data();
-    public ExpressionEventMessage(int threshold, string expression, ExpressionModule.TriggerBehavior behavior, bool activated){
+    public ExpressionEventMessage(int threshold, int heartrate, string expression, ExpressionModule.TriggerBehavior behavior, bool activated){
         this.messageType = "ExpressionEventResponse";
         this.data = new Data();
         this.data.threshold = threshold;
+        this.data.heartrate = heartrate;
         this.data.expression = expression;
         this.data.behavior = MapBehavior(behavior);
         this.data.activated = activated;
@@ -45,6 +89,7 @@ public class ExpressionEventMessage : EventMessage {
     [System.Serializable]
     public class Data {
         public int threshold;
+        public int heartrate;
         public string expression;
         public ExpressionTriggerBehavior behavior;
         public bool activated;
@@ -82,10 +127,11 @@ public class ExpressionEventMessage : EventMessage {
 
 public class HotkeyEventMessage : EventMessage {
     public Data data = new Data();
-    public HotkeyEventMessage(int threshold, string hotkey, HotkeyModule.TriggerBehavior behavior){
+    public HotkeyEventMessage(int threshold, int heartrate, string hotkey, HotkeyModule.TriggerBehavior behavior){
         this.messageType = "HotkeyEventResponse";
         this.data = new Data();
         this.data.threshold = threshold;
+        this.data.heartrate = heartrate;
         this.data.hotkey = hotkey;
         this.data.behavior = MapBehavior(behavior);
     }
@@ -93,6 +139,7 @@ public class HotkeyEventMessage : EventMessage {
     [System.Serializable]
     public class Data {
         public int threshold;
+        public int heartrate;
         public string hotkey;
         public HotkeyTriggerBehavior behavior;
     }
@@ -148,28 +195,6 @@ public class AuthenticationMessage : APIMessage {
         public string pluginAuthor;
         public string token;
         public bool authenticated = false;
-    }
-}
-
-public class ErrorMessage : APIMessage {
-    public Data data = new Data();
-    public ErrorMessage(){
-        this.messageType = "ErrorResponse";
-        this.data = new Data();
-    }
-
-    [System.Serializable]
-    public class Data{
-        public StatusCode errorCode;
-        public string message;
-    }
-
-    [System.Serializable]
-    public enum StatusCode : int {
-        OK = 200,
-        BAD_REQUEST = 400,
-        FORBIDDEN = 403,
-        SERVER_ERROR = 500,
     }
 }
 
