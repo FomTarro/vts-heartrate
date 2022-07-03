@@ -20,7 +20,7 @@ public class StatusIndicator : MonoBehaviour
     [SerializeField]
     private Color32 _disconnectedColor = Color.grey;
     
-    private void Start(){
+    private void Awake(){
         HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
         status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
         SetStatus(status);

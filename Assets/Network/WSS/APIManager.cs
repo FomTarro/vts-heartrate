@@ -69,25 +69,13 @@ public class APIManager : Singleton<APIManager>
             onStatus.Invoke(status);
         }
     }
-    public void SendData(){
+    public void SendData(DataMessage dataMessage){
         // TODO: should this data mapping just be inside the heartrate plugin loop?
-        DataMessage data = new DataMessage(HeartrateManager.Instance.Plugin.HeartRate);
-        Dictionary<string, float> paramMap = HeartrateManager.Instance.Plugin.ParameterMap;
-        data.data.parameters.vts_heartrate_bpm = GetValueFromDictionary(paramMap, "VTS_Heartrate_BPM");
-        data.data.parameters.vts_heartrate_pulse = GetValueFromDictionary(paramMap, "VTS_Heartrate_Pulse");
-        data.data.parameters.vts_heartrate_breath = GetValueFromDictionary(paramMap, "VTS_Heartrate_Breath");
-        data.data.parameters.vts_heartrate_linear = GetValueFromDictionary(paramMap, "VTS_Heartrate_Linear");
-
-        foreach(ColorInputModule module in HeartrateManager.Instance.Plugin.ColorModules){
-            DataMessage.Tint colorModule = new DataMessage.Tint(module.ModuleColor, module.ModuleInterpolatedColor, module.ModuleMatchers);
-            data.data.tints.Add(colorModule);
-        }
-
-        this._dataService.SendToAll(JsonUtility.ToJson(data));
+        this._dataService.SendToAll(dataMessage);
     }
 
     public void SendEvent(EventMessage message){
-        this._eventsService.SendToAll(JsonUtility.ToJson(message));
+        this._eventsService.SendToAll(message);
     }
 
     private float GetValueFromDictionary(Dictionary<string, float> dict, string key){
@@ -176,9 +164,9 @@ public class APIManager : Singleton<APIManager>
 
         public Statistics Stats { get { 
             return new Statistics(
-            this.ClientCount, 
-            this.MessageCount, 
-            this._server != null ? "ws://localhost:" + this._server.Port + this._path : "Unavailable"); } }
+                this.ClientCount, 
+                this.MessageCount, 
+                this._server != null ? "ws://localhost:" + this._server.Port + this._path : "Unavailable"); } }
 
         public APIEndpoint(string path){
             this._path = path;
@@ -191,23 +179,23 @@ public class APIManager : Singleton<APIManager>
             this._messages = 0;
         }
 
-        public bool SendToAll(string message){
+        public bool SendToAll(APIMessage message){
             WebSocketServiceHost host;
             if(this._server != null 
             && this._server.WebSocketServices.TryGetServiceHost(this._path, out host)){
-                host.Sessions.Broadcast(message);
+                host.Sessions.Broadcast(message.ToString());
                 this._messages = this._messages + host.Sessions.Count;
                 return true;
             }
             return false;
         }
 
-        public bool SendToID(string message, string sessionID){
+        public bool SendToID(APIMessage message, string sessionID){
             WebSocketServiceHost host;
             if(this._server != null 
             && this._server.WebSocketServices.TryGetServiceHost(this._path, out host)){
                 try{
-                    host.Sessions.SendTo(sessionID, message);
+                    host.Sessions.SendTo(sessionID, message.ToString());
                     this._messages = this._messages + 1;
                     return true;
                 }catch(System.Exception e){
@@ -227,10 +215,10 @@ public class APIManager : Singleton<APIManager>
                         Debug.Log(input.data.heartrate);
                         APIManager.Instance._heartrate = input.data.heartrate;
                     }else{
-                        ErrorMessage error = new ErrorMessage();
-                        error.data.message = string.Format("Client is not authenticated.", apiMessage.messageType);
-                        error.data.errorCode = ErrorMessage.StatusCode.FORBIDDEN;
-                        this.SendToID(JsonUtility.ToJson(error), sessionID);
+                        ErrorMessage errorMessage = new ErrorMessage();
+                        errorMessage.data.message = string.Format("Client is not authenticated.", apiMessage.messageType);
+                        errorMessage.data.errorCode = ErrorMessage.StatusCode.FORBIDDEN;
+                        this.SendToID(errorMessage, sessionID);
                     }
                 }else if("AuthenticationRequest".Equals(apiMessage.messageType)){
                     AuthenticationMessage authRequest = JsonUtility.FromJson<AuthenticationMessage>(message);
@@ -238,16 +226,21 @@ public class APIManager : Singleton<APIManager>
                     && APIManager.Instance._tokenToSessionMap.ContainsKey(authRequest.data.token)){
                         // they send us a token that has been approved by the user
                         APIManager.Instance._tokenToSessionMap.Remove(authRequest.data.token);
-                        PluginData data = new PluginData(authRequest.data.token, sessionID, authRequest.data.pluginName, authRequest.data.pluginAuthor);
-                        APIManager.Instance._tokenToSessionMap.Add(authRequest.data.token, data);
+                        PluginData pluginData = new PluginData(
+                            authRequest.data.token, 
+                            sessionID, 
+                            authRequest.data.pluginName, 
+                            authRequest.data.pluginAuthor);
+                        APIManager.Instance._tokenToSessionMap.Add(authRequest.data.token, pluginData);
                         Debug.LogFormat("Authenticating session ID {0}", sessionID);
 
-                        AuthenticationMessage authResponse = new AuthenticationMessage();
-                        authResponse.data.token = authRequest.data.token;
-                        authResponse.data.pluginAuthor = authRequest.data.pluginAuthor;
-                        authResponse.data.pluginName = authRequest.data.pluginName;
-                        authResponse.data.authenticated = true;
-                        this.SendToID(JsonUtility.ToJson(authResponse), sessionID);
+                        AuthenticationMessage authResponse = new AuthenticationMessage(
+                            authRequest.data.pluginName, 
+                            authRequest.data.pluginAuthor, 
+                            authRequest.data.token,
+                            true);
+
+                        this.SendToID(authResponse, sessionID);
                         APIManager.Instance.SaveTokenData();
                     }else if(authRequest.data.pluginAuthor != null && authRequest.data.pluginName != null){
                         // they do not send us an approved token, but do include plugin name and plugin author
@@ -264,13 +257,17 @@ public class APIManager : Singleton<APIManager>
                                 "settings_api_server_button_approve",
                                 true,
                                 () => {
-                                    AuthenticationMessage authResponse = new AuthenticationMessage();
-                                    authResponse.data.token = System.Guid.NewGuid().ToString();
-                                    authResponse.data.pluginAuthor = authRequest.data.pluginAuthor;
-                                    authResponse.data.pluginName = authRequest.data.pluginName;
-                                    PluginData data = new PluginData(authResponse.data.token, sessionID, authResponse.data.pluginName, authResponse.data.pluginAuthor);
+                                    AuthenticationMessage authResponse = new AuthenticationMessage(
+                                        authRequest.data.pluginName,
+                                        authRequest.data.pluginAuthor, 
+                                        System.Guid.NewGuid().ToString(),
+                                        false);
+                                    PluginData data = new PluginData(authResponse.data.token, 
+                                        sessionID, 
+                                        authResponse.data.pluginName, 
+                                        authResponse.data.pluginAuthor);
                                     APIManager.Instance._tokenToSessionMap.Add(authResponse.data.token, data);
-                                    this.SendToID(JsonUtility.ToJson(authResponse), sessionID);
+                                    this.SendToID(authResponse, sessionID);
                                     APIManager.Instance.SaveTokenData();
                                     UIManager.Instance.HidePopUp();
                                 }),
@@ -278,26 +275,26 @@ public class APIManager : Singleton<APIManager>
                                 "settings_api_server_button_deny",
                                 false,
                                 () => { 
-                                    ErrorMessage error = new ErrorMessage();
-                                    error.data.message = "User had denied this authentication request.";
-                                    error.data.errorCode = ErrorMessage.StatusCode.FORBIDDEN;
-                                    this.SendToID(JsonUtility.ToJson(error), sessionID);
+                                    ErrorMessage errorMessage = new ErrorMessage();
+                                    errorMessage.data.message = "User had denied this authentication request.";
+                                    errorMessage.data.errorCode = ErrorMessage.StatusCode.FORBIDDEN;
+                                    this.SendToID(errorMessage, sessionID);
                                     UIManager.Instance.HidePopUp();
                                 })
                         );
                     }else{
                         // Malformed Authentication Request
-                        ErrorMessage error = new ErrorMessage();
-                        error.data.message = "Message data must contain pluginName and pluginAuthor.";
-                        error.data.errorCode = ErrorMessage.StatusCode.BAD_REQUEST;
-                        this.SendToID(JsonUtility.ToJson(error), sessionID);
+                        ErrorMessage errorMessage = new ErrorMessage();
+                        errorMessage.data.message = "Message data must contain pluginName and pluginAuthor.";
+                        errorMessage.data.errorCode = ErrorMessage.StatusCode.BAD_REQUEST;
+                        this.SendToID(errorMessage, sessionID);
                     }
                 }else{
                     // Unknown Message Type
-                    ErrorMessage error = new ErrorMessage();
-                    error.data.message = string.Format("Message type of {0} is not recognized.", apiMessage.messageType);
-                    error.data.errorCode = ErrorMessage.StatusCode.BAD_REQUEST;
-                    this.SendToID(JsonUtility.ToJson(error), sessionID);
+                    ErrorMessage errorMessage = new ErrorMessage();
+                    errorMessage.data.message = string.Format("Message type of {0} is not recognized.", apiMessage.messageType);
+                    errorMessage.data.errorCode = ErrorMessage.StatusCode.BAD_REQUEST;
+                    this.SendToID(errorMessage, sessionID);
                 }
                 this._messages = this._messages + 1;
             }catch(System.Exception ex){

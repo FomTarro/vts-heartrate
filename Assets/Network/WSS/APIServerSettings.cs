@@ -45,12 +45,12 @@ public class APIServerSettings : MonoBehaviour
                 this._pluginAuthEntries.Add(plugin.token, entry);
             }
         }
-        // List<string> tokens = new List<string>(this._pluginAuthEntries.Keys);
-        // foreach(string token in tokens){
-        //     if(this._pluginAuthEntries[token] == null){
-        //         this._pluginAuthEntries.Remove(token);
-        //     }
-        // }
+        List<string> tokens = new List<string>(this._pluginAuthEntries.Keys);
+        foreach(string token in tokens){
+            if(this._pluginAuthEntries[token] == null){
+                this._pluginAuthEntries.Remove(token);
+            }
+        }
         int port = APIManager.Instance.Port;
         this._dataStats.SetStatistics(APIManager.Instance.DataEndpoint.Stats);
         this._eventStats.SetStatistics(APIManager.Instance.EventsEndpoint.Stats);
@@ -60,7 +60,7 @@ public class APIServerSettings : MonoBehaviour
     public int ValidatePortValue(string value){
         int port = MathUtils.StringToInt(value);
         if (port <= 0 || port > 65535){
-            port = 8080;
+            port = 8214;
         }
         this._portInput.text = port + "";
         APIManager.Instance.SetPort(port);

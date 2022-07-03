@@ -6,6 +6,11 @@ public class APIMessage {
     public string apiVersion = "1.0";
     public string messageType = "APIMessage";
     public long timestamp = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+    public override string ToString()
+    {
+        return JsonUtility.ToJson(this);
+    }
 }
 
 public class ErrorMessage : APIMessage {
@@ -184,9 +189,13 @@ public class InputMessage : APIMessage {
 
 public class AuthenticationMessage : APIMessage {
     public Data data = new Data();
-    public AuthenticationMessage(){
+    public AuthenticationMessage(string pluginName, string pluginAuthor, string token, bool authenticated){
         this.messageType = "AuthenticationResponse";
         this.data = new Data();
+        this.data.pluginName = pluginName;
+        this.data.pluginAuthor = pluginAuthor;
+        this.data.token = token;
+        this.data.authenticated = authenticated;
     }
 
     [System.Serializable]
