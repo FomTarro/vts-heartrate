@@ -15,9 +15,12 @@ public class APIMessage {
 
 public class ErrorMessage : APIMessage {
     public Data data = new Data();
-    public ErrorMessage(){
+    public ErrorMessage(StatusCode status, string message){
         this.messageType = "ErrorResponse";
         this.data = new Data();
+        this.data.errorCode = status;
+        this.data.message = message;
+        Debug.LogError("API ERROR: " + message);
     }
 
     [System.Serializable]

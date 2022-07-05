@@ -26,7 +26,8 @@ public class UIManager : Singleton<UIManager>
     // Start is called before the first frame update
     void Start()
     {
-        this._loadSceen.Load();
+        // this._loadSceen.Load();
+        GoTo(Tabs.HEARTRATE_INPUTS);
     }
 
     // Update is called once per frame
@@ -42,7 +43,10 @@ public class UIManager : Singleton<UIManager>
 
     public void GoTo(Tabs tab){
         foreach(TabMapper entry in this._tabs){
-            entry.element.gameObject.SetActive(entry.tab == tab);
+            CanvasGroup group = entry.element.GetComponent<CanvasGroup>();
+            group.interactable = entry.tab == tab;
+            group.blocksRaycasts = group.interactable;
+            group.alpha = entry.tab == tab ? 1.0f : 0.0f;
             foreach(RectTransform other in entry.others){
                 other.gameObject.SetActive(entry.tab == tab);
             }

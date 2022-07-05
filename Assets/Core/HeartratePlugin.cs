@@ -85,7 +85,6 @@ public class HeartratePlugin : VTSPlugin
         this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
         this.MODEL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "models");
         LoadGlobalData(); 
-        UIManager.Instance.GoTo(UIManager.Tabs.HEARTRATE_INPUTS);
         Connect();
     }
 
@@ -125,7 +124,7 @@ public class HeartratePlugin : VTSPlugin
                     this._breath.id = PARAMETER_SINE_BREATH;
                     this._breath.value = 0;
                     this._breath.weight = 1;
-                    this._paramValues.Add(_breath);
+                    this._paramValues.Add(this._breath);
                 },
                 (e) => {
                     Debug.LogError(e.ToString());

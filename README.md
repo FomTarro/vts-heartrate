@@ -110,7 +110,7 @@ As a result, any settings configured for your currently loaded model will be per
 # API
 As of version 1.2.0, vts-heartrate features its own <b>Plugin API</b>, so that you can build your own apps that consume or write heartrate data! That's right, this VTube Studio plugin now supports plugins of its own.
  
-There are three underlying API endpoints, all accessible via WebSocket.
+There are three underlying API endpoints, all accessible via WebSocket: the [Data API](#Data-API), the [Events API](#Events-API), and the [Input API](#Input-API).
  
 ### Data API
  
@@ -277,6 +277,7 @@ Once your plugin is fully authenticated, you can write heartrate data sending a 
     }
 }
 ```
+Upon successfully writing data, the API Server will echo your message back to you as an `InputResponse`, to confirm that it has been received.
  
 ### Errors
  
