@@ -68,7 +68,9 @@ namespace VTS.Networking.Impl{
 
         public void Stop()
         {
-            this._socket.Close();
+            if(this._socket != null){
+                this._socket.Close();
+            }
         }
     }
 
@@ -78,6 +80,7 @@ namespace VTS.Networking.Impl{
     /// </summary>
     public class MainThreadUtil : MonoBehaviour {
         private static MainThreadUtil INSTANCE;
+        public static MainThreadUtil Instance { get { return INSTANCE; } } 
         private static ConcurrentQueue<System.Action> CALL_QUEUE = new ConcurrentQueue<Action>();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

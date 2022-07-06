@@ -29,6 +29,12 @@ public class TooltipButton : MonoBehaviour
                     "input_slider_tooltip"
                 );
                 break;
+            case Tooltips.HEARTRATE_WEBSOCKET:
+                UIManager.Instance.ShowPopUp(
+                    "input_websocket_title",
+                    "input_websocket_tooltip"
+                );
+                break;
             case Tooltips.HEARTRATE_PULSOID_CONNECT:
                 UIManager.Instance.ShowPopUp(
                     "input_pulsoid_app_title",
@@ -89,7 +95,7 @@ public class TooltipButton : MonoBehaviour
                 UIManager.Instance.ShowPopUp(
                     "output_custom_params_title",
                     "output_custom_params_tooltip",
-                     new PopUp.PopUpOption(
+                    new PopUp.PopUpOption(
                         "output_custom_params_button",
                         true,
                         () => { Application.OpenURL("https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters"); })
@@ -113,6 +119,16 @@ public class TooltipButton : MonoBehaviour
                     "output_hotkey_tooltip"
                 );
                 break;
+            case Tooltips.SETTINGS_API:
+                UIManager.Instance.ShowPopUp(
+                    "settings_api_server_title",
+                    "settings_api_server_tooltip",
+                    new PopUp.PopUpOption(
+                        "settings_api_server_button_open_readme",
+                        true,
+                        () => { Application.OpenURL("https://github.com/FomTarro/vts-heartrate/#api"); })
+                );
+                break;
             default:
             break;
         }
@@ -128,11 +144,14 @@ public class TooltipButton : MonoBehaviour
         HEARTRATE_BLUETOOTH = 106,
         HEARTRATE_ANT_PLUS = 107,
         HEARTRATE_HYPERATE = 108,
+        HEARTRATE_WEBSOCKET = 109,
  
         OUTPUT_PARAMS = 201,
         OUTPUT_COLOR = 202,
         OUTPUT_EXPRESSION = 203,
         OUTPUT_COPY = 204,
         OUTPUT_HOTKEY = 205,
+
+        SETTINGS_API = 301,
     }
 }

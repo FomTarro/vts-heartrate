@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +11,8 @@ public class ColorInputModule : MonoBehaviour
     [SerializeField]
     private Color32 _color = Color.white;
     public Color32 ModuleColor { get { return this._color; } }
+    private Color32 _currentColor = Color.white;
+    public Color32 ModuleInterpolatedColor { get { return this._currentColor; } }
     private string[] _matchers = new string[0];
     public String[] ModuleMatchers { get { return this._matchers; } }
 
@@ -47,15 +48,18 @@ public class ColorInputModule : MonoBehaviour
     }
 
     public void ApplyColor(float interpolation){
-        ArtMeshMatcher matcher = new ArtMeshMatcher();
-        matcher.tintAll = false;
-        matcher.nameContains = this.ModuleMatchers;
-        HeartrateManager.Instance.Plugin.TintArtMesh(
-            Color32.Lerp(Color.white, this.ModuleColor, interpolation),  
-            0.5f, 
-            matcher,
-            (success) => {},
-            (error) => {});
+        this._currentColor = Color32.Lerp(Color.white, this.ModuleColor, interpolation);
+        if(HeartrateManager.Instance.Plugin.IsAuthenticated){
+            ArtMeshMatcher matcher = new ArtMeshMatcher();
+            matcher.tintAll = false;
+            matcher.nameContains = this.ModuleMatchers;
+            HeartrateManager.Instance.Plugin.TintArtMesh(
+                this._currentColor,  
+                0.5f, 
+                matcher,
+                (success) => {},
+                (error) => {});
+        }
     }
 
     public void SetRed(string value){

@@ -54,15 +54,25 @@ public class ExpressionModule : MonoBehaviour
             if(
                 this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
                 this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE){
-                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, true, 
-                (s) => {},
-                (e) => {});
+                if(HeartrateManager.Instance.Plugin.IsAuthenticated){
+                    HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, true, 
+                    (s) => {},
+                    (e) => {});
+                }
+                ExpressionEventMessage message = 
+                    new ExpressionEventMessage(this.Threshold, currentHeartrate, this.SelectedExpression, this.Behavior, true);
+                APIManager.Instance.SendEvent(message);
             }else if( 
                 this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
                 this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE){
-                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, false, 
-                (s) => {},
-                (e) => {});
+                if(HeartrateManager.Instance.Plugin.IsAuthenticated){
+                    HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, false, 
+                    (s) => {},
+                    (e) => {});
+                }
+                ExpressionEventMessage message = 
+                    new ExpressionEventMessage(this.Threshold, currentHeartrate, this.SelectedExpression, this.Behavior, false);
+                APIManager.Instance.SendEvent(message);
             }
         // falling edge
         }else if(
@@ -71,15 +81,25 @@ public class ExpressionModule : MonoBehaviour
             if(
                 this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW || 
                 this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_BELOW){
-                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, true, 
-                (s) => {},
-                (e) => {});
+                if(HeartrateManager.Instance.Plugin.IsAuthenticated){
+                    HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, true, 
+                    (s) => {},
+                    (e) => {});
+                }
+                ExpressionEventMessage message = 
+                    new ExpressionEventMessage(this.Threshold, currentHeartrate, this.SelectedExpression, this.Behavior, true);
+                APIManager.Instance.SendEvent(message);
             }else if( 
                 this.Behavior == ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW || 
                 this.Behavior == ExpressionModule.TriggerBehavior.DEACTIVATE_BELOW){
-                HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, false, 
-                (s) => {},
-                (e) => {});
+                if(HeartrateManager.Instance.Plugin.IsAuthenticated){
+                    HeartrateManager.Instance.Plugin.SetExpressionState(this.SelectedExpression, false, 
+                    (s) => {},
+                    (e) => {});
+                }
+                ExpressionEventMessage message = 
+                    new ExpressionEventMessage(this.Threshold, currentHeartrate, this.SelectedExpression, this.Behavior, false);
+                APIManager.Instance.SendEvent(message);
             }
         }
         this._priorThreshold = this.Threshold;

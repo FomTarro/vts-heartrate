@@ -15,6 +15,8 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
 
 💓 Custom <b>tracking parameters</b> for pulse and breath!
 
+💓 NEW! <b>Plugin API</b> so that you can build your own apps that consume or write heartrate data!
+
 # About
 This plugin is developed by Tom "Skeletom" Farro. If you need to contact him, the best way to do so is via [Twitter](https://www.twitter.com/FomTarro).
 
@@ -41,6 +43,9 @@ The slider is primarily useful for quick testing of different heartrate values. 
 This input method allows you to read heartrate data from an external file.
 The file must simply contain the <b>numeric heartrate value</b> in <b>plain text</b>. File path must be absolute. Useful if you have another program that can output heartrate data.
  
+### API WebSocket
+This input method allows you to read heartrate data from the <b>Input API</b>. For more information about the API, consult the [API Documentation](#API).
+
 ### Pulsoid
 [<b>Pulsoid</b>](https://www.pulsoid.net) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
  
@@ -58,7 +63,7 @@ Please note that this plugin is not an officially licensed or certified affiliat
 
 ### HypeRate
 [<b>HypeRate</b>](https://www.hyperate.io/) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. Once you have a HypeRate account, you can use this input method to collect heartrate data from the service.
- 
+
 ## Outputs
  
 ### Art Mesh Tinting
@@ -101,7 +106,206 @@ For more information on how to integrate these tracking parameters into your mod
 As of version 1.0.0, settings are saved on a per-model basis. This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
 
 As a result, any settings configured for your currently loaded model will be permanently erased.
+
+# API
+As of version 1.2.0, vts-heartrate features its own <b>Plugin API</b>, so that you can build your own apps that consume or write heartrate data! That's right, this VTube Studio plugin now supports plugins of its own.
  
+There are three underlying API endpoints, all accessible via WebSocket: the [Data API](#Data-API), the [Events API](#Events-API), and the [Input API](#Input-API).
+ 
+### Data API
+ 
+The <b>Data API</b> is a read-only endpoint accessible at `ws://localhost:<your chosen port>/data`. Upon connecting to this endpoint, your WebSocket will receive a message containing current heartrate and output parameter data once per frame (60 times per second).
+ 
+The message structure is as follows:
+```
+{
+    apiVersion: "1.0",
+    messageType: "DataResponse",
+    timestamp: 1656382245785
+    data: {
+        heartrate: 103,
+        parameters: {
+            vts_heartrate_bpm: 103,
+            vts_heartrate_pulse: 0.125
+            vts_heartrate_breath: 0.354
+            vts_heartrate_linear: 0.650
+        },
+        tints: [
+            {
+                baseColor: { r: 255, g: 128, b: 128, a: 255 },
+                currentColor: { r: 255, g: 200, b: 200, a: 255 },
+                matchers: ['head', 'face']
+            },
+            {
+                baseColor: { r: 255, g: 128, b: 128, a: 255 },
+                currentColor: { r: 255, g: 200, b: 200, a: 255 },
+                matchers: ['mouth', 'neck']
+            }
+        ]
+    }
+}
+```
+For more information about the output parameters, consult the [Custom Tracking Parameter Documentation](#Custom-Tracking-Parameters) and [Art Mesh Tinting Documentation](#Art-Mesh-Tinting).
+ 
+### Event API
+ 
+The <b>Event API</b> is a read-only endpoint accessible at `ws://localhost:<your chosen port>/events`. Upon connecting to this endpoint, your WebSocket will receive a message containing event information every time an [Expression Trigger](#Automatic-Expression-Triggering) or [Hotkey Trigger](#Automatic-Hotkey-Triggering) is triggered.
+ 
+For <b>Expressions</b>, the message structure is as follows:
+```
+{
+    apiVersion: "1.0",
+    messageType: "ExpressionEventResponse",
+    timestamp: 1656382245785
+    data: {
+        threshold: 120,
+        heartrate: 121,
+        expression: "angry.exp3.json",
+        behavior: 2,
+        activated: true
+    }
+}
+```
+ 
+The complete list of possible `behavior` values is as follows:
+```
+UNKNOWN = -1,    
+ACTIVATE_ABOVE_DEACTIVATE_BELOW = 0,
+DEACTIVATE_ABOVE_ACTIVATE_BELOW = 1,
+ACTIVATE_ABOVE = 2,
+DEACTIVATE_ABOVE = 3,
+ACTIVATE_BELOW = 4,
+DEACTIVATE_BELOW = 5,
+```
+ 
+For <b>Hotkeys</b>, the message structure is as follows:
+```
+{
+    apiVersion: "1.0",
+    messageType: "HotkeyEventResponse",
+    timestamp: 1656382245785
+    data: {
+        threshold: 120,
+        heartrate: 121,
+        hotkey: "Blush",
+        behavior: 1
+    }
+}
+```
+ 
+The complete list of possible `behavior` values is as follows:
+```
+UNKNOWN = -1,    
+ACTIVATE_ABOVE_ACTIVATE_BELOW = 0,
+ACTIVATE_ABOVE = 1,
+ACTIVATE_BELOW = 2,
+```
+ 
+### Input API
+ 
+The <b>Input API</b> is a read and write endpoint accessible at `ws://localhost:<your chosen port>/input`. Upon connecting to this endpoint, your WebSocket will be able to write heartrate data for use with the [API WebSocket](#API-WebSocket) input method.
+ 
+#### Authenticating Your Plugin
+ 
+First, you will need to authenticate your client before you are granted write permission. In order to authenticate, you must first <b>request a token</b> by sending a message with the following structure:
+```
+{
+    messageType: "AuthenticationRequest",
+    data: {
+        pluginName: "My Heartrate Plugin",
+        pluginAuthor: "Skeletom",
+    }
+}
+```
+ 
+The user will then be prompted to either Approve or Deny access to this plugin. If the request is approved, the API server will then respond with a message containing a token.
+ 
+You only need to do this step if your plugin has not already been granted a token. If it has a token already, you can skip to the next step.
+ 
+The message structure is as follows:
+```
+{
+    apiVersion: "1.0",
+    messageType: "AuthenticationResponse",
+    timestamp: 1656382245785
+    data: {
+        pluginName: "My Heartrate Plugin",
+        pluginAuthor: "Skeletom",
+        token: "e404d80b-c160-4af4-a0b9-9c0159f3010e",
+        authenticated: false
+    }
+}
+```
+ 
+It is strongly recommended that you save this token so that your plugin may use it again in the future. Finally, you must now submit an authentication request using the token, by sending a message with the following structure:
+```
+{
+    messageType: "AuthenticationRequest",
+    data: {
+        pluginName: "My Heartrate Plugin",
+        pluginAuthor: "Skeletom",
+        token: "e404d80b-c160-4af4-a0b9-9c0159f3010e"
+    }
+}
+```
+ 
+Assuming you have provided a token that the user has granted access for, the API Server will finally respond with a message indicating that your plugin is fully authenticated, and that you may begin writing heartwrate data.
+ 
+The message structure is as follows:
+```
+{
+    apiVersion: "1.0",
+    messageType: "AuthenticationResponse",
+    timestamp: 1656382245785
+    data: {
+        pluginName: "My Heartrate Plugin",
+        pluginAuthor: "Skeletom",
+        token: "e404d80b-c160-4af4-a0b9-9c0159f3010e",
+        authenticated: true
+    }
+}
+```
+ 
+#### Writing Heartrate Data
+ 
+Once your plugin is fully authenticated, you can write heartrate data sending a message with the following structure:
+```
+{
+    messageType: "InputRequest",
+    data: {
+        heartrate: 78
+    }
+}
+```
+Upon successfully writing data, the API Server will echo your message back to you as an `InputResponse`, to confirm that it has been received.
+ 
+### Errors
+ 
+In the event that something goes wrong, such as the API Server receiving a message it cannot parse, or a message from an unauthenticated client, your WebSocket will receive an error message.
+ 
+The message structure is as follows:
+```
+{
+    apiVersion: "1.0",
+    messageType: "ErrorResponse",
+    timestamp: 1656382245785
+    data: {
+        errorCode: 403,
+        message: "This client is not authenticated!"
+    }
+}
+```
+ 
+The complete list of possible `errorCode` values is as follows (they are HTTP status codes):
+```
+OK = 200,
+BAD_REQUEST = 400,
+FORBIDDEN = 403,
+SERVER_ERROR = 500,
+```
+
+
+
 # Roadmap
  
 Planned features include the following:

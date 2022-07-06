@@ -27,8 +27,8 @@ public class HeartratePlugin : VTSPlugin
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
     private const string PARAMETER_SINE_BREATH = "VTS_Heartrate_Breath";
     private const string PARAMETER_BPM = "VTS_Heartrate_BPM";
-    private Dictionary<String, float> _parameterMap = new Dictionary<string, float>();
-    public Dictionary<String, float> ParameterMap { get { return this._parameterMap; } }
+    private Dictionary<string, float> _parameterMap = new Dictionary<string, float>();
+    public Dictionary<string, float> ParameterMap { get { return this._parameterMap; } }
     private List<VTSParameterInjectionValue> _paramValues = new List<VTSParameterInjectionValue>();
     private VTSParameterInjectionValue _linear = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _pulse = new VTSParameterInjectionValue();
@@ -45,6 +45,7 @@ public class HeartratePlugin : VTSPlugin
     private RectTransform _colorListParent = null;
     [SerializeField]
     private List<ColorInputModule> _colors = new List<ColorInputModule>();
+    public List<ColorInputModule> ColorModules { get { return new List<ColorInputModule>(this._colors); } }
 
     [Header("Expressions")]
     [SerializeField]
@@ -53,6 +54,7 @@ public class HeartratePlugin : VTSPlugin
     public List<string> Expressions { get { return this._expressions; } }
     [SerializeField]
     private List<ExpressionModule> _expressionModules = new List<ExpressionModule>();
+    public List<ExpressionModule> ExpressionModules { get { return new List<ExpressionModule>(this._expressionModules); } }
 
     [Header("Hotkeys")]
     [SerializeField]
@@ -61,6 +63,7 @@ public class HeartratePlugin : VTSPlugin
     public List<HotkeyListItem> Hotkeys { get { return this._hotkeys; } }
     [SerializeField]
     private List<HotkeyModule> _hotkeyModules = new List<HotkeyModule>();
+    public List<HotkeyModule> HotkeyModules { get { return new List<HotkeyModule>(this._hotkeyModules); } }
 
     [Header("Input Modules")]
     [SerializeField]
@@ -82,7 +85,6 @@ public class HeartratePlugin : VTSPlugin
         this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
         this.MODEL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "models");
         LoadGlobalData(); 
-        UIManager.Instance.GoTo(UIManager.Tabs.HEARTRATE_INPUTS);
         Connect();
     }
 
@@ -99,40 +101,40 @@ public class HeartratePlugin : VTSPlugin
                 this._paramValues = new List<VTSParameterInjectionValue>();
                 CreateNewParameter(PARAMETER_LINEAR, "", 1,
                 (s) => {
-                    _linear.id = PARAMETER_LINEAR;
-                    _linear.value = 0;
-                    _linear.weight = 1;
-                    _paramValues.Add(_linear);
+                    this._linear.id = PARAMETER_LINEAR;
+                    this._linear.value = 0;
+                    this._linear.weight = 1;
+                    this._paramValues.Add(this._linear);
                 },
                 (e) => {
                     Debug.LogError(e.ToString());
                 });
                 CreateNewParameter(PARAMETER_SINE_PULSE, "", 1,
                 (s) => {
-                    _pulse.id = PARAMETER_SINE_PULSE;
-                    _pulse.value = 0;
-                    _pulse.weight = 1;
-                    _paramValues.Add(_pulse);
+                    this._pulse.id = PARAMETER_SINE_PULSE;
+                    this._pulse.value = 0;
+                    this._pulse.weight = 1;
+                    this._paramValues.Add(this._pulse);
                 },
                 (e) => {
                     Debug.LogError(e.ToString());
                 });
                 CreateNewParameter(PARAMETER_SINE_BREATH, "", 1,
                 (s) => {
-                    _breath.id = PARAMETER_SINE_BREATH;
-                    _breath.value = 0;
-                    _breath.weight = 1;
-                    _paramValues.Add(_breath);
+                    this._breath.id = PARAMETER_SINE_BREATH;
+                    this._breath.value = 0;
+                    this._breath.weight = 1;
+                    this._paramValues.Add(this._breath);
                 },
                 (e) => {
                     Debug.LogError(e.ToString());
                 });
                 CreateNewParameter(PARAMETER_BPM, "", 255,
                 (s) => {
-                    _bpm.id = PARAMETER_BPM;
-                    _bpm.value = 0;
-                    _bpm.weight = 1;
-                    _paramValues.Add(_bpm);
+                    this._bpm.id = PARAMETER_BPM;
+                    this._bpm.value = 0;
+                    this._bpm.weight = 1;
+                    this._paramValues.Add(this._bpm);
                 },
                 (e) => {
                     Debug.LogError(e.ToString());
@@ -185,8 +187,10 @@ public class HeartratePlugin : VTSPlugin
         float numerator =  Math.Max(0, (float)(this._heartRate-this._minRate));
         float demominator = Math.Max(1, (float)(this._maxRate - this._minRate));
         float interpolation = Mathf.Clamp01(numerator/demominator);
+        // Data API message
+        DataMessage dataMessage = new DataMessage(this.HeartRate);
+        // see which model is currently loaded
         if(this.IsAuthenticated){
-            // see which model is currently loaded
             GetCurrentModel(
                 (s) => {
                     if(!s.data.modelID.Equals(this._currentModel.data.modelID)){
@@ -200,7 +204,9 @@ public class HeartratePlugin : VTSPlugin
                     this._currentModel = new VTSCurrentModelData();
                 }
             );
-            // get all expressions for currently loaded model
+        }
+        // get all expressions for currently loaded model
+        if(this.IsAuthenticated){
             GetExpressionStateList(
                 (s) => {
                     this._expressions.Clear();
@@ -215,7 +221,9 @@ public class HeartratePlugin : VTSPlugin
                     Debug.LogError(e.data.message);
                 }
             );
-
+        }
+        // get all hotkeys in currently loaded model
+        if(this.IsAuthenticated){
             GetHotkeysInCurrentModel(
                 this._currentModel.data.modelID,
                 (s) => {
@@ -233,40 +241,50 @@ public class HeartratePlugin : VTSPlugin
                     Debug.LogError(e.data.message);
                 }
             );
-
-            // apply art mesh tints
-            foreach(ColorInputModule module in this._colors){
-                module.ApplyColor(interpolation);
-            }
-
-            SortExpressionModules();
-            // apply expressions
-            foreach(ExpressionModule module in this._expressionModules){
-                module.CheckModuleCondition(priorHeartrate, this._heartRate);
-            }
-
-            foreach(HotkeyModule module in this._hotkeyModules){
-                module.CheckModuleCondition(priorHeartrate, this._heartRate);
-            }
-
-            // calculate tracking parameters
-            _linear.value = interpolation;
-            _bpm.value = this._heartRate;
-            _breath.value = _oscillatingBreath.GetValue(
-                Mathf.Clamp(((float)this.HeartRate - this._minRate) / 60f, 0.35f, PARAMETER_MAX_VALUE));
-            _pulse.value = _oscillatingPulse.GetValue(
-                Mathf.Clamp(((float)this.HeartRate) / 60f, 0f, PARAMETER_MAX_VALUE));
-
-            if(_paramValues.Count > 0){
-                this.InjectParameterValues(_paramValues.ToArray(),
-                (s) => {
-                    InjectedParamValuesToDictionary(_paramValues.ToArray());
-                },
-                (e) => {
-                    Debug.LogError(JsonUtility.ToJson(e));
-                });
-            }
         }
+
+        // apply art mesh tints
+        foreach(ColorInputModule module in this._colors){
+            module.ApplyColor(interpolation);
+            DataMessage.Tint colorModule = new DataMessage.Tint(module.ModuleColor, module.ModuleInterpolatedColor, module.ModuleMatchers);
+            dataMessage.data.tints.Add(colorModule);
+        }
+
+        SortExpressionModules();
+        // apply expressions
+        foreach(ExpressionModule module in this._expressionModules){
+            module.CheckModuleCondition(priorHeartrate, this._heartRate);
+        }
+        SortHotkeyModules();
+        // apply hotkeys
+        foreach(HotkeyModule module in this._hotkeyModules){
+            module.CheckModuleCondition(priorHeartrate, this._heartRate);
+        }
+
+        // calculate tracking parameters
+        this._linear.value = interpolation;
+        this._bpm.value = this._heartRate;
+        this._breath.value = _oscillatingBreath.GetValue(
+            Mathf.Clamp(((float)this.HeartRate - this._minRate) / 60f, 0.35f, PARAMETER_MAX_VALUE));
+        this._pulse.value = _oscillatingPulse.GetValue(
+            Mathf.Clamp(((float)this.HeartRate) / 60f, 0f, PARAMETER_MAX_VALUE));
+
+        if(this._paramValues.Count > 0 && this.IsAuthenticated){
+            this.InjectParameterValues(this._paramValues.ToArray(),
+            (s) => {
+                InjectedParamValuesToDictionary(this._paramValues.ToArray());
+            },
+            (e) => {
+                Debug.LogError(e.data.message);
+            });
+        }
+
+        dataMessage.data.parameters.vts_heartrate_bpm = this._bpm.value;
+        dataMessage.data.parameters.vts_heartrate_pulse = this._pulse.value;
+        dataMessage.data.parameters.vts_heartrate_breath = this._breath.value;
+        dataMessage.data.parameters.vts_heartrate_linear = this._linear.value;
+
+        APIManager.Instance.SendData(dataMessage);
     }
 
     #endregion
@@ -352,7 +370,7 @@ public class HeartratePlugin : VTSPlugin
         int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
         instance.transform.SetSiblingIndex(index);
         this._hotkeyModules.Add(instance);
-        SortExpressionModules();
+        SortHotkeyModules();
         if(module != null){
             instance.FromSaveData(module);
         }
@@ -361,9 +379,13 @@ public class HeartratePlugin : VTSPlugin
     public void DestroyHotkeyModule(HotkeyModule module){
         if(this._hotkeyModules.Contains(module)){
             this._hotkeyModules.Remove(module);
-            SortExpressionModules();
+            SortHotkeyModules();
             Destroy(module.gameObject);
         }
+    }
+
+    private void SortHotkeyModules(){
+        this._hotkeyModules.Sort((a, b) => { return a.Threshold.CompareTo(b.Threshold); });
     }
 
     #endregion
@@ -390,6 +412,7 @@ public class HeartratePlugin : VTSPlugin
             data.inputs.Add(module.ToSaveData());
         }
         data.language = Localization.LocalizationManager.Instance.CurrentLanguage;
+        data.apiServerPort = APIManager.Instance.Port;
         File.WriteAllText(this.GLOBAL_SAVE_PATH, data.ToString());
     }
 
@@ -464,6 +487,8 @@ public class HeartratePlugin : VTSPlugin
             Debug.Log("Defaulting language to English as no settings were found");
             Localization.LocalizationManager.Instance.SwitchLanguage(Localization.SupportedLanguage.ENGLISH);
         }
+
+        APIManager.Instance.SetPort(data.apiServerPort);
     }
 
     private void ModernizeLegacyGlobalSaveData(GlobalSaveData data, string content){
@@ -590,6 +615,8 @@ public class HeartratePlugin : VTSPlugin
         public HeartrateInputModule.InputType activeInput;
         public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>(); 
         public Localization.SupportedLanguage language;
+
+        public int apiServerPort;
 
         public override string ToString()
         {

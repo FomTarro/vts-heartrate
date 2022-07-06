@@ -62,9 +62,14 @@ public class HotkeyModule : MonoBehaviour
             if(
                 this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW || 
                 this.Behavior == TriggerBehavior.ACTIVATE_ABOVE){
-                HeartrateManager.Instance.Plugin.TriggerHotkey(this.SelectedHotkey, 
-                (s) => {},
-                (e) => {});
+                if(HeartrateManager.Instance.Plugin.IsAuthenticated){
+                    HeartrateManager.Instance.Plugin.TriggerHotkey(this.SelectedHotkey, 
+                    (s) => {},
+                    (e) => {});
+                }
+                HotkeyEventMessage message = 
+                    new HotkeyEventMessage(this.Threshold, currentHeartrate, this.SelectedHotkey, this.Behavior);
+                APIManager.Instance.SendEvent(message);
             }
         // falling edge
         }else if(
@@ -73,10 +78,15 @@ public class HotkeyModule : MonoBehaviour
             if(
                 this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW || 
                 this.Behavior == TriggerBehavior.ACTIVATE_BELOW){
-                HeartrateManager.Instance.Plugin.TriggerHotkey(this.SelectedHotkey, 
-                (s) => {},
-                (e) => {});
+                if(HeartrateManager.Instance.Plugin.IsAuthenticated){
+                    HeartrateManager.Instance.Plugin.TriggerHotkey(this.SelectedHotkey, 
+                    (s) => {},
+                    (e) => {});
+                }
             }
+            HotkeyEventMessage message = 
+                new HotkeyEventMessage(this.Threshold, currentHeartrate, this.SelectedHotkey, this.Behavior);
+            APIManager.Instance.SendEvent(message);
         }
         this._priorThreshold = this.Threshold;
         this._priorBehavior = this.Behavior;

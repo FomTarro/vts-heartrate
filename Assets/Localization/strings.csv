@@ -8,11 +8,40 @@ settings_system_current_version,Current version,現在のバージョン
 ,,
 settings_port_title,VTube Studio Port,VTube Studio ポート
 ,,
-settings_api_port_title,API Server Settings,
+settings_api_server_title,API Server Settings,
+settings_api_server_tooltip,"As of version 1.2.0, vts-heartrate features its own <b>Plugin API</b>, so that you can build your own apps that consume or write heartrate data.
+ 
+There are three underlying API endpoints, all accessible via WebSocket.
+ 
+The <b>Data API</b> is a read-only endpoint. Your WebSocket will receive a message containing current heartrate and output parameter data once per frame (60 times per second).
+
+The <b>Event API</b> is a read-only endpoint. Your WebSocket will receive a message containing event information every time an Expression Trigger or Hotkey Trigger is triggered.
+
+The <b>Input API</b> is a read and write endpoint. Your WebSocket will be able to write heartrate data for use with the <b>API WebSocket</b> input method.
+
+For more information on how to use the API, please consult the <b>API Documentation</b> in the README.",
+settings_api_server_button_open_readme,%settings_system_data_open_readme,%settings_system_data_open_readme
 settings_api_port_input,Enter a port number...,
 settings_api_server_button_start,Start API Server,
 settings_api_server_button_stop,Stop API Server,
-settings_api_server_connection_count,Connected Clients: %api_connection_count,
+settings_api_server_connection_count,Connected clients: {0},
+settings_api_server_data_title,Data API,
+settings_api_server_event_title,Event API,
+settings_api_server_input_title,Input API,
+settings_api_server_messages_sent,Messages sent: {0},
+settings_api_server_messages_received,Messages received: {0},
+,,
+settings_api_server_approved_plugin_title,Approved Plugins,
+settings_api_server_approve_plugin_title,Approve this Plugin?,
+settings_api_server_approve_plugin_tooltip,"Do you want to approve  %settings_api_server_input_title access for the plugin named <b>{0}</b>, made by <b>{1}</b>? 
+
+Doing so will grant the plugin permission to write heartrate data via the <b>%input_websocket_title</b> input.",
+settings_api_server_button_approve,Approve,
+settings_api_server_button_deny,Deny,
+settings_api_server_revoke_plugin_title,Revoke this Plugin?,
+settings_api_server_revoke_plugin_tooltip,"Do you want to revoke %settings_api_server_input_title access from the plugin named <b>{0}</b>, made by <b>{1}</b>? ",
+settings_api_server_button_keep,Keep,
+settings_api_server_button_revoke,Revoke,
 ,,
 settings_current_version,Current Version: ,現在のバージョン：
 settings_new_version_title,New Version Available!,新しいバージョンが入手可能です。
@@ -58,6 +87,9 @@ input_slider_title,Test Slider,テストスライダー
 input_slider_tooltip,"Use the slider for quick testing of different heartrate values.
 The slider range is from 0 to 255.","テストスライダーで異なる心拍数の入力値を簡易テストできます。
 スライダーの範囲は 0 から 255 までです。"
+input_websocket_title,API WebSocket,
+input_websocket_tooltip,"This input method allows you to read heartrate data from the <b>%settings_api_server_input_title</b>. For more information about the API, consult the API Documentation in the README.",
+,,
 input_pulsoid_app_title,Pulsoid,Pulsoid
 input_pulsoid_app_tooltip,"%input_pulsoid_overview
 

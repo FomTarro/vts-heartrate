@@ -17,12 +17,16 @@ public class UIManager : Singleton<UIManager>
     [SerializeField]
     private PopUp _popUp = null; 
 
+    [SerializeField]
+    private LoadScreen _loadSceen = null;
+
     public static readonly float UI_CYCLE_TIME = 0.35f; 
 
 
     // Start is called before the first frame update
     void Start()
     {
+        // this._loadSceen.Load();
         GoTo(Tabs.HEARTRATE_INPUTS);
     }
 
@@ -34,12 +38,15 @@ public class UIManager : Singleton<UIManager>
 
     public override void Initialize()
     {
-        
+
     }
 
     public void GoTo(Tabs tab){
         foreach(TabMapper entry in this._tabs){
-            entry.element.gameObject.SetActive(entry.tab == tab);
+            CanvasGroup group = entry.element.GetComponent<CanvasGroup>();
+            group.interactable = entry.tab == tab;
+            group.blocksRaycasts = group.interactable;
+            group.alpha = entry.tab == tab ? 1.0f : 0.0f;
             foreach(RectTransform other in entry.others){
                 other.gameObject.SetActive(entry.tab == tab);
             }

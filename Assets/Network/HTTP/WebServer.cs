@@ -61,7 +61,6 @@ public class WebServer : MonoBehaviour
                 //Debug.LogFormat("Recieved request from {0}.", context.Request.RemoteEndPoint.ToString());
 
                 context.Response.StatusCode = 200;
-
                 lock (waitingContexts)
                 {
                     waitingContexts.AddLast(context);
