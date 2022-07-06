@@ -46,6 +46,7 @@ public class DataMessage : APIMessage {
     public DataMessage(int heartrate){
         this.messageType = "DataResponse";
         this.data = new Data();
+        this.data.heartrate = heartrate;
     }
 
     [System.Serializable]
