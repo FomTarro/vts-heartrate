@@ -47,24 +47,15 @@ public class SaveDataManager : Singleton<SaveDataManager>
     }
 
     private HeartratePlugin.GlobalSaveData ModernizeLegacyGlobalSaveData(HeartratePlugin.GlobalSaveData data, string content){
-        string oldVersion = data.version;
-        switch(oldVersion){
-            case null:
-            case "":
-            case "0.1.0":
-                LegacyGlobalSaveData_v0_1_0 legacyData_v0_1_0 = JsonUtility.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
-                return Modernize_v1_0_0_to_v1_1_0(Modernize_v0_1_0_to_v1_0_0(legacyData_v0_1_0));
-            case "1.0.0":
+        string version = data.version;
+        if(VersionUtils.IsOlderThan(version, "1.0.0")){
+            LegacyGlobalSaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
+            return Modernize_v1_0_0_to_v1_1_0(Modernize_v0_1_0_to_v1_0_0(legacyData));
+        }else if(VersionUtils.IsOlderThan(version, "1.1.0")){
                 return Modernize_v1_0_0_to_v1_1_0(data);
-            case "1.1.0":
-            case "1.1.1":
-            case "1.1.2":
-            case "1.1.3":
-            case "1.1.4":
-                // no changes
-                break;
+        }else{
+            return data;
         }
-        return data;
     }
 
     private HeartratePlugin.GlobalSaveData Modernize_v0_1_0_to_v1_0_0(LegacyGlobalSaveData_v0_1_0 legacyData){
@@ -153,21 +144,15 @@ public class SaveDataManager : Singleton<SaveDataManager>
 
     private HeartratePlugin.ModelSaveData ModernizeLegacyModelSaveData(HeartratePlugin.ModelSaveData data, string content){
         string version = data.version;
-        switch(version){
-            case null:
-            case "":
-            case "0.1.0":
-            case "1.0.0":
-                LegacyModelSaveData_v1_0_0 legacyData_v1_0_0 = JsonUtility.FromJson<LegacyModelSaveData_v1_0_0>(content);
-                return Modernize_v1_1_0_to_v_1_2_0(Modernize_v1_0_0_to_v_1_1_0(legacyData_v1_0_0));
-            case "1.1.1":
-            case "1.1.2":
-            case "1.1.3":
-            case "1.1.4":
-                LegacyModelSaveData_v1_1_0 legacyData_v1_1_0 = JsonUtility.FromJson<LegacyModelSaveData_v1_1_0>(content);
-                return Modernize_v1_1_0_to_v_1_2_0(legacyData_v1_1_0);
+        if(VersionUtils.IsOlderThan(version, "1.1.0")){
+            LegacyModelSaveData_v1_0_0 legacyData = JsonUtility.FromJson<LegacyModelSaveData_v1_0_0>(content);
+            return Modernize_v1_1_0_to_v_1_2_0(Modernize_v1_0_0_to_v_1_1_0(legacyData));
+        }else if(VersionUtils.IsOlderThan(version, "1.2.0")){
+            LegacyModelSaveData_v1_1_0 legacyData_v1_1_0 = JsonUtility.FromJson<LegacyModelSaveData_v1_1_0>(content);
+            return Modernize_v1_1_0_to_v_1_2_0(legacyData_v1_1_0);
+        }else{
+            return data;
         }
-        return data;
     }
 
     private LegacyModelSaveData_v1_1_0 Modernize_v1_0_0_to_v_1_1_0(LegacyModelSaveData_v1_0_0 legacyData){

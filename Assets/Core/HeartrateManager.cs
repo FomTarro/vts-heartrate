@@ -22,9 +22,9 @@ public class HeartrateManager : Singleton<HeartrateManager>
                 Debug.LogError(e);
             },
             (s) => {
-                VersionInfo info = JsonUtility.FromJson<VersionInfo>(s);
-                Debug.Log(CompareVersion(info) ? "Newer version needed: " + info.url : "Up to date.");
-                if(CompareVersion(info)){
+                VersionUtils.VersionInfo info = JsonUtility.FromJson<VersionUtils.VersionInfo>(s);
+                Debug.Log(VersionUtils.CompareVersion(info) ? "Newer version needed: " + info.url : "Up to date.");
+                if(VersionUtils.CompareVersion(info)){
                     Dictionary<string, string> strings = new Dictionary<string, string>();
                     strings.Add("settings_new_version_body_populated", 
                         string.Format(Localization.LocalizationManager.Instance.GetString("settings_new_version_body"), 
@@ -46,26 +46,5 @@ public class HeartrateManager : Singleton<HeartrateManager>
         ));
     }
 
-    /// <summary>
-    /// Compares the current version to the remote version. Returns true if the remote is newer.
-    /// </summary>
-    /// <param name="remoteVersion"></param>
-    /// <returns></returns>
-    private bool CompareVersion(VersionInfo remoteVersion){
-        string currentVersion = Application.version;
-        return currentVersion.CompareTo(remoteVersion.version) < 0;
-    }
-
-    [System.Serializable]
-    public class VersionInfo{
-        public string version;
-        public string date;
-        public string url;
-
-        public override string ToString()
-        {
-            return JsonUtility.ToJson(this);
-        }
-    }
     #endregion
 }
