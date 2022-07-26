@@ -10,6 +10,6 @@ public class OpenSaveFileButton : MonoBehaviour
     void Start()
     {
         this._button = GetComponent<ExtendedButton>();
-        this._button.onPointerUp.AddListener(() => {Application.OpenURL(HeartrateManager.Instance.Plugin.SavePath);});
+        this._button.onPointerUp.AddListener(() => {Application.OpenURL(SaveDataManager.Instance.SaveDirectory);});
     }
 }

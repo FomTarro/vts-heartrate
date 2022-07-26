@@ -20,7 +20,7 @@ public class ProfileSelector : RefreshableDropdown
 
     public override void Refresh()
     {
-        this._idNameMap = HeartrateManager.Instance.Plugin.GetModelDataNameMap();
+        this._idNameMap = SaveDataManager.Instance.GetModelDataNameMap();
         RefreshValues(this._idNameMap.Keys);
         SetValue(this._dropdown.value);
     }
@@ -28,6 +28,6 @@ public class ProfileSelector : RefreshableDropdown
     public void CopyProfile(){
         string name = this._dropdown.options[this._dropdown.value].text;
         string id = this._idNameMap[name];
-        HeartrateManager.Instance.Plugin.CopyModelData(id, name);
+        SaveDataManager.Instance.CopyModelSaveData(id, name);
     }
 }

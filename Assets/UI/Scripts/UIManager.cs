@@ -17,9 +17,6 @@ public class UIManager : Singleton<UIManager>
     [SerializeField]
     private PopUp _popUp = null; 
 
-    [SerializeField]
-    private LoadScreen _loadSceen = null;
-
     public static readonly float UI_CYCLE_TIME = 0.35f; 
 
 

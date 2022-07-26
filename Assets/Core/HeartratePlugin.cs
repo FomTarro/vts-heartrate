@@ -6,14 +6,15 @@ using VTS;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.IO;
+
 public class HeartratePlugin : VTSPlugin
 {
     #region Member Variables
-    private string GLOBAL_SAVE_PATH = "";
-    private string MODEL_SAVE_PATH = "";
-    public string SavePath { get { return Application.persistentDataPath; } }
+    // private string GLOBAL_SAVE_PATH = "";
+    // private string MODEL_SAVE_PATH = "";
+    // public string SavePath { get { return Application.persistentDataPath; } }
     private VTSCurrentModelData _currentModel = new VTSCurrentModelData();
+    public string CurrentModelName { get { return this._currentModel != null ? this._currentModel.data.modelName : "NO MODEL"; } }
 
     [SerializeField]
     [Range(50, 120)]
@@ -82,9 +83,8 @@ public class HeartratePlugin : VTSPlugin
     #region Lifecycle
 
     public void OnLaunch(){
-        this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "save.json");
-        this.MODEL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "models");
-        LoadGlobalData(); 
+        FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
+        FromModelSaveData(SaveDataManager.Instance.ReadModelData(MODEL_ID_NO_VTS_MODEL_LOADED));
         Connect();
     }
 
@@ -176,8 +176,8 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private void OnApplicationQuit(){
-        SaveGlobalData();
-        SaveModelData(this._currentModel);
+        SaveDataManager.Instance.WriteGlobalSaveData(ToGlobalSaveData());
+        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData(this._currentModel));
     }
 
     private void Update(){
@@ -195,8 +195,8 @@ public class HeartratePlugin : VTSPlugin
                 (s) => {
                     if(!s.data.modelID.Equals(this._currentModel.data.modelID)){
                         // model has changed
-                        SaveModelData(this._currentModel);
-                        LoadModelData(s.data.modelID);
+                        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData(this._currentModel));
+                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(s.data.modelID));
                     }
                     this._currentModel = s; 
                 },
@@ -390,19 +390,9 @@ public class HeartratePlugin : VTSPlugin
 
     #endregion
 
-    #region Data Serialization
+    #region Data Saving
 
-    public Dictionary<string, string> GetModelDataNameMap(){
-        Dictionary<string, string> dict = new Dictionary<string, string>();
-        foreach(string s in Directory.GetFiles(this.MODEL_SAVE_PATH)){
-            string text = File.ReadAllText(s);
-            ModelSaveData data = JsonUtility.FromJson<ModelSaveData>(text);
-            dict.Add(string.Format("{0}<size=0>{1}</size>", data.modelName, data.modelID), data.modelID);
-        }
-        return dict;
-    }
-
-    private void SaveGlobalData(){
+    public GlobalSaveData ToGlobalSaveData(){
         GlobalSaveData data = new GlobalSaveData();
         data.version = Application.version;
         data.maxRate = this._maxRate;
@@ -413,14 +403,21 @@ public class HeartratePlugin : VTSPlugin
         }
         data.language = Localization.LocalizationManager.Instance.CurrentLanguage;
         data.apiServerPort = APIManager.Instance.Port;
-        File.WriteAllText(this.GLOBAL_SAVE_PATH, data.ToString());
+        return data;
     }
 
-    private void SaveModelData(VTSCurrentModelData currentModel){
+    private const string MODEL_ID_NO_VTS_MODEL_LOADED = "NO_VTS_MODEL_LOADED";
+    public ModelSaveData ToModelSaveData(VTSCurrentModelData currentModel){
         ModelSaveData data = new ModelSaveData();
         data.version = Application.version;
         data.modelName = currentModel.data.modelName;
         data.modelID = currentModel.data.modelID;
+        if(data.modelID  == null || data.modelID.Length <= 0){
+            data.modelID = MODEL_ID_NO_VTS_MODEL_LOADED;
+        }
+        if(data.modelName == null || data.modelName.Length <= 0){
+            data.modelName = MODEL_ID_NO_VTS_MODEL_LOADED;
+        }
         foreach(ColorInputModule module in this._colors){
             data.colors.Add(module.ToSaveData());
         }
@@ -430,35 +427,10 @@ public class HeartratePlugin : VTSPlugin
         foreach(HotkeyModule module in this._hotkeyModules){
             data.hotkeys.Add(module.ToSaveData());
         }
-        
-        if(!Directory.Exists(this.MODEL_SAVE_PATH)){
-            Directory.CreateDirectory(this.MODEL_SAVE_PATH);
-        }
-
-        if(data.modelID != null && data.modelID.Length > 0){
-            Debug.Log("Saving Model: " + data.modelID);
-            string filePath = Path.Combine(this.MODEL_SAVE_PATH, data.modelID+".json");
-            File.WriteAllText(filePath, data.ToString());
-        }
+        return data;
     }
 
-    private void LoadGlobalData(){
-        GlobalSaveData data;
-        if(File.Exists(this.GLOBAL_SAVE_PATH)){
-            string content = File.ReadAllText(this.GLOBAL_SAVE_PATH);
-            data = JsonUtility.FromJson<GlobalSaveData>(content);
-            ModernizeLegacyGlobalSaveData(data, content);
-    
-        }else{
-            // first-time data setup
-            data = new GlobalSaveData();
-            HeartrateInputModule.SaveData defaultData = new HeartrateInputModule.SaveData();
-            defaultData.type = HeartrateInputModule.InputType.SLIDER;
-            defaultData.values.value = 70f;
-            data.inputs.Add(defaultData);
-            data.activeInput = HeartrateInputModule.InputType.SLIDER;
-        }
-
+    public void FromGlobalSaveData(GlobalSaveData data){    
         this._maxRate = data.maxRate;
         this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
         this._minRate = data.minRate;
@@ -491,78 +463,18 @@ public class HeartratePlugin : VTSPlugin
         APIManager.Instance.SetPort(data.apiServerPort);
     }
 
-    private void ModernizeLegacyGlobalSaveData(GlobalSaveData data, string content){
-        //TODO: this should be some kind of iterative function so that it migrates adjacent versions in order,
-        // ie 0.1.0 to 0.2.0 to 1.0.0 to 1.1.0 etc
-        // this should probably also return a modern save file?
-        string oldVersion = data.version;
-        switch(oldVersion){
-            case null:
-            case "":
-            case "0.1.0":
-            LegacyGlobalSaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
-            Debug.Log("Legacy Global Data detected: v"+oldVersion);
-            if(legacyData.colors != null && legacyData.colors.Count > 0){
-                // make a new ModelSaveData, apply it to the first loaded model.
-                ModelSaveData modelData = new ModelSaveData();
-                modelData.colors = legacyData.colors;
-                LoadModelData(modelData);
-            }
-            data.activeInput = HeartrateInputModule.InputType.SLIDER;
-            break;
-            case "1.0.0":
-            data.activeInput = HeartrateInputModule.InputType.SLIDER;
-            break;
-        }
-    }
-
-    private void ModernizeLegacyModelSaveData(ModelSaveData data, string content){
-        string version = data.version;
-        switch(version){
-            case null:
-            case "":
-            case "1.0.0":
-            LegacyModelSaveData_v1_0_0 legacyData = JsonUtility.FromJson<LegacyModelSaveData_v1_0_0>(content);
-            for(int i = 0; i < legacyData.expressions.Count; i++){
-                if(i < data.expressions.Count){
-                    data.expressions[i].behavior = legacyData.expressions[i].shouldActivate ? 
-                    ExpressionModule.TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW : 
-                    ExpressionModule.TriggerBehavior.DEACTIVATE_ABOVE_ACTIVATE_BELOW;
-                }
-            }
-            Debug.Log("Legacy Model Data detected: v"+version);
-            break;
-        }
-    }
-
-    private void LoadModelData(string modelID){
-        ModelSaveData data;
-        if(!Directory.Exists(this.MODEL_SAVE_PATH)){
-            Directory.CreateDirectory(this.MODEL_SAVE_PATH);
-        }
-        Debug.Log("Loading Model: " + modelID);
-        string filePath = Path.Combine(this.MODEL_SAVE_PATH, modelID+".json");
-        if(File.Exists(filePath)){
-            string text = File.ReadAllText(filePath);
-            data = JsonUtility.FromJson<ModelSaveData>(text);
-            ModernizeLegacyModelSaveData(data, text);
-            LoadModelData(data);
-        }else{
-            // if no data exists for this model, just wipe the slate clean
-            ClearCurrentData();
-        }
-    }
-
-    private void LoadModelData(ModelSaveData data){
+    public void FromModelSaveData(ModelSaveData data){
         ClearCurrentData();
-        foreach(ColorInputModule.SaveData module in data.colors){
-            CreateColorInputModule(module);
-        }
-        foreach(ExpressionModule.SaveData module in data.expressions){
-            CreateExpressionModule(module);
-        }
-        foreach(HotkeyModule.SaveData module in data.hotkeys){
-            CreateHotkeyModule(module);
+        if(data != null){
+            foreach(ColorInputModule.SaveData module in data.colors){
+                CreateColorInputModule(module);
+            }
+            foreach(ExpressionModule.SaveData module in data.expressions){
+                CreateExpressionModule(module);
+            }
+            foreach(HotkeyModule.SaveData module in data.hotkeys){
+                CreateHotkeyModule(module);
+            }
         }
     }
 
@@ -581,38 +493,12 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    public void CopyModelData(string modelID, string modelName){
-        Dictionary<string, string> strings = new Dictionary<string, string>();
-        strings.Add("output_copy_profile_warning_populated", 
-            string.Format(Localization.LocalizationManager.Instance.GetString("output_copy_profile_warning"), 
-                modelName, 
-                this._currentModel.data.modelName));
-        Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
-        UIManager.Instance.ShowPopUp(
-            "output_copy_profile_title",
-            "output_copy_profile_warning_populated",
-            new PopUp.PopUpOption(
-                "output_copy_profile_button_yes",
-                true,
-                () => {
-                    LoadModelData(modelID);
-                    UIManager.Instance.HidePopUp();
-                }),
-            new PopUp.PopUpOption(
-                "output_copy_profile_button_no",
-                false,
-                () => {
-                    UIManager.Instance.HidePopUp();
-                })
-        );
-    }
-
     [System.Serializable]
     public class GlobalSaveData {
         public string version;
         public int minRate = 0;
         public int maxRate = 0;
-        public HeartrateInputModule.InputType activeInput;
+        public HeartrateInputModule.InputType activeInput = HeartrateInputModule.InputType.SLIDER;
         public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>(); 
         public Localization.SupportedLanguage language;
 
@@ -637,6 +523,14 @@ public class HeartratePlugin : VTSPlugin
         {
             return JsonUtility.ToJson(this, true);
         }
+    }
+
+    [System.Serializable]
+    public class ModelProfileSaveData {
+        public string profileName;
+        public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
+        public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
+        public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();
     }
 
     #endregion
