@@ -10,11 +10,12 @@ using System.Collections.Generic;
 public class HeartratePlugin : VTSPlugin
 {
     #region Member Variables
-    // private string GLOBAL_SAVE_PATH = "";
-    // private string MODEL_SAVE_PATH = "";
-    // public string SavePath { get { return Application.persistentDataPath; } }
-    private VTSCurrentModelData _currentModel = new VTSCurrentModelData();
-    public string CurrentModelName { get { return this._currentModel != null ? this._currentModel.data.modelName : "NO MODEL"; } }
+
+    private CurrentModelInfo _currentModel = new CurrentModelInfo(
+        CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED, 
+        CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED, 
+        CurrentModelInfo.PROFILE_DEFAULT);
+    public string CurrentModelName { get { return this._currentModel != null ? this._currentModel.modelName : CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED; } }
 
     [SerializeField]
     [Range(50, 120)]
@@ -84,7 +85,7 @@ public class HeartratePlugin : VTSPlugin
 
     public void OnLaunch(){
         FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
-        FromModelSaveData(SaveDataManager.Instance.ReadModelData(MODEL_ID_NO_VTS_MODEL_LOADED));
+        FromModelSaveData(SaveDataManager.Instance.ReadModelData(CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED));
         Connect();
     }
 
@@ -193,15 +194,18 @@ public class HeartratePlugin : VTSPlugin
         if(this.IsAuthenticated){
             GetCurrentModel(
                 (s) => {
-                    if(!s.data.modelID.Equals(this._currentModel.data.modelID)){
+                    if(!s.data.modelID.Equals(this._currentModel.modelID)){
                         // model has changed
                         SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData(this._currentModel));
+                        this._currentModel = new CurrentModelInfo(s.data.modelName, s.data.modelID, CurrentModelInfo.PROFILE_DEFAULT); 
                         FromModelSaveData(SaveDataManager.Instance.ReadModelData(s.data.modelID));
                     }
-                    this._currentModel = s; 
                 },
                 (e) => {
-                    this._currentModel = new VTSCurrentModelData();
+                    this._currentModel = new CurrentModelInfo(
+                        CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED, 
+                        CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED, 
+                        CurrentModelInfo.PROFILE_DEFAULT);
                 }
             );
         }
@@ -224,23 +228,25 @@ public class HeartratePlugin : VTSPlugin
         }
         // get all hotkeys in currently loaded model
         if(this.IsAuthenticated){
-            GetHotkeysInCurrentModel(
-                this._currentModel.data.modelID,
-                (s) => {
-                    this._hotkeys.Clear();
-                    foreach(HotkeyData hotkey in s.data.availableHotkeys){
-                        this._hotkeys.Add(new HotkeyListItem(
-                            string.Format("[{0}] {1} <size=0>{2}</size>", hotkey.type, hotkey.name, hotkey.hotkeyID),
-                            hotkey.hotkeyID));
+            if(!CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED.Equals(this._currentModel.modelID)){
+                GetHotkeysInCurrentModel(
+                    this._currentModel.modelID,
+                    (s) => {
+                        this._hotkeys.Clear();
+                        foreach(HotkeyData hotkey in s.data.availableHotkeys){
+                            this._hotkeys.Add(new HotkeyListItem(
+                                string.Format("[{0}] {1} <size=0>{2}</size>", hotkey.type, hotkey.name, hotkey.hotkeyID),
+                                hotkey.hotkeyID));
+                        }
+                        foreach(HotkeyModule module in this._hotkeyModules){
+                            module.RefreshHotkeyList();
+                        }
+                    },
+                    (e) => {
+                        Debug.LogError(e.data.message);
                     }
-                    foreach(HotkeyModule module in this._hotkeyModules){
-                        module.RefreshHotkeyList();
-                    }
-                },
-                (e) => {
-                    Debug.LogError(e.data.message);
-                }
-            );
+                );
+            }
         }
 
         // apply art mesh tints
@@ -405,18 +411,17 @@ public class HeartratePlugin : VTSPlugin
         data.apiServerPort = APIManager.Instance.Port;
         return data;
     }
-
-    private const string MODEL_ID_NO_VTS_MODEL_LOADED = "NO_VTS_MODEL_LOADED";
-    public ModelSaveData ToModelSaveData(VTSCurrentModelData currentModel){
+    public ModelSaveData ToModelSaveData(CurrentModelInfo currentModel){
         ModelSaveData data = new ModelSaveData();
         data.version = Application.version;
-        data.modelName = currentModel.data.modelName;
-        data.modelID = currentModel.data.modelID;
+        data.modelName = currentModel.modelName;
+        data.modelID = currentModel.modelID;
+        data.profileName = currentModel.profileName;
         if(data.modelID  == null || data.modelID.Length <= 0){
-            data.modelID = MODEL_ID_NO_VTS_MODEL_LOADED;
+            data.modelID = CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED;
         }
         if(data.modelName == null || data.modelName.Length <= 0){
-            data.modelName = MODEL_ID_NO_VTS_MODEL_LOADED;
+            data.modelName = CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED;
         }
         foreach(ColorInputModule module in this._colors){
             data.colors.Add(module.ToSaveData());
@@ -493,6 +498,19 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
+    public class CurrentModelInfo {
+        public CurrentModelInfo(string name, string ID, string profile){
+            this.modelName = name;
+            this.modelID = ID;
+            this.profileName = profile;
+        }
+        public string modelName;
+        public string modelID;
+        public string profileName;
+        public const string NAME_NO_VTS_MODEL_LOADED = "NO_VTS_MODEL_LOADED";
+        public const string PROFILE_DEFAULT = "DEFAULT";
+    }
+
     [System.Serializable]
     public class GlobalSaveData {
         public string version;
@@ -515,22 +533,18 @@ public class HeartratePlugin : VTSPlugin
         public string version;
         public string modelID;
         public string modelName;
+        public string profileName = "Default";
         public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
         public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
         public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();
+
+        public string FileName { get { return CurrentModelInfo.PROFILE_DEFAULT.Equals(this.profileName) 
+            ? this.modelID : String.Format("{0}_{1}", this.modelID, this.profileName); } }
 
         public override string ToString()
         {
             return JsonUtility.ToJson(this, true);
         }
-    }
-
-    [System.Serializable]
-    public class ModelProfileSaveData {
-        public string profileName;
-        public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
-        public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
-        public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();
     }
 
     #endregion

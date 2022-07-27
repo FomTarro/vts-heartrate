@@ -6,7 +6,7 @@ using TMPro;
 public class ProfileSelector : RefreshableDropdown
 {
     // key is ID, value is readable name
-    private Dictionary<string, string> _idNameMap = new Dictionary<string, string>();
+    private Dictionary<string, HeartratePlugin.ModelSaveData> _idNameMap = new Dictionary<string, HeartratePlugin.ModelSaveData>();
     [SerializeField]
     private TMP_Text _fileNameDisplay = null;
 
@@ -14,8 +14,8 @@ public class ProfileSelector : RefreshableDropdown
     {
         // do nothing
         string name = this._dropdown.options[this._dropdown.value].text;
-        string id = this._idNameMap[name];
-        this._fileNameDisplay.text = string.Format("{0}.json", id);
+        HeartratePlugin.ModelSaveData data = this._idNameMap[name];
+        this._fileNameDisplay.text = string.Format("{0}.json", data.FileName);
     }
 
     public override void Refresh()
@@ -27,7 +27,7 @@ public class ProfileSelector : RefreshableDropdown
 
     public void CopyProfile(){
         string name = this._dropdown.options[this._dropdown.value].text;
-        string id = this._idNameMap[name];
-        SaveDataManager.Instance.CopyModelSaveData(id, name);
+        string fileName = this._idNameMap[name].FileName;
+        SaveDataManager.Instance.CopyModelSaveData(fileName, name);
     }
 }

@@ -62,9 +62,10 @@ public class SaveDataManager : Singleton<SaveDataManager>
         Debug.Log("Migrating global save file data from v0.1.0 to v 1.0.0...");
         if(legacyData.colors != null && legacyData.colors.Count > 0){
             // make a new ModelSaveData, apply it to the first loaded model.
-            HeartratePlugin.ModelSaveData modelData = new HeartratePlugin.ModelSaveData();
+            LegacyModelSaveData_v1_0_0 modelData = new LegacyModelSaveData_v1_0_0();
             modelData.colors = legacyData.colors;
-            HeartrateManager.Instance.Plugin.FromModelSaveData(modelData);
+            HeartrateManager.Instance.Plugin.FromModelSaveData(
+                ModernizeLegacyModelSaveData(new HeartratePlugin.ModelSaveData(), modelData.ToString()));
         }
         HeartratePlugin.GlobalSaveData data = new HeartratePlugin.GlobalSaveData();
         data.inputs = legacyData.inputs;
@@ -89,10 +90,10 @@ public class SaveDataManager : Singleton<SaveDataManager>
 
     #region Model Settings
 
-    public HeartratePlugin.ModelSaveData ReadModelData(string modelID){
+    public HeartratePlugin.ModelSaveData ReadModelData(string fileName){
         HeartratePlugin.ModelSaveData data = new HeartratePlugin.ModelSaveData();
-        Debug.Log("Loading Model: " + modelID);
-        string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, modelID+".json");
+        Debug.Log("Loading Model: " + fileName);
+        string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, fileName+".json");
         if(File.Exists(filePath)){
             string text = File.ReadAllText(filePath);
             data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
@@ -102,16 +103,16 @@ public class SaveDataManager : Singleton<SaveDataManager>
     }
 
     public void WriteModelSaveData(HeartratePlugin.ModelSaveData data){
-        string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, data.modelID+".json");
+        string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, data.FileName+".json");
         File.WriteAllText(filePath, data.ToString());
     }
 
-    public Dictionary<string, string> GetModelDataNameMap(){
-        Dictionary<string, string> dict = new Dictionary<string, string>();
+    public Dictionary<string, HeartratePlugin.ModelSaveData> GetModelDataNameMap(){
+        Dictionary<string, HeartratePlugin.ModelSaveData> dict = new Dictionary<string, HeartratePlugin.ModelSaveData>();
         foreach(string s in Directory.GetFiles(this.MODEL_SAVE_DIRECTORY)){
             string text = File.ReadAllText(s);
             HeartratePlugin.ModelSaveData data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
-            dict.Add(string.Format("{0}<size=0>{1}</size>", data.modelName, data.modelID), data.modelID);
+            dict.Add(string.Format("{0}<size=0>{1}</size> ({2})", data.modelName, data.modelID, data.profileName), data);
         }
         return dict;
     }
@@ -181,13 +182,12 @@ public class SaveDataManager : Singleton<SaveDataManager>
         Debug.Log("Migrating model save file data from v1.1.0 to v 1.2.0...");
         HeartratePlugin.ModelSaveData data = new HeartratePlugin.ModelSaveData();
         data.colors = legacyData.colors;
-        data.hotkeys = new List<HotkeyModule.SaveData>();
+        data.hotkeys = legacyData.hotkeys;
         data.modelID = legacyData.modelID;
         data.modelName = legacyData.modelName;
         data.version = legacyData.version;
         data.expressions = legacyData.expressions;
-        data.hotkeys = legacyData.hotkeys;
-        //TODO: move each model's settings into DEFAULT profile for each file.
+        data.profileName = "Default";
         return data;
     }
 
