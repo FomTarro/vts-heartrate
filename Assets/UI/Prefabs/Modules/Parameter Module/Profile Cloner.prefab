@@ -306,6 +306,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3592628107409746842}
     m_Modifications:
+    - target: {fileID: 2043811901016780599, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0.5186454
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043811901016780599, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0.990566
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043811901016780599, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0.7932033
+      objectReference: {fileID: 0}
     - target: {fileID: 2543030150255242896, guid: a449af0aa1f11c247b0f5451402337af,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -475,6 +490,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8788857475914668639, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: onPointerUp.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 567698393619094601}
+    - target: {fileID: 8788857475914668639, guid: a449af0aa1f11c247b0f5451402337af,
+        type: 3}
+      propertyPath: onPointerUp.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: DeleteProfile
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a449af0aa1f11c247b0f5451402337af, type: 3}

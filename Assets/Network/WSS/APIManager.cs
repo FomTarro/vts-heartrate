@@ -130,7 +130,7 @@ public class APIManager : Singleton<APIManager>
                         "settings_api_server_approve_plugin_tooltip_populated",
                         new PopUp.PopUpOption(
                             "settings_api_server_button_approve",
-                            true,
+                            ColorUtils.ColorPreset.GREEN,
                             () => {
                                 AuthenticationMessage authResponse = new AuthenticationMessage(
                                     authRequest.data.pluginName,
@@ -151,7 +151,7 @@ public class APIManager : Singleton<APIManager>
                             }),
                         new PopUp.PopUpOption(
                             "settings_api_server_button_deny",
-                            false,
+                            ColorUtils.ColorPreset.RED,
                             () => { 
                                 ErrorMessage errorResponse = new ErrorMessage(
                                     ErrorMessage.StatusCode.FORBIDDEN,
@@ -216,7 +216,7 @@ public class APIManager : Singleton<APIManager>
     [System.Serializable]
     public class TokenSaveData{
         public List<PluginData> tokens = new List<PluginData>();
-        
+
         public TokenSaveData(){
             this.tokens = new List<PluginData>();
         }

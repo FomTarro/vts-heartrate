@@ -14,20 +14,17 @@ public class ProfileCreator : MonoBehaviour
     void Start()
     {
         this._inputField.onTextSelection.AddListener((a, b, c) => { this._pollProfileName = false; });
-        this._inputField.onEndEdit.AddListener(UpdateProfileName);
+        this._inputField.onEndEdit.AddListener(RenameProfile);
     }
 
-    private void UpdateProfileName(string value){
+    private void RenameProfile(string value){
         //TODO: this will actually need to be in a "RENAME" function
-        SaveDataManager.Instance.CreateNewModelProfile(
-            SaveDataManager.Instance.CurrentProfile.modelName,
-            SaveDataManager.Instance.CurrentProfile.modelID,
-            value);
+        SaveDataManager.Instance.RenameModelProfile(value);
         this._pollProfileName = true;
     }
 
     public void CreateNewProfile(){
-        string profileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss");
+        string profileName = String.Format("NEW_PROFILE_{0}", DateTime.Now.ToString("yyyy-dd-MM-HH-mm-ss"));
         SaveDataManager.Instance.WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
         HeartrateManager.Instance.Plugin.FromModelSaveData(new HeartratePlugin.ModelSaveData());
         SaveDataManager.Instance.CreateNewModelProfile(

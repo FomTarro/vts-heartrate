@@ -305,6 +305,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7021217732141554788}
     m_Modifications:
+    - target: {fileID: 2084742113531066107, guid: cbfe466e4f60f8941b50fbe3a88b057d,
+        type: 3}
+      propertyPath: key
+      value: output_current_profile_name_paceholder
+      objectReference: {fileID: 0}
     - target: {fileID: 4327237421642145336, guid: cbfe466e4f60f8941b50fbe3a88b057d,
         type: 3}
       propertyPath: m_Name
@@ -450,7 +455,7 @@ PrefabInstance:
     - target: {fileID: 2598624182108680192, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
       propertyPath: key
-      value: output_copy_profile_title
+      value: output_current_profile_title
       objectReference: {fileID: 0}
     - target: {fileID: 2647555702770650737, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
@@ -695,7 +700,7 @@ PrefabInstance:
     - target: {fileID: 4354000376095387835, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: key
-      value: button_generic_load
+      value: output_current_profile_new
       objectReference: {fileID: 0}
     - target: {fileID: 8095749044357934530, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}

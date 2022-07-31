@@ -41,7 +41,7 @@ public class TooltipButton : MonoBehaviour
                     "input_pulsoid_app_tooltip",
                     new PopUp.PopUpOption(
                         "input_pulsoid_button_visit",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://www.pulsoid.net"); })
                 );
                 break;
@@ -51,7 +51,7 @@ public class TooltipButton : MonoBehaviour
                     "input_pulsoid_feed_tooltip",
                     new PopUp.PopUpOption(
                         "input_pulsoid_button_visit",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://www.pulsoid.net"); })
                 );
                 break;
@@ -67,7 +67,7 @@ public class TooltipButton : MonoBehaviour
                     "input_ant_plus_tooltip",
                     new PopUp.PopUpOption(
                         "input_ant_plus_button_visit",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://www.thisisant.com/company/"); })
                 );
                 break;
@@ -77,7 +77,7 @@ public class TooltipButton : MonoBehaviour
                     "input_hyperate_tooltip",
                     new PopUp.PopUpOption(
                         "input_hyperate_button_visit",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://www.hyperate.io"); })
                 );
                 break;
@@ -87,7 +87,7 @@ public class TooltipButton : MonoBehaviour
                     "output_artmesh_tooltip",
                     new PopUp.PopUpOption(
                         "output_artmesh_button",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://hawk.bar/VTubeStudioTagger/"); })
                 );
                 break;
@@ -97,7 +97,7 @@ public class TooltipButton : MonoBehaviour
                     "output_custom_params_tooltip",
                     new PopUp.PopUpOption(
                         "output_custom_params_button",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters"); })
                 );
                 break;
@@ -125,7 +125,7 @@ public class TooltipButton : MonoBehaviour
                     "settings_api_server_tooltip",
                     new PopUp.PopUpOption(
                         "settings_api_server_button_open_readme",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://github.com/FomTarro/vts-heartrate/#api"); })
                 );
                 break;

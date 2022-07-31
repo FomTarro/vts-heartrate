@@ -191,7 +191,7 @@ public class HeartratePlugin : VTSPlugin
                     if(!s.data.modelID.Equals(SaveDataManager.Instance.CurrentProfile.modelID)){
                         // model has changed
                         SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
-                        SaveDataManager.Instance.CreateNewModelProfile(s.data.modelName, s.data.modelID, SaveDataManager.ProfileInfo.PROFILE_DEFAULT); 
+                        SaveDataManager.Instance.CreateNewModelProfile(s.data.modelName, s.data.modelID, SaveDataManager.ModelProfileInfo.PROFILE_DEFAULT); 
                         FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
                     }
                 },
@@ -324,7 +324,7 @@ public class HeartratePlugin : VTSPlugin
 
     public void CreateColorInputModule(ColorInputModule.SaveData module){
         ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
-        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
+        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 2);
         instance.transform.SetSiblingIndex(index);
         this._colors.Add(instance);
         if(module != null){
@@ -341,7 +341,7 @@ public class HeartratePlugin : VTSPlugin
 
     public void CreateExpressionModule(ExpressionModule.SaveData module){
         ExpressionModule instance = Instantiate<ExpressionModule>(this._expressionPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
-        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
+        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 2);
         instance.transform.SetSiblingIndex(index);
         this._expressionModules.Add(instance);
         SortExpressionModules();
@@ -364,7 +364,7 @@ public class HeartratePlugin : VTSPlugin
 
     public void CreateHotkeyModule(HotkeyModule.SaveData module){
         HotkeyModule instance = Instantiate<HotkeyModule>(this._hotkeyPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
-        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
+        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 2);
         instance.transform.SetSiblingIndex(index);
         this._hotkeyModules.Add(instance);
         SortHotkeyModules();
@@ -405,16 +405,16 @@ public class HeartratePlugin : VTSPlugin
 
     public ModelSaveData ToModelSaveData(){
         ModelSaveData data = new ModelSaveData();
-        SaveDataManager.ProfileInfo currentModel = SaveDataManager.Instance.CurrentProfile;
+        SaveDataManager.ModelProfileInfo currentModel = SaveDataManager.Instance.CurrentProfile;
         data.version = Application.version;
         data.modelName = currentModel.modelName;
         data.modelID = currentModel.modelID;
         data.profileName = currentModel.profileName;
         if(data.modelID  == null || data.modelID.Length <= 0){
-            data.modelID = SaveDataManager.ProfileInfo.NAME_NO_VTS_MODEL_LOADED;
+            data.modelID = SaveDataManager.ModelProfileInfo.NAME_NO_VTS_MODEL_LOADED;
         }
         if(data.modelName == null || data.modelName.Length <= 0){
-            data.modelName = SaveDataManager.ProfileInfo.NAME_NO_VTS_MODEL_LOADED;
+            data.modelName = SaveDataManager.ModelProfileInfo.NAME_NO_VTS_MODEL_LOADED;
         }
         foreach(ColorInputModule module in this._colors){
             data.colors.Add(module.ToSaveData());

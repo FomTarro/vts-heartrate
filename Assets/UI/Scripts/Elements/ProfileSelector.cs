@@ -6,14 +6,14 @@ using TMPro;
 public class ProfileSelector : RefreshableDropdown
 {
     // key is ID, value is readable name
-    private Dictionary<string, SaveDataManager.ProfileInfo> _idNameMap = new Dictionary<string, SaveDataManager.ProfileInfo>();
+    private Dictionary<string, SaveDataManager.ModelProfileInfo> _idNameMap = new Dictionary<string, SaveDataManager.ModelProfileInfo>();
     [SerializeField]
     private TMP_Text _fileNameDisplay = null;
 
     protected override void SetValue(int index)
     {
         string key = this._dropdown.options[this._dropdown.value].text;
-        SaveDataManager.ProfileInfo data = this._idNameMap[key];
+        SaveDataManager.ModelProfileInfo data = this._idNameMap[key];
         this._fileNameDisplay.text = string.Format("{0}.json", data.FileName);
     }
 
@@ -26,17 +26,17 @@ public class ProfileSelector : RefreshableDropdown
 
     public void CopyProfile(){
         string name = this._dropdown.options[this._dropdown.value].text;
-        SaveDataManager.ProfileInfo info = this._idNameMap[name];
+        SaveDataManager.ModelProfileInfo info = this._idNameMap[name];
         SaveDataManager.Instance.CopyModelProfile(info);
     }
 
     public void DeleteProfile(){
-        // TODO
+        string key = this._dropdown.options[this._dropdown.value].text;
+        SaveDataManager.Instance.DeleteModelProfile(this._idNameMap[key]);
     }
 
     public void LoadProfile(){
         string key = this._dropdown.options[this._dropdown.value].text;
-        string fileName = this._idNameMap[key].FileName;
         SaveDataManager.Instance.LoadModelProfile(this._idNameMap[key]);
     }
 }

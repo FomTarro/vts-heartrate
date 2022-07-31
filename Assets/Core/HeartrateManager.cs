@@ -37,7 +37,7 @@ public class HeartrateManager : Singleton<HeartrateManager>
                         string.Format("settings_new_version_body_populated", info.version, info.date, info.url),
                         new PopUp.PopUpOption(
                             "settings_new_version_button_download", 
-                            true, 
+                            ColorUtils.ColorPreset.GREEN, 
                             () => { Application.OpenURL(info.url); })
                         );
                 }

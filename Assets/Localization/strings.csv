@@ -218,6 +218,10 @@ Doing so will <b>permanently erase</b> any settings your currently loaded model 
 output_copy_profile_button_yes,Copy,コピー
 output_copy_profile_button_no,Cancel,キャンセル
 ,,
+output_current_profile_title,Current Profile,
+output_current_profile_new,Create New Profile,
+output_current_profile_name_paceholder,Enter profile name...,
+,,
 button_generic_copy,Copy,コピー
 button_generic_load,Load,
 button_generic_delete,Delete,削除

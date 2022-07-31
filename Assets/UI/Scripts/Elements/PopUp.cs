@@ -49,7 +49,7 @@ public class PopUp : MonoBehaviour
                 Vector3.zero, 
                 Quaternion.identity, 
                 this._buttonParent);
-            button.GetComponent<Image>().color = option.positive ? ColorUtils.GREEN : ColorUtils.RED;
+            button.GetComponent<Image>().color = ColorUtils.ColorPresetToUnityColor(option.color);
             button.GetComponentInChildren<TMP_Text>().text = Localization.LocalizationManager.Instance.GetString(option.text);
             button.onPointerUp.AddListener(() => {option.callback();});
         }
@@ -74,13 +74,14 @@ public class PopUp : MonoBehaviour
 
     public struct PopUpOption{
         public string text;
-        public bool positive;
+        public ColorUtils.ColorPreset color;
         public System.Action callback;
 
-        public PopUpOption(string text, bool positive, System.Action callback){
+        public PopUpOption(string text, ColorUtils.ColorPreset color, System.Action callback){
             this.text = text;
-            this.positive = positive;
+            this.color = color;
             this.callback = callback;
         }
+
     }
 }
