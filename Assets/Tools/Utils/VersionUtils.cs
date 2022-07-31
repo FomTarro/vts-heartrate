@@ -19,7 +19,7 @@ public static class VersionUtils
     /// <param name="versionB"></param>
     /// <returns></returns>
     public static bool IsOlderThan(string versionA, string versionB){
-        return versionA.CompareTo(versionB) < 0;
+        return versionA == null || versionA.Length <= 0 || versionA.CompareTo(versionB) < 0;
     }
 
     [System.Serializable]

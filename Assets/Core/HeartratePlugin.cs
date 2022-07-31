@@ -11,12 +11,6 @@ public class HeartratePlugin : VTSPlugin
 {
     #region Member Variables
 
-    private CurrentModelInfo _currentModel = new CurrentModelInfo(
-        CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED, 
-        CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED, 
-        CurrentModelInfo.PROFILE_DEFAULT);
-    public string CurrentModelName { get { return this._currentModel != null ? this._currentModel.modelName : CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED; } }
-
     [SerializeField]
     [Range(50, 120)]
     private int _heartRate = 70;
@@ -85,7 +79,7 @@ public class HeartratePlugin : VTSPlugin
 
     public void OnLaunch(){
         FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
-        FromModelSaveData(SaveDataManager.Instance.ReadModelData(CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED));
+        FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
         Connect();
     }
 
@@ -178,7 +172,7 @@ public class HeartratePlugin : VTSPlugin
 
     private void OnApplicationQuit(){
         SaveDataManager.Instance.WriteGlobalSaveData(ToGlobalSaveData());
-        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData(this._currentModel));
+        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
     }
 
     private void Update(){
@@ -194,18 +188,15 @@ public class HeartratePlugin : VTSPlugin
         if(this.IsAuthenticated){
             GetCurrentModel(
                 (s) => {
-                    if(!s.data.modelID.Equals(this._currentModel.modelID)){
+                    if(!s.data.modelID.Equals(SaveDataManager.Instance.CurrentProfile.modelID)){
                         // model has changed
-                        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData(this._currentModel));
-                        this._currentModel = new CurrentModelInfo(s.data.modelName, s.data.modelID, CurrentModelInfo.PROFILE_DEFAULT); 
-                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(s.data.modelID));
+                        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
+                        SaveDataManager.Instance.CreateNewModelProfile(s.data.modelName, s.data.modelID, SaveDataManager.ProfileInfo.PROFILE_DEFAULT); 
+                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
                     }
                 },
                 (e) => {
-                    this._currentModel = new CurrentModelInfo(
-                        CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED, 
-                        CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED, 
-                        CurrentModelInfo.PROFILE_DEFAULT);
+                    SaveDataManager.Instance.CreateDefaultModelProfile();
                 }
             );
         }
@@ -228,9 +219,9 @@ public class HeartratePlugin : VTSPlugin
         }
         // get all hotkeys in currently loaded model
         if(this.IsAuthenticated){
-            if(!CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED.Equals(this._currentModel.modelID)){
+            if(SaveDataManager.Instance.IsModelLoaded()){
                 GetHotkeysInCurrentModel(
-                    this._currentModel.modelID,
+                    SaveDataManager.Instance.CurrentProfile.modelID,
                     (s) => {
                         this._hotkeys.Clear();
                         foreach(HotkeyData hotkey in s.data.availableHotkeys){
@@ -411,17 +402,19 @@ public class HeartratePlugin : VTSPlugin
         data.apiServerPort = APIManager.Instance.Port;
         return data;
     }
-    public ModelSaveData ToModelSaveData(CurrentModelInfo currentModel){
+
+    public ModelSaveData ToModelSaveData(){
         ModelSaveData data = new ModelSaveData();
+        SaveDataManager.ProfileInfo currentModel = SaveDataManager.Instance.CurrentProfile;
         data.version = Application.version;
         data.modelName = currentModel.modelName;
         data.modelID = currentModel.modelID;
         data.profileName = currentModel.profileName;
         if(data.modelID  == null || data.modelID.Length <= 0){
-            data.modelID = CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED;
+            data.modelID = SaveDataManager.ProfileInfo.NAME_NO_VTS_MODEL_LOADED;
         }
         if(data.modelName == null || data.modelName.Length <= 0){
-            data.modelName = CurrentModelInfo.NAME_NO_VTS_MODEL_LOADED;
+            data.modelName = SaveDataManager.ProfileInfo.NAME_NO_VTS_MODEL_LOADED;
         }
         foreach(ColorInputModule module in this._colors){
             data.colors.Add(module.ToSaveData());
@@ -469,6 +462,7 @@ public class HeartratePlugin : VTSPlugin
     }
 
     public void FromModelSaveData(ModelSaveData data){
+        // wipe current settings
         ClearCurrentData();
         if(data != null){
             foreach(ColorInputModule.SaveData module in data.colors){
@@ -498,19 +492,6 @@ public class HeartratePlugin : VTSPlugin
         }
     }
 
-    public class CurrentModelInfo {
-        public CurrentModelInfo(string name, string ID, string profile){
-            this.modelName = name;
-            this.modelID = ID;
-            this.profileName = profile;
-        }
-        public string modelName;
-        public string modelID;
-        public string profileName;
-        public const string NAME_NO_VTS_MODEL_LOADED = "NO_VTS_MODEL_LOADED";
-        public const string PROFILE_DEFAULT = "DEFAULT";
-    }
-
     [System.Serializable]
     public class GlobalSaveData {
         public string version;
@@ -537,9 +518,6 @@ public class HeartratePlugin : VTSPlugin
         public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
         public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
         public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();
-
-        public string FileName { get { return CurrentModelInfo.PROFILE_DEFAULT.Equals(this.profileName) 
-            ? this.modelID : String.Format("{0}_{1}", this.modelID, this.profileName); } }
 
         public override string ToString()
         {

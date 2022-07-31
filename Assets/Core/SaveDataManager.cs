@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -11,6 +12,13 @@ public class SaveDataManager : Singleton<SaveDataManager>
     private string PLUGINS_SAVE_DIRECTORY = "";
     private string PLUGINS_SAVE_FILE_PATH = "";
     public string SaveDirectory { get { return this.GLOBAL_SAVE_DIRECTORY; } }
+
+    private ProfileInfo _currentProfile = new ProfileInfo(
+        ProfileInfo.NAME_NO_VTS_MODEL_LOADED, 
+        ProfileInfo.NAME_NO_VTS_MODEL_LOADED, 
+        ProfileInfo.PROFILE_DEFAULT);
+
+    public ProfileInfo CurrentProfile { get { return this._currentProfile; } }
 
     public override void Initialize()
     {
@@ -90,10 +98,10 @@ public class SaveDataManager : Singleton<SaveDataManager>
 
     #region Model Settings
 
-    public HeartratePlugin.ModelSaveData ReadModelData(string fileName){
+    public HeartratePlugin.ModelSaveData ReadModelData(ProfileInfo info){
         HeartratePlugin.ModelSaveData data = new HeartratePlugin.ModelSaveData();
-        Debug.Log("Loading Model: " + fileName);
-        string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, fileName+".json");
+        Debug.Log("Loading Model: " + info.FileName);
+        string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, info.FileName + ".json");
         if(File.Exists(filePath)){
             string text = File.ReadAllText(filePath);
             data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
@@ -103,26 +111,27 @@ public class SaveDataManager : Singleton<SaveDataManager>
     }
 
     public void WriteModelSaveData(HeartratePlugin.ModelSaveData data){
-        string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, data.FileName+".json");
+        string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, this._currentProfile.FileName + ".json");
         File.WriteAllText(filePath, data.ToString());
     }
 
-    public Dictionary<string, HeartratePlugin.ModelSaveData> GetModelDataNameMap(){
-        Dictionary<string, HeartratePlugin.ModelSaveData> dict = new Dictionary<string, HeartratePlugin.ModelSaveData>();
+    public Dictionary<string, ProfileInfo> GetModelDataNameMap(){
+        Dictionary<string, ProfileInfo> dict = new Dictionary<string, ProfileInfo>();
         foreach(string s in Directory.GetFiles(this.MODEL_SAVE_DIRECTORY)){
             string text = File.ReadAllText(s);
             HeartratePlugin.ModelSaveData data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
-            dict.Add(string.Format("{0}<size=0>{1}</size> ({2})", data.modelName, data.modelID, data.profileName), data);
+            ProfileInfo info = new ProfileInfo(data.modelName, data.modelID, data.profileName);
+            dict.Add(string.Format("{0}<size=0>{1}</size> ({2})", data.modelName, data.modelID, data.profileName), info);
         }
         return dict;
     }
 
-    public void CopyModelSaveData(string modelID, string modelName){
+    public void CopyModelProfile(ProfileInfo info){
         Dictionary<string, string> strings = new Dictionary<string, string>();
         strings.Add("output_copy_profile_warning_populated", 
             string.Format(Localization.LocalizationManager.Instance.GetString("output_copy_profile_warning"), 
-                modelName, 
-                HeartrateManager.Instance.Plugin.CurrentModelName));
+                info.modelName, 
+                this._currentProfile.modelName));
         Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
         UIManager.Instance.ShowPopUp(
             "output_copy_profile_title",
@@ -131,7 +140,9 @@ public class SaveDataManager : Singleton<SaveDataManager>
                 "output_copy_profile_button_yes",
                 true,
                 () => {
-                    HeartrateManager.Instance.Plugin.FromModelSaveData(ReadModelData(modelID));
+                    // explicitly DO NOT make a new profile
+                    HeartrateManager.Instance.Plugin.FromModelSaveData(ReadModelData(info));
+                    WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
                     UIManager.Instance.HidePopUp();
                 }),
             new PopUp.PopUpOption(
@@ -141,6 +152,22 @@ public class SaveDataManager : Singleton<SaveDataManager>
                     UIManager.Instance.HidePopUp();
                 })
         );
+    }
+
+    public void LoadModelProfile(ProfileInfo info){
+        // Otherwise, hotkeys/expression dropdown values won't match file, could overwrite with blanks
+        if(info.modelID.Equals(this._currentProfile.modelID)){
+            WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
+            CreateNewModelProfile(info.modelName, info.modelID, info.profileName);
+            HeartrateManager.Instance.Plugin.FromModelSaveData(ReadModelData(info));
+        }else{
+            // TODO: make an error popup
+            Debug.LogWarning("Can't load settings from a different model!");
+        }
+    }
+
+    public void DeleteModelSaveData(){
+
     }
 
     private HeartratePlugin.ModelSaveData ModernizeLegacyModelSaveData(HeartratePlugin.ModelSaveData data, string content){
@@ -187,8 +214,46 @@ public class SaveDataManager : Singleton<SaveDataManager>
         data.modelName = legacyData.modelName;
         data.version = legacyData.version;
         data.expressions = legacyData.expressions;
-        data.profileName = "Default";
+        data.profileName = ProfileInfo.PROFILE_DEFAULT;
         return data;
+    }
+
+    #endregion
+
+    #region  Profile Settings 
+    public void CreateNewModelProfile(string modelName, string modelId, string profileName){
+        this._currentProfile = new ProfileInfo(modelName, modelId, profileName);
+    }
+
+    public void CreateDefaultModelProfile(){
+        CreateNewModelProfile(
+            ProfileInfo.NAME_NO_VTS_MODEL_LOADED, 
+            ProfileInfo.NAME_NO_VTS_MODEL_LOADED, 
+            ProfileInfo.PROFILE_DEFAULT);
+    }
+
+    public bool IsModelLoaded(){
+        return !ProfileInfo.NAME_NO_VTS_MODEL_LOADED.Equals(this._currentProfile.modelName);
+    }
+
+    public bool IsDefaultProfile(){
+        return ProfileInfo.PROFILE_DEFAULT.Equals(this._currentProfile.profileName);
+    }
+
+    public struct ProfileInfo {
+        public ProfileInfo(string name, string ID, string profile){
+            this.modelName = name;
+            this.modelID = ID;
+            this.profileName = profile;
+        }
+        public readonly string modelName;
+        public readonly string modelID;
+        public readonly string profileName;
+        public const string NAME_NO_VTS_MODEL_LOADED = "NO_VTS_MODEL_LOADED";
+        public const string PROFILE_DEFAULT = "DEFAULT";
+        public string FileName { get { return
+            this.profileName == null || this.profileName.Length <= 0 || ProfileInfo.PROFILE_DEFAULT.Equals(this.profileName) 
+            ? this.modelID : String.Format("{0}_{1}", this.modelID, this.profileName); } }
     }
 
     #endregion

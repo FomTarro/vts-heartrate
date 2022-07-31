@@ -219,6 +219,7 @@ output_copy_profile_button_yes,Copy,コピー
 output_copy_profile_button_no,Cancel,キャンセル
 ,,
 button_generic_copy,Copy,コピー
+button_generic_load,Load,
 button_generic_delete,Delete,削除
 button_tab_inputs,Inputs,入力
 button_tab_outputs,Outputs,出力
