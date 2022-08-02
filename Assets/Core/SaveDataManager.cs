@@ -211,6 +211,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
                 ColorUtils.ColorPreset.GREEN,
                 () => {
                     // explicitly DO NOT make a new profile
+                    // TODO: should this make a brand new file (and then load it?) instead of overwriting the currently loaded one?
                     HeartrateManager.Instance.Plugin.FromModelSaveData(ReadModelData(info));
                     WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
                     UIManager.Instance.HidePopUp();

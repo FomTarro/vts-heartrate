@@ -23,7 +23,13 @@ public class AntPlusDeviceSelector : RefreshableDropdown
         RefreshValues(_devices);
     }
 
+    protected override void Initialize()
+    {
+
+    }
+
     protected override void SetValue(int index){
 
     }
+
 }

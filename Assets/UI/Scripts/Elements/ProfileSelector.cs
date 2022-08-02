@@ -10,6 +10,11 @@ public class ProfileSelector : RefreshableDropdown
     [SerializeField]
     private TMP_Text _fileNameDisplay = null;
 
+    protected override void Initialize()
+    {
+        UIManager.Instance.RegisterTabCallback(UIManager.Tabs.OUTPUTS, Refresh);
+    }
+
     protected override void SetValue(int index)
     {
         string key = this._dropdown.options[this._dropdown.value].text;

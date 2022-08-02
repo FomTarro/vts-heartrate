@@ -11,8 +11,10 @@ public abstract class RefreshableDropdown : MonoBehaviour
     // Start is called before the first frame update
     void Start(){
         this._dropdown.onValueChanged.AddListener(SetValue);
+        Initialize();
     }
 
+    protected abstract void Initialize();
     protected abstract void SetValue(int index);
 
     public void OnEnable(){
