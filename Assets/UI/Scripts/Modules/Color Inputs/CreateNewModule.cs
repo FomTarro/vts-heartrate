@@ -13,4 +13,10 @@ public class CreateNewModule : MonoBehaviour
     public void CreateHotkeyModule(){
         HeartrateManager.Instance.Plugin.CreateHotkeyModule(new HotkeyModule.SaveData());
     }
+
+    public void CreateNewProfile(){
+        SaveDataManager.Instance.CreateNewModelProfile();
+        HeartrateManager.Instance.Plugin.FromModelSaveData(new HeartratePlugin.ModelSaveData());
+        SaveDataManager.Instance.WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
+    }
 }

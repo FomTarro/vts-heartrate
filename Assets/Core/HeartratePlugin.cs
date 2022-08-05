@@ -196,7 +196,7 @@ public class HeartratePlugin : VTSPlugin
                     }
                 },
                 (e) => {
-                    SaveDataManager.Instance.CreateDefaultModelProfile();
+                    SaveDataManager.Instance.CreateNoModelProfile();
                 }
             );
         }
@@ -324,7 +324,7 @@ public class HeartratePlugin : VTSPlugin
 
     public void CreateColorInputModule(ColorInputModule.SaveData module){
         ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
-        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 2);
+        int index = GetChildIndex();
         instance.transform.SetSiblingIndex(index);
         this._colors.Add(instance);
         if(module != null){
@@ -335,13 +335,14 @@ public class HeartratePlugin : VTSPlugin
     public void DestroyColorInputModule(ColorInputModule module){
         if(this._colors.Contains(module)){
             this._colors.Remove(module);
+            module.ApplyColor(0);
             Destroy(module.gameObject);
         }
     }
 
     public void CreateExpressionModule(ExpressionModule.SaveData module){
         ExpressionModule instance = Instantiate<ExpressionModule>(this._expressionPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
-        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 2);
+        int index = GetChildIndex();
         instance.transform.SetSiblingIndex(index);
         this._expressionModules.Add(instance);
         SortExpressionModules();
@@ -364,7 +365,7 @@ public class HeartratePlugin : VTSPlugin
 
     public void CreateHotkeyModule(HotkeyModule.SaveData module){
         HotkeyModule instance = Instantiate<HotkeyModule>(this._hotkeyPrefab, Vector3.zero, Quaternion.identity, this._colorListParent);
-        int index = Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 2);
+        int index = GetChildIndex();
         instance.transform.SetSiblingIndex(index);
         this._hotkeyModules.Add(instance);
         SortHotkeyModules();
@@ -383,6 +384,10 @@ public class HeartratePlugin : VTSPlugin
 
     private void SortHotkeyModules(){
         this._hotkeyModules.Sort((a, b) => { return a.Threshold.CompareTo(b.Threshold); });
+    }
+
+    private int GetChildIndex(){
+        return Math.Max(1, TransformUtils.GetActiveChildCount(this._colorListParent) - 3);
     }
 
     #endregion

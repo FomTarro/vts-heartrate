@@ -77,8 +77,6 @@ public class UIManager : Singleton<UIManager>
         public Tabs tab;
         public RectTransform element;
         public RectTransform[] others;
-        [SerializeField]
-        public UnityEvent onSelected = new UnityEvent();
     }
 
     [System.Serializable]
