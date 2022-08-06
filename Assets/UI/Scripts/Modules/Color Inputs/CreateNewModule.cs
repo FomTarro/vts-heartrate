@@ -15,7 +15,7 @@ public class CreateNewModule : MonoBehaviour
     }
 
     public void CreateNewProfile(){
-        SaveDataManager.Instance.CreateNewModelProfile();
+        SaveDataManager.Instance.CreateNewProfileForCurrentModel();
         HeartrateManager.Instance.Plugin.FromModelSaveData(new HeartratePlugin.ModelSaveData());
         SaveDataManager.Instance.WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
     }

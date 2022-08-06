@@ -17,30 +17,34 @@ public class ProfileSelector : RefreshableDropdown
 
     protected override void SetValue(int index)
     {
-        string key = this._dropdown.options[this._dropdown.value].text;
-        SaveDataManager.ModelProfileInfo data = this._idNameMap[key];
+        // No need to do anything here
     }
 
     public override void Refresh()
     {
-        this._idNameMap = SaveDataManager.Instance.GetModelDataNameMap();
+        this._idNameMap = SaveDataManager.Instance.GetModelProfileMap();
         RefreshValues(this._idNameMap.Keys);
-        SetValue(this._dropdown.value);
     }
 
     public void CopyProfile(){
-        string name = this._dropdown.options[this._dropdown.value].text;
-        SaveDataManager.ModelProfileInfo info = this._idNameMap[name];
-        SaveDataManager.Instance.CopyModelProfile(info);
+        if(this._dropdown.options.Count > 0){
+            string name = this._dropdown.options[this._dropdown.value].text;
+            SaveDataManager.ModelProfileInfo info = this._idNameMap[name];
+            SaveDataManager.Instance.CopyModelProfile(info);
+        }
     }
 
     public void DeleteProfile(){
-        string key = this._dropdown.options[this._dropdown.value].text;
-        SaveDataManager.Instance.DeleteModelProfile(this._idNameMap[key]);
+        if(this._dropdown.options.Count > 0){
+            string key = this._dropdown.options[this._dropdown.value].text;
+            SaveDataManager.Instance.DeleteModelProfile(this._idNameMap[key]);
+        }
     }
 
     public void LoadProfile(){
-        string key = this._dropdown.options[this._dropdown.value].text;
-        SaveDataManager.Instance.LoadModelProfile(this._idNameMap[key]);
+        if(this._dropdown.options.Count > 0){
+            string key = this._dropdown.options[this._dropdown.value].text;
+            SaveDataManager.Instance.LoadModelProfile(this._idNameMap[key]);
+        }
     }
 }

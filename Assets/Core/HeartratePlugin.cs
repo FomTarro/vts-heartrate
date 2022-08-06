@@ -188,15 +188,21 @@ public class HeartratePlugin : VTSPlugin
         if(this.IsAuthenticated){
             GetCurrentModel(
                 (s) => {
-                    if(!s.data.modelID.Equals(SaveDataManager.Instance.CurrentProfile.modelID)){
-                        // model has changed
-                        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
-                        SaveDataManager.Instance.CreateNewModelProfile(s.data.modelName, s.data.modelID, SaveDataManager.ModelProfileInfo.PROFILE_DEFAULT); 
+                    if(s.data.modelLoaded && !s.data.modelID.Equals(SaveDataManager.Instance.CurrentProfile.modelID)){
+                        SaveDataManager.Instance.SetCurrentProfileInfo(
+                            s.data.modelName, 
+                            s.data.modelID); 
                         FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
+                        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
+                    }else if(!s.data.modelLoaded && SaveDataManager.Instance.IsModelLoaded()){
+                        SaveDataManager.Instance.CreateDefaultUnloadedProfile();
+                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
+                        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
                     }
                 },
                 (e) => {
-                    SaveDataManager.Instance.CreateNoModelProfile();
+                    SaveDataManager.Instance.CreateDefaultUnloadedProfile();
+                    Debug.LogError(e.data.message);
                 }
             );
         }
@@ -223,14 +229,22 @@ public class HeartratePlugin : VTSPlugin
                 GetHotkeysInCurrentModel(
                     SaveDataManager.Instance.CurrentProfile.modelID,
                     (s) => {
+                        try{
                         this._hotkeys.Clear();
                         foreach(HotkeyData hotkey in s.data.availableHotkeys){
                             this._hotkeys.Add(new HotkeyListItem(
-                                string.Format("[{0}] {1} <size=0>{2}</size>", hotkey.type, hotkey.name, hotkey.hotkeyID),
+                                string.Format(
+                                    "[{0}] {1} <size=0>{2}</size>", 
+                                    hotkey.type, 
+                                    hotkey.name, 
+                                    hotkey.hotkeyID),
                                 hotkey.hotkeyID));
                         }
                         foreach(HotkeyModule module in this._hotkeyModules){
                             module.RefreshHotkeyList();
+                        }
+                        }catch(System.Exception e){
+                            Debug.LogError(e);
                         }
                     },
                     (e) => {
@@ -415,12 +429,7 @@ public class HeartratePlugin : VTSPlugin
         data.modelName = currentModel.modelName;
         data.modelID = currentModel.modelID;
         data.profileName = currentModel.profileName;
-        if(data.modelID  == null || data.modelID.Length <= 0){
-            data.modelID = SaveDataManager.ModelProfileInfo.NAME_NO_VTS_MODEL_LOADED;
-        }
-        if(data.modelName == null || data.modelName.Length <= 0){
-            data.modelName = SaveDataManager.ModelProfileInfo.NAME_NO_VTS_MODEL_LOADED;
-        }
+        data.uuid = currentModel.profileID;
         foreach(ColorInputModule module in this._colors){
             data.colors.Add(module.ToSaveData());
         }
@@ -519,7 +528,9 @@ public class HeartratePlugin : VTSPlugin
         public string version;
         public string modelID;
         public string modelName;
-        public string profileName = "Default";
+        public string profileName = "DEFAULT";
+        public string uuid;
+
         public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
         public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
         public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();

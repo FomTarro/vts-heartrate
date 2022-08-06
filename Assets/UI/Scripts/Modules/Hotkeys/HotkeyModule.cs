@@ -15,10 +15,8 @@ public class HotkeyModule : MonoBehaviour
     // we load the expression that should be selected from a profile load into this buffer
     // until the async method resolves.
     private string _waitingOn = null;
-    public string SelectedHotkey
-    {
-        get
-        {
+    public string SelectedHotkey {
+        get {
             return this._waitingOn == null ?
             (this._dropdown.value < HeartrateManager.Instance.Plugin.Hotkeys.Count ?
                 HeartrateManager.Instance.Plugin.Hotkeys[this._dropdown.value].id : null) :
@@ -31,13 +29,11 @@ public class HotkeyModule : MonoBehaviour
     public TriggerBehavior Behavior { get { return (TriggerBehavior)this._behavior.value; } }
     private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW;
 
-    public void Clone()
-    {
+    public void Clone(){
         HeartrateManager.Instance.Plugin.CreateHotkeyModule(this.ToSaveData());
     }
 
-    public void Delete()
-    {
+    public void Delete(){
         HeartrateManager.Instance.Plugin.DestroyHotkeyModule(this);
     }
 
@@ -92,33 +88,26 @@ public class HotkeyModule : MonoBehaviour
         this._priorBehavior = this.Behavior;
     }
 
-    private int HotkeyToIndex(string hotkeyID)
-    {
-        return this._dropdown.options.FindIndex((o)
-            =>
-        { return o.text.Contains(hotkeyID); });
+    private int HotkeyToIndex(string hotkeyID){
+        return hotkeyID == null 
+            ? -1 
+            : this._dropdown.options.FindIndex((o) => { return o.text.Contains(hotkeyID); });
     }
 
-    private void SetHotkey(string hotkeyID)
-    {
+    private void SetHotkey(string hotkeyID){
         int index = HotkeyToIndex(hotkeyID);
-        if (index < 0)
-        {
+        if (index < 0){
             this._waitingOn = hotkeyID;
         }
-        else if (this._dropdown.options.Count > 0)
-        {
+        else if (this._dropdown.options.Count > 0){
             this._dropdown.SetValueWithoutNotify(index);
         }
     }
 
     // TODO: consolidate this behavior into RefreshableDropdown
-    public void RefreshHotkeyList()
-    {
+    public void RefreshHotkeyList(){
         int currentIndex = this._dropdown.value;
-        string hotkey = this._dropdown.options.Count > 0 ?
-                            this._dropdown.options[currentIndex].text:
-                            null;
+        string hotkey = this._dropdown.options.Count > 0 ? this._dropdown.options[currentIndex].text : null;
         this._dropdown.ClearOptions();
         List<string> hotkeyNames = new List<string>();
         foreach(HotkeyListItem data in HeartrateManager.Instance.Plugin.Hotkeys){
@@ -126,20 +115,17 @@ public class HotkeyModule : MonoBehaviour
         }
         this._dropdown.AddOptions(hotkeyNames);
         this._dropdown.RefreshShownValue();
-        if (this._waitingOn != null)
-        {
+        if (this._waitingOn != null) {
             SetHotkey(this._waitingOn);
             this._waitingOn = null;
         }
-        else
-        {
+        else {
             SetHotkey(hotkey);
         }
     }
 
     [System.Serializable]
-    public class SaveData
-    {
+    public class SaveData {
         public string hotkeyID;
         public int threshold;
         public TriggerBehavior behavior;
@@ -150,8 +136,7 @@ public class HotkeyModule : MonoBehaviour
         }
     }
 
-    public SaveData ToSaveData()
-    {
+    public SaveData ToSaveData(){
         SaveData data = new SaveData();
         data.threshold = this.Threshold;
         data.behavior = this.Behavior;
@@ -159,8 +144,7 @@ public class HotkeyModule : MonoBehaviour
         return data;
     }
 
-    public void FromSaveData(SaveData data)
-    {
+    public void FromSaveData(SaveData data){
         this._behavior.ClearOptions();
         this._behavior.AddOptions(Names());
         this._threshold.text = data.threshold.ToString();
@@ -168,12 +152,12 @@ public class HotkeyModule : MonoBehaviour
         SetHotkey(data.hotkeyID);
     }
 
-    public enum TriggerBehavior : int
-    {
+    public enum TriggerBehavior : int {
         ACTIVATE_ABOVE_ACTIVATE_BELOW = 0,
         ACTIVATE_ABOVE = 1,
         ACTIVATE_BELOW = 2,
     }
+
     private static List<string> Names(){
         return new List<String> ( new String[] {
             "output_hotkey_behavior_ab",
@@ -186,7 +170,7 @@ public class HotkeyModule : MonoBehaviour
     }
 }
 
-public struct HotkeyListItem{
+public struct HotkeyListItem {
     public string name;
     public string id;
     public HotkeyListItem(string name, string id){

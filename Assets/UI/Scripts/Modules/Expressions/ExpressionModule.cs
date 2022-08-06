@@ -16,10 +16,8 @@ public class ExpressionModule : MonoBehaviour
     // we load the expression that should be selected from a profile load into this buffer
     // until the async method resolves.
     private string _waitingOn = null;
-    public string SelectedExpression
-    {
-        get
-        {
+    public string SelectedExpression {
+        get {
             return this._waitingOn == null ?
             (this._dropdown.value < HeartrateManager.Instance.Plugin.Expressions.Count ?
                 HeartrateManager.Instance.Plugin.Expressions[this._dropdown.value] : null) :
@@ -32,13 +30,11 @@ public class ExpressionModule : MonoBehaviour
     public TriggerBehavior Behavior { get { return (TriggerBehavior)this._behavior.value; } }
     private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW;
 
-    public void Clone()
-    {
+    public void Clone(){
         HeartrateManager.Instance.Plugin.CreateExpressionModule(this.ToSaveData());
     }
 
-    public void Delete()
-    {
+    public void Delete(){
         HeartrateManager.Instance.Plugin.DestroyExpressionModule(this);
     }
 
@@ -106,29 +102,24 @@ public class ExpressionModule : MonoBehaviour
         this._priorBehavior = this.Behavior;
     }
 
-    private int ExpressionToIndex(string expressionFile)
-    {
-        return this._dropdown.options.FindIndex((o)
-            =>
-        { return o.text.Equals(expressionFile); });
+    private int ExpressionToIndex(string expressionFile){
+        return expressionFile == null 
+            ? -1 
+            : this._dropdown.options.FindIndex((o) => { return o.text.Contains(expressionFile); });
     }
 
-    private void SetExpression(string expressionFile)
-    {
+    private void SetExpression(string expressionFile){
         int index = ExpressionToIndex(expressionFile);
-        if (index < 0)
-        {
+        if (index < 0){
             this._waitingOn = expressionFile;
         }
-        else if (this._dropdown.options.Count > 0)
-        {
+        else if (this._dropdown.options.Count > 0){
             this._dropdown.SetValueWithoutNotify(index);
         }
     }
 
     // TODO: consolidate this behavior into RefreshableDropdown
-    public void RefreshExpressionList()
-    {
+    public void RefreshExpressionList(){
         int currentIndex = this._dropdown.value;
         string expressionFile = this._dropdown.options.Count > 0 ?
                                 this._dropdown.options[currentIndex].text :
@@ -136,21 +127,17 @@ public class ExpressionModule : MonoBehaviour
         this._dropdown.ClearOptions();
         this._dropdown.AddOptions(HeartrateManager.Instance.Plugin.Expressions);
         this._dropdown.RefreshShownValue();
-        if (this._waitingOn != null)
-        {
+        if (this._waitingOn != null) {
             SetExpression(this._waitingOn);
             this._waitingOn = null;
         }
-        else
-        {
+        else {
             SetExpression(expressionFile);
         }
     }
 
     [System.Serializable]
-    public class SaveData
-    {
-
+    public class SaveData {
         public string expressionFile;
         public int threshold;
         public TriggerBehavior behavior;
@@ -161,8 +148,7 @@ public class ExpressionModule : MonoBehaviour
         }
     }
 
-    public SaveData ToSaveData()
-    {
+    public SaveData ToSaveData(){
         SaveData data = new SaveData();
         data.threshold = this.Threshold;
         data.behavior = this.Behavior;
@@ -170,8 +156,7 @@ public class ExpressionModule : MonoBehaviour
         return data;
     }
 
-    public void FromSaveData(SaveData data)
-    {
+    public void FromSaveData(SaveData data){
         this._behavior.ClearOptions();
         this._behavior.AddOptions(Names());
         this._threshold.text = data.threshold.ToString();
@@ -179,8 +164,7 @@ public class ExpressionModule : MonoBehaviour
         SetExpression(data.expressionFile);
     }
 
-    public enum TriggerBehavior : int
-    {
+    public enum TriggerBehavior : int {
         ACTIVATE_ABOVE_DEACTIVATE_BELOW = 0,
         DEACTIVATE_ABOVE_ACTIVATE_BELOW = 1,
         ACTIVATE_ABOVE = 2,

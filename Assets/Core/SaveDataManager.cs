@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -18,7 +16,8 @@ public class SaveDataManager : Singleton<SaveDataManager>
     private ModelProfileInfo _currentProfile = new ModelProfileInfo(
         ModelProfileInfo.NAME_NO_VTS_MODEL_LOADED, 
         ModelProfileInfo.NAME_NO_VTS_MODEL_LOADED, 
-        ModelProfileInfo.PROFILE_DEFAULT);
+        ModelProfileInfo.PROFILE_DEFAULT,
+        null);
 
     public ModelProfileInfo CurrentProfile { get { return this._currentProfile; } }
 
@@ -185,37 +184,39 @@ public class SaveDataManager : Singleton<SaveDataManager>
 
     #region Profile Settings 
 
-    public Dictionary<string, ModelProfileInfo> GetModelDataNameMap(){
+    public Dictionary<string, ModelProfileInfo> GetModelProfileMap(){
         Dictionary<string, ModelProfileInfo> dict = new Dictionary<string, ModelProfileInfo>();
         foreach(string s in Directory.GetFiles(this.MODEL_SAVE_DIRECTORY)){
             string text = File.ReadAllText(s);
             HeartratePlugin.ModelSaveData data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
-            ModelProfileInfo info = new ModelProfileInfo(data.modelName, data.modelID, data.profileName);
-            dict.Add(string.Format("{0}<size=0>{1}</size> ({2})", data.modelName, data.modelID, data.profileName), info);
+            ModelProfileInfo info = new ModelProfileInfo(data.modelName, data.modelID, data.profileName, data.uuid);
+            dict.Add(string.Format("{0}<size=0>{1}</size> ({2})", data.modelName, data.uuid, data.profileName), info);
         }
         return dict;
     }
 
-    public void CreateNewModelProfile(string modelName, string modelId, string profileName){
+    public void SetCurrentProfileInfo(string modelName, string modelID, string profileName = null, string profileID = null){
         // save current profile
         WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
-        this._currentProfile = new ModelProfileInfo(modelName, modelId, profileName);
+        // make new profile
+        this._currentProfile = new ModelProfileInfo(modelName, modelID, profileName, profileID);
+        Debug.Log(String.Format("Setting Profile: {0} {1} {2}", modelName, profileName, profileID));
     }
 
-    public void CreateNewModelProfile(){
-        // default name
-        // DateTime.Now.ToString("yyyy-dd-MM-HH-mm-ss")
-        string profileName = String.Format("NEW_PROFILE_{0}", System.Guid.NewGuid());
-        CreateNewModelProfile(
+    public void CreateNewProfileForCurrentModel(){
+        string profileID = GenerateUUID();
+        string profileName = String.Format("{0}_{1}", ModelProfileInfo.PROFILE_NEW, profileID);
+        SetCurrentProfileInfo(
             this._currentProfile.modelName,
             this._currentProfile.modelID,
-            profileName);
+            profileName,
+            profileID);
     }
 
-    public void CreateNoModelProfile(){
-        CreateNewModelProfile(
+    public void CreateDefaultUnloadedProfile(){
+        SetCurrentProfileInfo(
             ModelProfileInfo.NAME_NO_VTS_MODEL_LOADED, 
-            ModelProfileInfo.NAME_NO_VTS_MODEL_LOADED, 
+            ModelProfileInfo.NAME_NO_VTS_MODEL_LOADED,
             ModelProfileInfo.PROFILE_DEFAULT);
     }
 
@@ -223,8 +224,8 @@ public class SaveDataManager : Singleton<SaveDataManager>
         Dictionary<string, string> strings = new Dictionary<string, string>();
         strings.Add("output_copy_profile_warning_populated", 
             string.Format(Localization.LocalizationManager.Instance.GetString("output_copy_profile_warning"), 
-                info.NameAndProfile, 
-                this._currentProfile.NameAndProfile));
+                info.DisplayName, 
+                this._currentProfile.DisplayName));
         Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
         UIManager.Instance.ShowPopUp(
             "output_copy_profile_title",
@@ -251,10 +252,9 @@ public class SaveDataManager : Singleton<SaveDataManager>
         // Make sure we're loading from the same model we have open in VTS
         // Otherwise, hotkeys/expression dropdown values won't match file, could overwrite with blanks
         if(info.modelID.Equals(this._currentProfile.modelID)){
-            CreateNewModelProfile(info.modelName, info.modelID, info.profileName);
+            SetCurrentProfileInfo(info.modelName, info.modelID, info.profileName, info.profileID);
             HeartrateManager.Instance.Plugin.FromModelSaveData(ReadModelData(info));
         }else{
-            // TODO: make an error popup
             Debug.LogWarning("Can't load settings from a different model!");
             Dictionary<string, string> strings = new Dictionary<string, string>();
             strings.Add("output_load_profile_error_populated", 
@@ -272,7 +272,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
         Dictionary<string, string> strings = new Dictionary<string, string>();
         strings.Add("output_delete_profile_warning_populated", 
             string.Format(Localization.LocalizationManager.Instance.GetString("output_delete_profile_warning"), 
-                info.NameAndProfile));
+                info.DisplayName));
         Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
         UIManager.Instance.ShowPopUp(
             "output_delete_profile_title",
@@ -281,11 +281,16 @@ public class SaveDataManager : Singleton<SaveDataManager>
                 "button_generic_delete",
                 ColorUtils.ColorPreset.RED,
                 () => {
-                    DeleteModelData(info);
                     if(info.Equals(this._currentProfile)){
                         // load default for model if we delete the profile we currently have open
-                        CreateNewModelProfile(info.modelName, info.modelID, ModelProfileInfo.PROFILE_DEFAULT); 
+                        // TODO: this is saving the profile we just deleted again... whoops.
+                        SetCurrentProfileInfo(info.modelName, info.modelID, ModelProfileInfo.PROFILE_DEFAULT, info.profileID); 
+                        DeleteModelData(info);
                         HeartrateManager.Instance.Plugin.FromModelSaveData(ReadModelData(this._currentProfile));
+                        WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
+                    }else{
+                        // just delete
+                        DeleteModelData(info);
                     }
                     UIManager.Instance.HidePopUp();
                 }),
@@ -299,15 +304,14 @@ public class SaveDataManager : Singleton<SaveDataManager>
     }
 
     public void RenameModelProfile(string newProfileName){
-        string sanitizedName = MakeFileNameSafe(newProfileName);
-        if(sanitizedName.Length <= 0 || _currentProfile.profileName.Equals(sanitizedName)){
+        string errorKey = string.Empty;
+        if(newProfileName.Length <= 0 || _currentProfile.profileName.Equals(newProfileName)){
             Debug.Log("Reverting rename attempt...");
             this._onProfileLoaded.Invoke();
             return;
         }
     
-        string errorKey = string.Empty;
-        if(!IsProfileNameUnique(this._currentProfile.modelID, sanitizedName)){
+        if(!IsProfileNameUnique(this._currentProfile.modelID, newProfileName)){
             errorKey = "output_rename_profile_error_not_unique";   
         }
         if(errorKey.Length > 0){
@@ -321,7 +325,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
             Dictionary<string, string> strings = new Dictionary<string, string>();
             strings.Add("output_rename_profile_confirm_warning_populated", 
                 string.Format(Localization.LocalizationManager.Instance.GetString("output_rename_profile_confirm_warning"), 
-                    this._currentProfile.profileName, sanitizedName));
+                    this._currentProfile.profileName, newProfileName));
             Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
             UIManager.Instance.ShowPopUp(
                 "output_rename_profile_confirm_title",
@@ -330,19 +334,14 @@ public class SaveDataManager : Singleton<SaveDataManager>
                     "output_rename_profile_confirm_button_yes",
                     ColorUtils.ColorPreset.GREEN,
                     () => {
-                        ModelProfileInfo oldProfile = new ModelProfileInfo(
-                            this._currentProfile.modelName, 
-                            this._currentProfile.modelID, 
-                            this._currentProfile.profileName);
                         // make new profile with the new name
-                        CreateNewModelProfile(
+                        SetCurrentProfileInfo(
                             CurrentProfile.modelName,
                             CurrentProfile.modelID,
-                            sanitizedName);
+                            newProfileName,
+                            CurrentProfile.profileID);
                         // save it!
                         WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
-                        // delete the old one with the old name
-                        DeleteModelData(oldProfile);
                         UIManager.Instance.HidePopUp();
                     }),
                 new PopUp.PopUpOption(
@@ -364,7 +363,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
     }
 
     private bool IsProfileNameUnique(string modelID, string newProfileName){
-        Dictionary<string, ModelProfileInfo> otherProfiles = GetModelDataNameMap(); 
+        Dictionary<string, ModelProfileInfo> otherProfiles = GetModelProfileMap(); 
         foreach(ModelProfileInfo profile in otherProfiles.Values){
             if(profile.modelID.Equals(modelID) && profile.profileName.Equals(newProfileName)){
                 return false;
@@ -382,21 +381,30 @@ public class SaveDataManager : Singleton<SaveDataManager>
     }
 
     public struct ModelProfileInfo {
-        public ModelProfileInfo(string name, string ID, string profile){
-            this.modelName = name;
-            this.modelID = ID;
-            this.profileName = SaveDataManager.MakeFileNameSafe(profile);
+        public ModelProfileInfo(string name, string ID, string profile, string profileID){
+            this.modelName = name == null || name.Length <= 0 ? NAME_NO_VTS_MODEL_LOADED : name;
+            this.modelID = ID == null || ID.Length <= 0 ? NAME_NO_VTS_MODEL_LOADED : ID;
+            this.profileName = profile == null || profile.Length <= 0 ? PROFILE_DEFAULT : profile;
+            this.profileID = profileID == null || profileID.Length <= 0 ? GenerateUUID() : profileID;
         }
         public readonly string modelName;
         public readonly string modelID;
         public readonly string profileName;
-        public const string NAME_NO_VTS_MODEL_LOADED = "NO_VTS_MODEL_LOADED";
-        public const string PROFILE_DEFAULT = "DEFAULT";
-        public string FileName { get { return
-            this.profileName == null || this.profileName.Length <= 0 || ModelProfileInfo.PROFILE_DEFAULT.Equals(this.profileName) 
-            ? this.modelID : String.Format("{0}_{1}", this.modelID, this.profileName); } }
+        public readonly string profileID;
 
-        public string NameAndProfile { get { return String.Format("{0} ({1})", this.modelName, this.profileName); } }
+        // constants
+        public const string NAME_NO_VTS_MODEL_LOADED = "NO_MODEL";
+        public const string PROFILE_DEFAULT = "DEFAULT";
+        public const string PROFILE_NEW = "NEW_PROFILE";
+
+        public string FileName { get { return
+            this.profileName == null || this.profileName.Length <= 0 || PROFILE_DEFAULT.Equals(this.profileName) 
+            ? this.modelID : String.Format("{0}_{1}", this.modelID, this.profileID); 
+        } }
+
+        public string DisplayName { get { return 
+            String.Format("{0} ({1})", this.modelName, this.profileName); 
+        } }
     }
 
     #endregion
@@ -420,24 +428,8 @@ public class SaveDataManager : Singleton<SaveDataManager>
 
     #region Helper Methods
 
-    /// <summary>
-    /// Filters out non-filesafe characters, and forces uppercase
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    private static string MakeFileNameSafe(string value){
-        string filename = value.Trim();
-
-        filename = Regex.Replace(
-            filename,
-            @"\W+",  /*Matches any nonword character. Equivalent to '[^A-Za-z0-9_]'*/
-            "_",
-            RegexOptions.IgnoreCase);
-        // foreach (char c in Path.GetInvalidFileNameChars()){ 
-        //     filename = filename.Replace(c, '_'); 
-        // }
-        // filename = filename.Replace(' ', '_');
-        return filename.ToUpper();
+    private static string GenerateUUID(){
+        return System.Guid.NewGuid().ToString().Replace("-", "");
     }
 
     #endregion
