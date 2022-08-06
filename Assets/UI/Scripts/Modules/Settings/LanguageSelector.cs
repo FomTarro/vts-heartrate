@@ -3,6 +3,11 @@ using Localization;
 
 public class LanguageSelector : RefreshableDropdown
 {
+    protected override void Initialize()
+    {
+        
+    }
+
     protected override void SetValue(int index)
     {
         SupportedLanguage language = (SupportedLanguage)index+1;

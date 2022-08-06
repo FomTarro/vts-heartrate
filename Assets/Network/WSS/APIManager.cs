@@ -3,7 +3,6 @@ using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using VTS.Networking.Impl;
-using System.IO;
 
 public class APIManager : Singleton<APIManager>
 {
@@ -29,11 +28,9 @@ public class APIManager : Singleton<APIManager>
 
     private Dictionary<string, PluginData> _tokenToSessionMap = new Dictionary<string, PluginData>();
     public List<PluginData> ApprovedPlugins { get { return new List<PluginData>(this._tokenToSessionMap.Values); } }
-    private string GLOBAL_SAVE_PATH = "";
 
     public override void Initialize(){
-        this.GLOBAL_SAVE_PATH = Path.Combine(Application.persistentDataPath, "plugins.json");
-        LoadTokenData();
+        FromTokenSaveData(SaveDataManager.Instance.ReadTokenSaveData());
     }
 
     public void SetPort(int port){
@@ -118,7 +115,7 @@ public class APIManager : Singleton<APIManager>
                         true);
 
                     endpoint.SendToID(authResponse, sessionID);
-                    APIManager.Instance.SaveTokenData();
+                    SaveDataManager.Instance.WriteTokenSaveData(APIManager.Instance.ToTokenSaveData());
                 }else if(authRequest.data.pluginAuthor != null && authRequest.data.pluginName != null){
                     // they do not send us an approved token, but do include plugin name and plugin author
                     Dictionary<string, string> strings = new Dictionary<string, string>();
@@ -133,7 +130,7 @@ public class APIManager : Singleton<APIManager>
                         "settings_api_server_approve_plugin_tooltip_populated",
                         new PopUp.PopUpOption(
                             "settings_api_server_button_approve",
-                            true,
+                            ColorUtils.ColorPreset.GREEN,
                             () => {
                                 AuthenticationMessage authResponse = new AuthenticationMessage(
                                     authRequest.data.pluginName,
@@ -149,12 +146,12 @@ public class APIManager : Singleton<APIManager>
                                     false);
                                 APIManager.Instance._tokenToSessionMap.Add(authResponse.data.token, data);
                                 endpoint.SendToID(authResponse, sessionID);
-                                APIManager.Instance.SaveTokenData();
+                                SaveDataManager.Instance.WriteTokenSaveData(APIManager.Instance.ToTokenSaveData());
                                 UIManager.Instance.HidePopUp();
                             }),
                         new PopUp.PopUpOption(
                             "settings_api_server_button_deny",
-                            false,
+                            ColorUtils.ColorPreset.RED,
                             () => { 
                                 ErrorMessage errorResponse = new ErrorMessage(
                                     ErrorMessage.StatusCode.FORBIDDEN,
@@ -200,29 +197,29 @@ public class APIManager : Singleton<APIManager>
     public void RevokeTokenData(string token){
         if(this._tokenToSessionMap.ContainsKey(token)){
             this._tokenToSessionMap.Remove(token);
-            SaveTokenData();
+            SaveDataManager.Instance.WriteTokenSaveData(ToTokenSaveData());
         }
     }
 
-    private void SaveTokenData(){
+    private TokenSaveData ToTokenSaveData(){
         TokenSaveData data = new TokenSaveData(this._tokenToSessionMap.Values);
-        File.WriteAllText(this.GLOBAL_SAVE_PATH, data.ToString());
+        return data;
     }
 
-    private void LoadTokenData(){
-        if(File.Exists(this.GLOBAL_SAVE_PATH)){
-            string content = File.ReadAllText(this.GLOBAL_SAVE_PATH);
-            TokenSaveData data = JsonUtility.FromJson<TokenSaveData>(content);
-            foreach(PluginData p in data.tokens){
-                p.authenticated = false; // this is important!
-                this._tokenToSessionMap.Add(p.token, p);
-            }
+    private void FromTokenSaveData(TokenSaveData data){
+        foreach(PluginData p in data.tokens){
+            p.authenticated = false; // this is important!
+            this._tokenToSessionMap.Add(p.token, p);
         }
     }
 
     [System.Serializable]
     public class TokenSaveData{
         public List<PluginData> tokens = new List<PluginData>();
+
+        public TokenSaveData(){
+            this.tokens = new List<PluginData>();
+        }
         public TokenSaveData(IEnumerable<PluginData> data){
             this.tokens = new List<PluginData>(data);
         }

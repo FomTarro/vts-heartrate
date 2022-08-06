@@ -29,13 +29,13 @@ public class PluginAuthEntry : MonoBehaviour
                 "settings_api_server_revoke_plugin_tooltip_populated",
                 new PopUp.PopUpOption(
                     "settings_api_server_button_keep",
-                    true,
+                    ColorUtils.ColorPreset.WHITE,
                     () => {
                         UIManager.Instance.HidePopUp();
                     }),
                 new PopUp.PopUpOption(
                     "settings_api_server_button_revoke",
-                    false,
+                    ColorUtils.ColorPreset.RED,
                     () => {
                         APIManager.Instance.RevokeTokenData(this._token); 
                         Destroy(this.gameObject); 

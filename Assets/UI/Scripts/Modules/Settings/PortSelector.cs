@@ -4,6 +4,11 @@ public class PortSelector : RefreshableDropdown
 {
     private List<string> _portNumbers = new List<string>();
 
+    protected override void Initialize()
+    {
+        UIManager.Instance.RegisterTabCallback(UIManager.Tabs.SETTINGS, Refresh);
+    }
+
     protected override void SetValue(int index){
         HeartrateManager.Instance.Plugin.SetPort(int.Parse(this._dropdown.options[index].text));
         HeartrateManager.Instance.Plugin.Connect();

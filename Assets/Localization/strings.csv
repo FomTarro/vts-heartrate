@@ -159,6 +159,7 @@ output_artmesh_tooltip,"This output will gradually tint the matched <b>Art Meshe
 <b>Art Meshes</b> are matched as long as their names or tags contain <b>any</b> of the provided list of text to match. For example, providing the text '<b>head,mouth,neck</b>' will match Art Meshes with names like '<b>forehead</b>', '<b>outermouth2</b>', and '<b>leftneckside1</b>'.
 
 Text to match must be <b>comma separated</b> and should <b>not contain spaces</b>.
+
 If you are unsure of what your Art Meshes are named, a great web-tool was developed by <b>Hawkbar</b> called <b>VTubeStudioTagger</b>, which offers an intuitive way to discover the names of your model's Art Meshes.","この出力は、現在の心拍数に基づいて、徐々にマッチされる<b>アートメッシュ</b>に所望の色を薄く付けます。
 
 <b>アートメッシュ</b>は、その名前またはタグのテキストが、入力した検索対象リストのいずれかとマッチすればマッチされます。例えば、「<b>鼻,頬,唇</b>」を入力すると、「<b>鼻</b>」、「<b>右頬1</b>」、「<b>上唇</b>」などの名前が付いているアートメッシュがマッチされます。
@@ -206,19 +207,56 @@ output_custom_params_tooltip,"This plugin outputs four custom tracking parameter
 <b>VTS_Heartrate_BPM</b>：0 から 255 まで、実際の現在の心拍数を表す値。（この出力値は実際値であり、最小値 0.0 〜最大値 1.0 にスケーリングされた値ではありません）"
 output_custom_params_button,Learn how to use Custom Parameters,カスタムパラメータの使用方法についてはこちら
 ,,
-output_copy_profile_title,Copy Profile Settings,プロファイル設定のコピー
+output_copy_profile_title,Other Profiles,
 output_copy_profile_tooltip,"This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
 
 As a result, any settings configured for your currently loaded model will be permanently erased.","この機能により、あるモデルの<b>すべての出力設定</b>（アートメッシュの色付け、表情の切り替えなど）を、現在読み込んでいるモデルにコピーすることが可能です。
 
 コピーする場合、現在読み込んでいるモデルに対する設定は永久的に削除されます。"
 output_copy_profile_warning,"Are you sure that you want to <b>copy model settings data</b> from <b>'{0}'</b> to your currently loaded model, <b>'{1}'</b>?
+
 Doing so will <b>permanently erase</b> any settings your currently loaded model has configured.","現在読み込んでいるモデル <b>{1}</b> に、モデル <b>{0}</b> の設定をコピーしますか？
+
 コピーすると、現在読み込んでいるモデルに対する設定は<b>永久的に削除</b>されます。"
 output_copy_profile_button_yes,Copy,コピー
 output_copy_profile_button_no,Cancel,キャンセル
 ,,
+output_current_profile_title,Current Profile,
+output_current_profile_new,Create New Profile,
+output_current_profile_name_paceholder,Enter profile name...,
+,,
+output_delete_profile_title,Delete this Profile?,
+output_delete_profile_warning,"Are you sure that you want to <b>permanently delete</b> the profile <b>'{0}'</b>?
+
+Deleting a profile is an <b>irreversible</b> operation.",
+,,
+output_rename_profile_confirm_title,Rename this Profile?,
+output_rename_profile_confirm_warning,"Are you sure that you want to <b>rename</b> this profile?
+
+Old name: <b>'{0}'</b>
+New name: <b>'{1}'</b>",
+output_rename_profile_confirm_button_yes,Rename,
+output_rename_profile_confirm_button_no,Cancel,キャンセル
+output_rename_profile_error_title,Error!,
+output_rename_profile_error_not_unique,A profile with this name <b>already exists</b> for the currently active model.,
+,,
+output_load_profile_warning_title,Error!,
+output_load_profile_warning,"Are you sure that you want to <b>load</b> this profile, despite it belonging to a different model? 
+
+Doing so may cause <b>%output_expressions_title</b> and <b>%output_hotkey_title</b> on the profile to <b>lose reference</b> to their original values, as those values <b>may not be present</b> on the currently active model.
+
+Current model: <b>'{0}'</b>
+Profile model: <b>'{1}'</b>",
+output_load_profile_error,"Loading a profile that belongs to a model other than the currently active model is not currently supported.
+
+Current model: <b>'{0}'</b>
+Profile model: <b>'{1}'</b>",
+,,
+,,
+button_generic_confirm,Confirm,
 button_generic_copy,Copy,コピー
+button_generic_cancel,Cancel,キャンセル
+button_generic_load,Load,
 button_generic_delete,Delete,削除
 button_tab_inputs,Inputs,入力
 button_tab_outputs,Outputs,出力

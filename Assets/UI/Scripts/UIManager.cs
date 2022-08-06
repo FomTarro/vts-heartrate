@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class UIManager : Singleton<UIManager>
 {
     [Header("Tabs")]
     [SerializeField]
     private List<TabMapper> _tabs = new List<TabMapper>();
+    private Dictionary<Tabs, UnityEvent> _tabEvents = new Dictionary<Tabs, UnityEvent>();
 
     [SerializeField]
     private ScrollRect _scroll = null;
@@ -17,16 +19,12 @@ public class UIManager : Singleton<UIManager>
     [SerializeField]
     private PopUp _popUp = null; 
 
-    [SerializeField]
-    private LoadScreen _loadSceen = null;
-
     public static readonly float UI_CYCLE_TIME = 0.35f; 
 
 
     // Start is called before the first frame update
     void Start()
     {
-        // this._loadSceen.Load();
         GoTo(Tabs.HEARTRATE_INPUTS);
     }
 
@@ -41,6 +39,13 @@ public class UIManager : Singleton<UIManager>
 
     }
 
+    public void RegisterTabCallback(Tabs tab, System.Action onSelect){
+        if(!this._tabEvents.ContainsKey(tab)){
+            this._tabEvents.Add(tab, new UnityEvent());
+        }
+        this._tabEvents[tab].AddListener(new UnityAction(onSelect));
+    }
+
     public void GoTo(Tabs tab){
         foreach(TabMapper entry in this._tabs){
             CanvasGroup group = entry.element.GetComponent<CanvasGroup>();
@@ -52,6 +57,9 @@ public class UIManager : Singleton<UIManager>
             }
             if(entry.tab == tab){
                 _selected = entry.element;
+                if(this._tabEvents.ContainsKey(tab)){
+                    this._tabEvents[tab].Invoke();
+                }
             }
         }
     }
