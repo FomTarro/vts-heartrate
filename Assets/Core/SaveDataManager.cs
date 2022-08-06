@@ -71,13 +71,15 @@ public class SaveDataManager : Singleton<SaveDataManager>
     }
 
     private HeartratePlugin.GlobalSaveData Modernize_v0_1_0_to_v1_0_0(LegacyGlobalSaveData_v0_1_0 legacyData){
-        Debug.Log("Migrating global save file data from v0.1.0 to v 1.0.0...");
+        Debug.Log("Migrating global save file data from v0.1.0 to v1.0.0...");
         if(legacyData.colors != null && legacyData.colors.Count > 0){
-            // make a new ModelSaveData, apply it to the first loaded model.
+            // make a new ModelSaveData, apply it to the default, no-model profile.
+            // TODO: is there a way to make this apply to the first LOADED model?
             LegacyModelSaveData_v1_0_0 modelData = new LegacyModelSaveData_v1_0_0();
             modelData.colors = legacyData.colors;
-            HeartrateManager.Instance.Plugin.FromModelSaveData(
-                ModernizeLegacyModelSaveData(new HeartratePlugin.ModelSaveData(), modelData.ToString()));
+            HeartratePlugin.ModelSaveData modernData = ModernizeLegacyModelSaveData(new HeartratePlugin.ModelSaveData(), modelData.ToString());
+            HeartrateManager.Instance.Plugin.FromModelSaveData(modernData);
+            WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
         }
         HeartratePlugin.GlobalSaveData data = new HeartratePlugin.GlobalSaveData();
         data.inputs = legacyData.inputs;
@@ -88,7 +90,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
     }
 
     private HeartratePlugin.GlobalSaveData Modernize_v1_0_0_to_v1_1_0(HeartratePlugin.GlobalSaveData legacyData){
-        Debug.Log("Migrating global save file data from v1.0.0 to v 1.1.0...");
+        Debug.Log("Migrating global save file data from v1.0.0 to v1.1.0...");
         HeartratePlugin.GlobalSaveData data = new HeartratePlugin.GlobalSaveData();
         data.version = legacyData.version;
         data.inputs = legacyData.inputs;
@@ -177,6 +179,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
         data.version = legacyData.version;
         data.expressions = legacyData.expressions;
         data.profileName = ModelProfileInfo.PROFILE_DEFAULT;
+        data.profileID = legacyData.modelID;
         return data;
     }
 
@@ -189,8 +192,9 @@ public class SaveDataManager : Singleton<SaveDataManager>
         foreach(string s in Directory.GetFiles(this.MODEL_SAVE_DIRECTORY)){
             string text = File.ReadAllText(s);
             HeartratePlugin.ModelSaveData data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
-            ModelProfileInfo info = new ModelProfileInfo(data.modelName, data.modelID, data.profileName, data.uuid);
-            dict.Add(string.Format("{0}<size=0>{1}</size> ({2})", data.modelName, data.uuid, data.profileName), info);
+            data = ModernizeLegacyModelSaveData(data, text);
+            ModelProfileInfo info = new ModelProfileInfo(data.modelName, data.modelID, data.profileName, data.profileID);
+            dict.Add(string.Format("{0}<size=0>{1}</size> ({2})", data.modelName, data.profileID, data.profileName), info);
         }
         return dict;
     }
@@ -283,8 +287,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
                 () => {
                     if(info.Equals(this._currentProfile)){
                         // load default for model if we delete the profile we currently have open
-                        // TODO: this is saving the profile we just deleted again... whoops.
-                        SetCurrentProfileInfo(info.modelName, info.modelID, ModelProfileInfo.PROFILE_DEFAULT, info.profileID); 
+                        SetCurrentProfileInfo(info.modelName, info.modelID); 
                         DeleteModelData(info);
                         HeartrateManager.Instance.Plugin.FromModelSaveData(ReadModelData(this._currentProfile));
                         WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
@@ -307,51 +310,49 @@ public class SaveDataManager : Singleton<SaveDataManager>
         string errorKey = string.Empty;
         if(newProfileName.Length <= 0 || _currentProfile.profileName.Equals(newProfileName)){
             Debug.Log("Reverting rename attempt...");
-            this._onProfileLoaded.Invoke();
-            return;
-        }
-    
-        if(!IsProfileNameUnique(this._currentProfile.modelID, newProfileName)){
-            errorKey = "output_rename_profile_error_not_unique";   
-        }
-        if(errorKey.Length > 0){
-            Debug.Log(errorKey);
-            UIManager.Instance.ShowPopUp(
-                "output_rename_profile_error_title",
-                errorKey
-            );
-            this._onProfileLoaded.Invoke();
         }else{
-            Dictionary<string, string> strings = new Dictionary<string, string>();
-            strings.Add("output_rename_profile_confirm_warning_populated", 
-                string.Format(Localization.LocalizationManager.Instance.GetString("output_rename_profile_confirm_warning"), 
-                    this._currentProfile.profileName, newProfileName));
-            Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
-            UIManager.Instance.ShowPopUp(
-                "output_rename_profile_confirm_title",
-                "output_rename_profile_confirm_warning_populated",
-                new PopUp.PopUpOption(
-                    "output_rename_profile_confirm_button_yes",
-                    ColorUtils.ColorPreset.GREEN,
-                    () => {
-                        // make new profile with the new name
-                        SetCurrentProfileInfo(
-                            CurrentProfile.modelName,
-                            CurrentProfile.modelID,
-                            newProfileName,
-                            CurrentProfile.profileID);
-                        // save it!
-                        WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
-                        UIManager.Instance.HidePopUp();
-                    }),
-                new PopUp.PopUpOption(
-                    "output_rename_profile_confirm_button_no",
-                    ColorUtils.ColorPreset.WHITE,
-                    () => {
-                        UIManager.Instance.HidePopUp();
-                    })
-            );
+            if(!IsProfileNameUnique(this._currentProfile.modelID, newProfileName)){
+                errorKey = "output_rename_profile_error_not_unique";   
+            }
+            if(errorKey.Length > 0){
+                Debug.Log(errorKey);
+                UIManager.Instance.ShowPopUp(
+                    "output_rename_profile_error_title",
+                    errorKey
+                );
+            }else{
+                Dictionary<string, string> strings = new Dictionary<string, string>();
+                strings.Add("output_rename_profile_confirm_warning_populated", 
+                    string.Format(Localization.LocalizationManager.Instance.GetString("output_rename_profile_confirm_warning"), 
+                        this._currentProfile.profileName, newProfileName));
+                Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
+                UIManager.Instance.ShowPopUp(
+                    "output_rename_profile_confirm_title",
+                    "output_rename_profile_confirm_warning_populated",
+                    new PopUp.PopUpOption(
+                        "output_rename_profile_confirm_button_yes",
+                        ColorUtils.ColorPreset.GREEN,
+                        () => {
+                            // make new profile with the new name
+                            SetCurrentProfileInfo(
+                                CurrentProfile.modelName,
+                                CurrentProfile.modelID,
+                                newProfileName,
+                                CurrentProfile.profileID);
+                            // save it!
+                            WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
+                            UIManager.Instance.HidePopUp();
+                        }),
+                    new PopUp.PopUpOption(
+                        "output_rename_profile_confirm_button_no",
+                        ColorUtils.ColorPreset.WHITE,
+                        () => {
+                            UIManager.Instance.HidePopUp();
+                        })
+                );
+            }
         }
+        this._onProfileSaved.Invoke();
     }
 
     public void RegisterProfileLoadedCallback(System.Action onLoaded){
@@ -385,7 +386,8 @@ public class SaveDataManager : Singleton<SaveDataManager>
             this.modelName = name == null || name.Length <= 0 ? NAME_NO_VTS_MODEL_LOADED : name;
             this.modelID = ID == null || ID.Length <= 0 ? NAME_NO_VTS_MODEL_LOADED : ID;
             this.profileName = profile == null || profile.Length <= 0 ? PROFILE_DEFAULT : profile;
-            this.profileID = profileID == null || profileID.Length <= 0 ? GenerateUUID() : profileID;
+            // we recycle the model ID as the profile ID for the default profile
+            this.profileID = PROFILE_DEFAULT.Equals(this.profileName) ? this.modelID : profileID == null || profileID.Length <= 0 ? GenerateUUID() : profileID;
         }
         public readonly string modelName;
         public readonly string modelID;
@@ -397,10 +399,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
         public const string PROFILE_DEFAULT = "DEFAULT";
         public const string PROFILE_NEW = "NEW_PROFILE";
 
-        public string FileName { get { return
-            this.profileName == null || this.profileName.Length <= 0 || PROFILE_DEFAULT.Equals(this.profileName) 
-            ? this.modelID : String.Format("{0}_{1}", this.modelID, this.profileID); 
-        } }
+        public string FileName { get { return this.profileID; } }
 
         public string DisplayName { get { return 
             String.Format("{0} ({1})", this.modelName, this.profileName); 

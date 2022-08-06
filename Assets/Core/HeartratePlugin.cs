@@ -191,7 +191,7 @@ public class HeartratePlugin : VTSPlugin
                     if(s.data.modelLoaded && !s.data.modelID.Equals(SaveDataManager.Instance.CurrentProfile.modelID)){
                         SaveDataManager.Instance.SetCurrentProfileInfo(
                             s.data.modelName, 
-                            s.data.modelID); 
+                            s.data.modelID);
                         FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
                         SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
                     }else if(!s.data.modelLoaded && SaveDataManager.Instance.IsModelLoaded()){
@@ -429,7 +429,7 @@ public class HeartratePlugin : VTSPlugin
         data.modelName = currentModel.modelName;
         data.modelID = currentModel.modelID;
         data.profileName = currentModel.profileName;
-        data.uuid = currentModel.profileID;
+        data.profileID = currentModel.profileID;
         foreach(ColorInputModule module in this._colors){
             data.colors.Add(module.ToSaveData());
         }
@@ -529,7 +529,7 @@ public class HeartratePlugin : VTSPlugin
         public string modelID;
         public string modelName;
         public string profileName = "DEFAULT";
-        public string uuid;
+        public string profileID;
 
         public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
         public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
