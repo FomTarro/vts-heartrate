@@ -23,6 +23,18 @@ public class HeartratePlugin : VTSPlugin
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
     private const string PARAMETER_SINE_BREATH = "VTS_Heartrate_Breath";
     private const string PARAMETER_BPM = "VTS_Heartrate_BPM";
+    private const string PARAMETER_BPM_ONES = "VTS_Heartrate_BPM_Ones";
+    private const string PARAMETER_BPM_TENS = "VTS_Heartrate_BPM_Tens";
+    private const string PARAMETER_BPM_HUNDREDS = "VTS_Heartrate_BPM_Hundreds";
+
+    private const string PARAMETER_SAW_1 = "VTS_Heartrate_Repeat_1";
+    private const string PARAMETER_SAW_5 = "VTS_Heartrate_Repeat_5";
+    private const string PARAMETER_SAW_10 = "VTS_Heartrate_Repeat_10";
+    private const string PARAMETER_SAW_20 = "VTS_Heartrate_Repeat_20";
+    private const string PARAMETER_SAW_30 = "VTS_Heartrate_Repeat_30";
+    private const string PARAMETER_SAW_60 = "VTS_Heartrate_Repeat_60";
+    private const string PARAMETER_SAW_120 = "VTS_Heartrate_Repeat_120";
+
     private Dictionary<string, float> _parameterMap = new Dictionary<string, float>();
     public Dictionary<string, float> ParameterMap { get { return this._parameterMap; } }
     private List<VTSParameterInjectionValue> _paramValues = new List<VTSParameterInjectionValue>();
@@ -30,8 +42,19 @@ public class HeartratePlugin : VTSPlugin
     private VTSParameterInjectionValue _pulse = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _breath = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _bpm = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _bpm_ones = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _bpm_tens = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _bpm_hundreds = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _saw_wave_1 = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _saw_wave_5 = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _saw_wave_10 = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _saw_wave_30 = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _saw_wave_60 = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _saw_wave_120 = new VTSParameterInjectionValue();
+
     private OscillatingValue _oscillatingPulse = new OscillatingValue();
     private OscillatingValue _oscillatingBreath = new OscillatingValue();
+    private SawValue _saw1 = new SawValue(60);
     private const int PARAMETER_MAX_VALUE = 1000000;
 
     [Header("Colors")]
@@ -130,6 +153,46 @@ public class HeartratePlugin : VTSPlugin
                     this._bpm.value = 0;
                     this._bpm.weight = 1;
                     this._paramValues.Add(this._bpm);
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
+                CreateNewParameter(PARAMETER_BPM_ONES, "", 9,
+                (s) => {
+                    this._bpm_ones.id = PARAMETER_BPM_ONES;
+                    this._bpm_ones.value = 0;
+                    this._bpm_ones.weight = 1;
+                    this._paramValues.Add(this._bpm_ones);
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
+                CreateNewParameter(PARAMETER_BPM_TENS, "", 9,
+                (s) => {
+                    this._bpm_tens.id = PARAMETER_BPM_TENS;
+                    this._bpm_tens.value = 0;
+                    this._bpm_tens.weight = 1;
+                    this._paramValues.Add(this._bpm_tens);
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
+                CreateNewParameter(PARAMETER_BPM_HUNDREDS, "", 9,
+                (s) => {
+                    this._bpm_hundreds.id = PARAMETER_BPM_HUNDREDS;
+                    this._bpm_hundreds.value = 0;
+                    this._bpm_hundreds.weight = 1;
+                    this._paramValues.Add(this._bpm_hundreds);
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
+                CreateNewParameter(PARAMETER_SAW_1, "", 1,
+                (s) => {
+                    this._saw_wave_1.id = PARAMETER_SAW_1;
+                    this._saw_wave_1.value = 0;
+                    this._saw_wave_1.weight = 1;
+                    this._paramValues.Add(this._saw_wave_1);
                 },
                 (e) => {
                     Debug.LogError(e.ToString());
@@ -275,10 +338,15 @@ public class HeartratePlugin : VTSPlugin
         // calculate tracking parameters
         this._linear.value = interpolation;
         this._bpm.value = this._heartRate;
+        this._bpm_ones.value = this._heartRate < 1 ? -1 :this._heartRate % 10;
+        this._bpm_tens.value = this._heartRate < 10 ? -1 : (this._heartRate % 100) / 10;
+        this._bpm_hundreds.value = this._heartRate < 100 ? -1 :this._heartRate / 100;
         this._breath.value = _oscillatingBreath.GetValue(
             Mathf.Clamp(((float)this.HeartRate - this._minRate) / 60f, 0.35f, PARAMETER_MAX_VALUE));
         this._pulse.value = _oscillatingPulse.GetValue(
             Mathf.Clamp(((float)this.HeartRate) / 60f, 0f, PARAMETER_MAX_VALUE));
+
+        this._saw_wave_1.value = this._saw1.GetValue(this.HeartRate);
 
         if(this._paramValues.Count > 0 && this.IsAuthenticated){
             this.InjectParameterValues(this._paramValues.ToArray(),
