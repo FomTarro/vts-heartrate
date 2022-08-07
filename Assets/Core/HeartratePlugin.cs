@@ -54,7 +54,7 @@ public class HeartratePlugin : VTSPlugin
 
     private OscillatingValue _oscillatingPulse = new OscillatingValue();
     private OscillatingValue _oscillatingBreath = new OscillatingValue();
-    private SawValue _saw1 = new SawValue(60);
+    private SawValue _saw1 = new SawValue(1);
     private const int PARAMETER_MAX_VALUE = 1000000;
 
     [Header("Colors")]
