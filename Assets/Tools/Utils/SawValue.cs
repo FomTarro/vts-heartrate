@@ -13,12 +13,10 @@ public class SawValue
         this._beatsPerCycle = beatsPerCycle;
     }
 
-    public float GetValue(int heartRate){
-        float delta = (Time.deltaTime * ((float)heartRate)/(float)this._beatsPerCycle);
+    public float GetValue(float hertz){
+        float delta = (Time.deltaTime * (hertz)/(float)this._beatsPerCycle);
         this._time = this._pos >= 1 ? 0 : this._time + delta;
-        this._pos = Mathf.Lerp(0, 1, this._time / 60f);
-        // this._time = this._time > this._beatsPerCycle*(1f/newFrequency) ? 0 : this._time + Time.deltaTime;
-        // this._value = this._time / (this._beatsPerCycle*(1f/newFrequency));
+        this._pos = Mathf.Lerp(0, 1, this._time);
         return this._pos;
     }
 }

@@ -3,7 +3,7 @@
 public class CreateNewModule : MonoBehaviour
 {
     public void CreateColorModule(){
-        HeartrateManager.Instance.Plugin.CreateColorInputModule(new ColorInputModule.SaveData());
+        HeartrateManager.Instance.Plugin.CreateColorTintModule(new ColorInputModule.SaveData());
     }
 
     public void CreateExpressionModule(){
