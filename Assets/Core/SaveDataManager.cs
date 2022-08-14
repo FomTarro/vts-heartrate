@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class SaveDataManager : Singleton<SaveDataManager>
+public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveDataManager.SaveDataEventType>
 {
     private string GLOBAL_SAVE_DIRECTORY = "";
     private string GLOBAL_SAVE_FILE_PATH = "";
@@ -21,8 +21,13 @@ public class SaveDataManager : Singleton<SaveDataManager>
 
     public ModelProfileInfo CurrentProfile { get { return this._currentProfile; } }
 
-    private UnityEvent _onProfileLoaded = new UnityEvent();
-    private UnityEvent _onProfileSaved = new UnityEvent();
+    private Dictionary<EventCallbackRegistration, Action> _onProfileRead = new Dictionary<EventCallbackRegistration, Action>();
+    private Dictionary<EventCallbackRegistration, Action> _onProfileWrite = new Dictionary<EventCallbackRegistration, Action>();
+
+    public enum SaveDataEventType : int {
+        PROFILE_READ,
+        PROFILE_WRITE,
+    }
 
     public override void Initialize()
     {
@@ -114,7 +119,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
             data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
             data = ModernizeLegacyModelSaveData(data, text);
         }
-        this._onProfileLoaded.Invoke();
+        ExecuteReadCallbacks();
         return data;
     }
 
@@ -122,7 +127,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
         string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, this._currentProfile.FileName + ".json");
         Debug.Log(string.Format("Writing to path: {0}", this._currentProfile.FileName));
         File.WriteAllText(filePath, data.ToString());
-        this._onProfileSaved.Invoke();
+        ExecuteWriteCallbacks();
     }
 
     private void DeleteModelData(ModelProfileInfo info){
@@ -130,7 +135,7 @@ public class SaveDataManager : Singleton<SaveDataManager>
         if(File.Exists(filePath)){
             Debug.Log(string.Format("Deleting from path: {0}", info.FileName));
             File.Delete(filePath);
-            this._onProfileSaved.Invoke();
+            ExecuteWriteCallbacks();
         }
     }
 
@@ -352,15 +357,37 @@ public class SaveDataManager : Singleton<SaveDataManager>
                 );
             }
         }
-        this._onProfileSaved.Invoke();
+        ExecuteWriteCallbacks();
     }
 
-    public void RegisterProfileLoadedCallback(System.Action onLoaded){
-        this._onProfileLoaded.AddListener(new UnityAction(onLoaded));
+    public EventCallbackRegistration RegisterEventCallback(SaveDataEventType eventType, Action callback){
+        EventCallbackRegistration registration = new EventCallbackRegistration(System.Guid.NewGuid().ToString());
+        if(eventType == SaveDataEventType.PROFILE_READ){
+            this._onProfileRead.Add(registration, callback);
+        }else if(eventType == SaveDataEventType.PROFILE_WRITE){
+            this._onProfileWrite.Add(registration, callback);
+        }
+        return registration;
     }
 
-    public void RegisterProfileSavedCallback(System.Action onSaved){
-        this._onProfileSaved.AddListener(new UnityAction(onSaved));
+    public void UnregisterEventCallback(EventCallbackRegistration registration){
+        if(this._onProfileRead.ContainsKey(registration)){
+            this._onProfileRead.Remove(registration);
+        }else if(this._onProfileWrite.ContainsKey(registration)){
+            this._onProfileWrite.Remove(registration);
+        }
+    }
+
+    private void ExecuteReadCallbacks(){
+        foreach(Action callback in this._onProfileRead.Values){
+            callback();
+        }
+    }
+
+    private void ExecuteWriteCallbacks(){
+        foreach(Action callback in this._onProfileWrite.Values){
+            callback();
+        }
     }
 
     private bool IsProfileNameUnique(string modelID, string newProfileName){
