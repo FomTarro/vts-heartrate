@@ -196,11 +196,11 @@ output_custom_params_tooltip,"This plugin outputs four custom tracking parameter
 
 <b>VTS_Heartrate_Breath</b>: %param_vts_heartrate_breath
 
-<b>VTS_Heartrate_BPM</b>: %param_vts_heartrate_bpm
+<b>VTS_Heartrate_BPM</b>: %param_vts_heartrate_bpm_all
 
 <b>VTS_Heartrate_BPM (_Ones, _Tens, _Hundreds)</b>: %param_vts_heartrate_bpm_generic
 
-<b>VTS_Heartrate_Repeat (_1, _5, _10, _20, _30, _60, _120)</b>: %param_vts_heartrate_repeat_generic","このプラグインは次のように、四つのカスタムトラッキングパラメータを出力します。
+<b>VTS_Heartrate_Repeat (_1, _5, _10, _20, _30, _60, _120, _Breath)</b>: %param_vts_heartrate_repeat_generic","このプラグインは次のように、四つのカスタムトラッキングパラメータを出力します。
 
 <b>VTS_Heartrate_Linear</b>：心拍数が期待される範囲内で変化する際、比例して 0.0 から 1.0 にスケールする値。
 
@@ -214,12 +214,12 @@ output_custom_params_button,Learn how to use Custom Parameters,カスタムパ�
 param_vts_heartrate_linear,A value that scales linearly from 0.0 to 1.0 as your heartrate moves across the expected range.,心拍数が期待される範囲内で変化する際、比例して 0.0 から 1.0 にスケールする値。
 param_vts_heartrate_pulse,A value that bounces back and forth between 0.0 and 1.0 with a frequency exactly matching your heartrate.,心拍数と一致する周波数で、0.0から1.0の間で振動する値。
 param_vts_heartrate_breath,"A value that bounces back and forth between 0.0 and 1.0 with a frequency slower than VTS_Heartrate_Pulse, suitable for controlling your model's <b>ParamBreath</b> output.",VTS_Heartrate_Pulse（心拍数）より遅い周波数で、0.0から1.0の間で振動する値。モデルの <b>ParamBreath</b>（呼吸パラメータ）をコントロールするのに適しています。
-param_vts_heartrate_bpm,"A value that represents the actual current BPM from 0 to 255, rather than a normalized value from 0.0 to 1.0.",0 から 255 まで、実際の現在の心拍数を表す値。（この出力値は実際値であり、最小値 0.0 〜最大値 1.0 にスケーリングされた値ではありません）
+param_vts_heartrate_bpm_all,"A value that represents the actual current BPM from 0 to 255, rather than a normalized value from 0.0 to 1.0.",0 から 255 まで、実際の現在の心拍数を表す値。（この出力値は実際値であり、最小値 0.0 〜最大値 1.0 にスケーリングされた値ではありません）
 param_vts_heartrate_bpm_generic,"A value from 0 to 9 that represents the ones, tens or hundreds digit of the current BPM.",
 param_vts_heartrate_bpm_ones,"A value from 0 to 9 that represents the first digit of the current BPM. For example, with a heartrate of 95, this parameter would be 5.",
 param_vts_heartrate_bpm_tens,"A value from 0 to 9 that represents the second digit of the current BPM. For example, with a heartrate of 95, this parameter would be 9.",
 param_vts_heartrate_bpm_hundreds,"A value from 0 to 9 that represents the third digit of the current BPM. For example, with a heartrate of 95, this parameter would be 0.",
-param_vts_heartrate_repeat_generic,"A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every fixed number of heartbrats, denoted by the number at the end of the parameter name",
+param_vts_heartrate_repeat_generic,"A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every fixed number of heartbrats, denoted by the number at the end of the parameter name.",
 param_vts_heartrate_repeat_1,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every heartbeat.,
 param_vts_heartrate_repeat_5,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 5 heartbeats.,
 param_vts_heartrate_repeat_10,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 10 heartbeats.,
@@ -227,6 +227,7 @@ param_vts_heartrate_repeat_20,A value that scales linearly from 0.0 to 1.0 and r
 param_vts_heartrate_repeat_30,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 30 heartbeats.,
 param_vts_heartrate_repeat_60,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 60 heartbeats.,
 param_vts_heartrate_repeat_120,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.,
+param_vts_heartrate_repeat_breath,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.,
 ,,
 output_copy_profile_title,Other Profiles,
 output_copy_profile_tooltip,"This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.

@@ -20,6 +20,7 @@ public class HeartratePlugin : VTSPlugin
     private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
     private const string PARAMETER_SINE_BREATH = "VTS_Heartrate_Breath";
+
     private const string PARAMETER_BPM = "VTS_Heartrate_BPM";
     private const string PARAMETER_BPM_ONES = "VTS_Heartrate_BPM_Ones";
     private const string PARAMETER_BPM_TENS = "VTS_Heartrate_BPM_Tens";
@@ -32,6 +33,7 @@ public class HeartratePlugin : VTSPlugin
     private const string PARAMETER_SAW_REPEAT_30 = "VTS_Heartrate_Repeat_30";
     private const string PARAMETER_SAW_REPEAT_60 = "VTS_Heartrate_Repeat_60";
     private const string PARAMETER_SAW_REPEAT_120 = "VTS_Heartrate_Repeat_120";
+    private const string PARAMETER_SAW_REPEAT_BREATH = "VTS_Heartrate_Repeat_Breath";
 
     private Dictionary<string, float> _parameterMap = new Dictionary<string, float>();
     public Dictionary<string, float> ParameterMap { get { return this._parameterMap; } }
@@ -53,6 +55,7 @@ public class HeartratePlugin : VTSPlugin
     private VTSParameterInjectionValue _repeat30 = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _repeat60 = new VTSParameterInjectionValue();
     private VTSParameterInjectionValue _repeat120 = new VTSParameterInjectionValue();
+    private VTSParameterInjectionValue _repeatBreath = new VTSParameterInjectionValue();
 
     private OscillatingValue _oscillatingPulse = new OscillatingValue();
     private OscillatingValue _oscillatingBreath = new OscillatingValue();
@@ -64,6 +67,7 @@ public class HeartratePlugin : VTSPlugin
     private SawValue _saw30 = new SawValue(30);
     private SawValue _saw60 = new SawValue(60);
     private SawValue _saw120 = new SawValue(120);
+    private SawValue _sawBreath = new SawValue(1);
 
     private const int PARAMETER_MAX_VALUE = 1000000;
     
@@ -284,10 +288,9 @@ public class HeartratePlugin : VTSPlugin
         this._bpm_tens.value = this._heartRate < 10 ? -1 : (this._heartRate % 100) / 10;
         this._bpm_hundreds.value = this._heartRate < 100 ? -1 : this._heartRate / 100;
 
-        this._breath.value = _oscillatingBreath.GetValue(
-            Mathf.Clamp(normalizedBeatsPerSecond, 0.35f, PARAMETER_MAX_VALUE));
-        this._pulse.value = _oscillatingPulse.GetValue(
-            Mathf.Clamp(beatsPerSecond, 0f, PARAMETER_MAX_VALUE));
+        float breathingFrequency = Mathf.Clamp(normalizedBeatsPerSecond, 0.35f, PARAMETER_MAX_VALUE);
+        this._breath.value = _oscillatingBreath.GetValue(breathingFrequency);
+        this._pulse.value = _oscillatingPulse.GetValue(Mathf.Clamp(beatsPerSecond, 0f, PARAMETER_MAX_VALUE));
 
         this._repeat1.value = this._saw1.GetValue(beatsPerSecond);
         this._repeat5.value = this._saw5.GetValue(beatsPerSecond);
@@ -297,6 +300,7 @@ public class HeartratePlugin : VTSPlugin
         this._repeat30.value = this._saw30.GetValue(beatsPerSecond);
         this._repeat60.value = this._saw60.GetValue(beatsPerSecond);
         this._repeat120.value = this._saw120.GetValue(beatsPerSecond);
+        this._repeatBreath.value = this._sawBreath.GetValue(breathingFrequency);
 
         if(this._paramValues.Count > 0 && this.IsAuthenticated){
             this.InjectParameterValues(this._paramValues.ToArray(),
@@ -308,10 +312,24 @@ public class HeartratePlugin : VTSPlugin
             });
         }
 
-        dataMessage.data.parameters.vts_heartrate_bpm = this._bpm.value;
+        // set API data values
+        dataMessage.data.parameters.vts_heartrate_linear = this._linear.value;
         dataMessage.data.parameters.vts_heartrate_pulse = this._pulse.value;
         dataMessage.data.parameters.vts_heartrate_breath = this._breath.value;
-        dataMessage.data.parameters.vts_heartrate_linear = this._linear.value;
+
+        dataMessage.data.parameters.vts_heartrate_bpm = this._bpm.value;
+        dataMessage.data.parameters.vts_heartrate_bpm_ones = this._bpm_ones.value;
+        dataMessage.data.parameters.vts_heartrate_bpm_tens = this._bpm_tens.value;
+        dataMessage.data.parameters.vts_heartrate_bpm_hundreds = this._bpm_hundreds.value;
+
+        dataMessage.data.parameters.vts_heartrate_repeat_1 = this._repeat1.value;
+        dataMessage.data.parameters.vts_heartrate_repeat_5 = this._repeat5.value;
+        dataMessage.data.parameters.vts_heartrate_repeat_10 = this._repeat10.value;
+        dataMessage.data.parameters.vts_heartrate_repeat_20 = this._repeat20.value;
+        dataMessage.data.parameters.vts_heartrate_repeat_30 = this._repeat30.value;
+        dataMessage.data.parameters.vts_heartrate_repeat_60 = this._repeat60.value;
+        dataMessage.data.parameters.vts_heartrate_repeat_120 = this._repeat120.value;
+        dataMessage.data.parameters.vts_heartrate_repeat_breath = this._repeatBreath.value;
 
         APIManager.Instance.SendData(dataMessage);
     }
@@ -336,6 +354,7 @@ public class HeartratePlugin : VTSPlugin
         CreateNewParameter(PARAMETER_SAW_REPEAT_30, "param_vts_heartrate_repeat_30", 1, this._repeat30);
         CreateNewParameter(PARAMETER_SAW_REPEAT_60, "param_vts_heartrate_repeat_60", 1, this._repeat60);
         CreateNewParameter(PARAMETER_SAW_REPEAT_120, "param_vts_heartrate_repeat_120", 1, this._repeat120);
+        CreateNewParameter(PARAMETER_SAW_REPEAT_BREATH, "param_vts_heartrate_repeat_breath", 1, this._repeatBreath);
     }
 
     private void CreateNewParameter(string paramName, string paramDescriptionKey, int paramMax, VTSParameterInjectionValue value){
@@ -345,6 +364,7 @@ public class HeartratePlugin : VTSPlugin
         newParam.max = paramMax;
         newParam.parameterName = paramName;
         newParam.explanation = Localization.LocalizationManager.Instance.GetString(paramDescriptionKey);
+        Debug.Log(string.Format("Creating tracking parameter: {0}", paramName));
         this.AddCustomParameter(
             newParam,
             (s) => {

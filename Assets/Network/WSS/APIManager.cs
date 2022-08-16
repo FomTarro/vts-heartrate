@@ -336,6 +336,7 @@ public class APIManager : Singleton<APIManager>
         private System.Action<string, string> _onMessage;
 
         public APIService(string path, System.Action onOpen, System.Action<string, string> onMessage){
+            this._path = path;
             this._onOpen = onOpen;
             this._onMessage = onMessage;
         }

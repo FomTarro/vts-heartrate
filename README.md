@@ -91,12 +91,27 @@ For example, the configuration in the provided image will cause the `panic` Item
 ![Working Example](img/hotkey_trigger.png)
 
 ### Custom Tracking Parameters
-This plugin outputs <b>four custom tracking parameters</b> for use. They are as follows:
+This plugin outputs <b>fifteen custom tracking parameters</b> for use. They are as follows:
  
 * `VTS_Heartrate_Linear`: A value that scales from 0.0 to 1.0 as your heartrate moves across the expected range.
-* `VTS_Heartrate_Pulse`: A value that oscillates between 0.0 and 1.0 with a frequency exactly matching your heartrate.
-* `VTS_Heartrate_Breath`: A value that oscillates between 0.0 and 1.0 with a frequency slower than `VTS_Heartrate_Pulse`, suitable for controlling your model's `ParamBreath` output parameter.
+* `VTS_Heartrate_Pulse`: A value that bounces back and forth between 0.0 and 1.0 with a frequency exactly matching your heartrate.
+* `VTS_Heartrate_Breath`: A value that bounces back and forth between 0.0 and 1.0 with a frequency slower than `VTS_Heartrate_Pulse`, suitable for controlling your model's `ParamBreath` output parameter.
+
+The following parameters are primarily suited for controlling Live2D props, but you may also find them useful of your model:
+
 * `VTS_Heartrate_BPM`: A value that represents the actual current BPM from 0 to 255, rather than a normalized value from 0.0 to 1.0.
+* `VTS_Heartrate_BPM_Ones`: A value from 0 to 9 that represents the first digit of the current BPM. For example, with a heartrate of 95, this parameter would be 5.
+* `VTS_Heartrate_BPM_Tens`: A value from 0 to 9 that represents the second digit of the current BPM. For example, with a heartrate of 95, this parameter would be 9.
+* `VTS_Heartrate_BPM_Hundreds`: A value from 0 to 9 that represents the third digit of the current BPM. For example, with a heartrate of 95, this parameter would be 0.
+* `VTS_Heartrate_Repeat_1`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every heartbeat.
+* `VTS_Heartrate_Repeat_5`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 5 heartbeats.
+* `VTS_Heartrate_Repeat_10`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 10 heartbeats.
+* `VTS_Heartrate_Repeat_20`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 20 heartbeats.
+* `VTS_Heartrate_Repeat_30`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 30 heartbeats.
+* `VTS_Heartrate_Repeat_60`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 60 heartbeats.
+* `VTS_Heartrate_Repeat_120`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.
+* `VTS_Heartrate_Repeat_Breath`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.
+
 
 For more information on how to integrate these tracking parameters into your model, please refer to the [Official VTube Studio documentation](https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters).
  
@@ -126,9 +141,20 @@ The message structure is as follows:
         heartrate: 103,
         parameters: {
             vts_heartrate_bpm: 103,
-            vts_heartrate_pulse: 0.125
-            vts_heartrate_breath: 0.354
-            vts_heartrate_linear: 0.650
+            vts_heartrate_bpm_hundreds: 1,
+            vts_heartrate_bpm_ones: 3,
+            vts_heartrate_bpm_tens: 0,
+            vts_heartrate_breath: 0.29349666833877563,
+            vts_heartrate_linear: 1,
+            vts_heartrate_pulse: 0.994240403175354,
+            vts_heartrate_repeat_1: 0.27418050169944763,
+            vts_heartrate_repeat_5: 0.07212083041667938,
+            vts_heartrate_repeat_10: 0.3203545808792114,
+            vts_heartrate_repeat_20: 0.12136854976415634,
+            vts_heartrate_repeat_30: 0.4221900999546051,
+            vts_heartrate_repeat_60: 0.714303731918335,
+            vts_heartrate_repeat_120: 0.932239294052124,
+            vts_heartrate_repeat_breath: 0.29349666833877563
         },
         tints: [
             {
