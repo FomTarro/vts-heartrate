@@ -336,6 +336,7 @@ public class APIManager : Singleton<APIManager>
         private System.Action<string, string> _onMessage;
 
         public APIService(string path, System.Action onOpen, System.Action<string, string> onMessage){
+            this._path = path;
             this._onOpen = onOpen;
             this._onMessage = onMessage;
         }
@@ -346,6 +347,10 @@ public class APIManager : Singleton<APIManager>
         }
         protected override void OnMessage(MessageEventArgs e){
             MainThreadUtil.Run(() => { this._onMessage(e.Data, this.ID); });
+        }
+
+        protected override void OnClose(CloseEventArgs e){
+           Debug.LogFormat("Closing {0} API...", this._path);
         }
     }
 

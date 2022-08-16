@@ -14,8 +14,8 @@ public class CurrentProfileDisplay : MonoBehaviour
     {
         // this._inputField.onTextSelection.AddListener((a, b, c) => { this._pollProfileName = false; });
         this._inputField.onEndEdit.AddListener(RenameProfile);
-        SaveDataManager.Instance.RegisterProfileLoadedCallback(Refresh);
-        SaveDataManager.Instance.RegisterProfileSavedCallback(Refresh);
+        SaveDataManager.Instance.RegisterEventCallback(SaveDataManager.SaveDataEventType.PROFILE_READ, Refresh);
+        SaveDataManager.Instance.RegisterEventCallback(SaveDataManager.SaveDataEventType.PROFILE_WRITE, Refresh);
         Refresh();
     }
 

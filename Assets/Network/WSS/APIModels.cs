@@ -58,10 +58,21 @@ public class DataMessage : APIMessage {
 
     [System.Serializable]
     public class VTSParamaters{
-        public float vts_heartrate_bpm;
+        public float vts_heartrate_linear;
         public float vts_heartrate_pulse;
         public float vts_heartrate_breath;
-        public float vts_heartrate_linear;
+        public float vts_heartrate_bpm;
+        public float vts_heartrate_bpm_ones;
+        public float vts_heartrate_bpm_tens;
+        public float vts_heartrate_bpm_hundreds;
+        public float vts_heartrate_repeat_1;
+        public float vts_heartrate_repeat_5;
+        public float vts_heartrate_repeat_10;
+        public float vts_heartrate_repeat_20;
+        public float vts_heartrate_repeat_30;
+        public float vts_heartrate_repeat_60;
+        public float vts_heartrate_repeat_120;
+        public float vts_heartrate_repeat_breath;
     }
 
     [System.Serializable]

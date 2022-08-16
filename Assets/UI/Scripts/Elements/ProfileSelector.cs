@@ -1,27 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
+﻿using System.Collections.Generic;
 
 public class ProfileSelector : RefreshableDropdown
 {
     // key is ID, value is readable name
     private Dictionary<string, SaveDataManager.ModelProfileInfo> _idNameMap = new Dictionary<string, SaveDataManager.ModelProfileInfo>();
 
-    protected override void Initialize()
-    {
+    protected override void Initialize(){
         UIManager.Instance.RegisterTabCallback(UIManager.Tabs.OUTPUTS, Refresh);
-        SaveDataManager.Instance.RegisterProfileLoadedCallback(Refresh);
-        SaveDataManager.Instance.RegisterProfileSavedCallback(Refresh);
+        SaveDataManager.Instance.RegisterEventCallback(SaveDataManager.SaveDataEventType.PROFILE_READ, Refresh);
+        SaveDataManager.Instance.RegisterEventCallback(SaveDataManager.SaveDataEventType.PROFILE_WRITE, Refresh);
     }
 
-    protected override void SetValue(int index)
-    {
+    protected override void SetValue(int index){
         // No need to do anything here
     }
 
-    public override void Refresh()
-    {
+    public override void Refresh(){
         this._idNameMap = SaveDataManager.Instance.GetModelProfileMap();
         RefreshValues(this._idNameMap.Keys);
     }

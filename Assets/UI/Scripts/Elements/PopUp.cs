@@ -13,6 +13,8 @@ public class PopUp : MonoBehaviour
     private TMP_Text _title = null;
     [SerializeField]
     private TMP_Text _content = null;
+    [SerializeField]
+    private RectTransform _scroll = null;
 
     [SerializeField]
     private ExtendedButton _buttonPrefab = null;
@@ -58,6 +60,7 @@ public class PopUp : MonoBehaviour
         this._flash.SetAlpha(0);
         this.gameObject.SetActive(true);
         LayoutRebuilder.ForceRebuildLayoutImmediate(this._layoutGroup);
+        this._scroll.sizeDelta = new Vector2(this._scroll.sizeDelta.x, Mathf.Min(400, this._content.preferredHeight));
         this._flash.StartAnimation(ShouldShow, 
         () => {},
         () => {},

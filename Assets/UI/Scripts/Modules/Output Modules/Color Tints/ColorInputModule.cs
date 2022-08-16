@@ -39,11 +39,11 @@ public class ColorInputModule : MonoBehaviour
     }
 
     public void Clone(){
-        HeartrateManager.Instance.Plugin.CreateColorInputModule(this.ToSaveData());
+        HeartrateManager.Instance.Plugin.CreateColorTintModule(this.ToSaveData());
     }
 
     public void Delete(){
-        HeartrateManager.Instance.Plugin.DestroyColorInputModule(this);
+        HeartrateManager.Instance.Plugin.DestroyColorTintModule(this);
         ApplyColor(0);
     }
 
