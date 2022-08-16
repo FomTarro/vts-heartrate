@@ -348,6 +348,10 @@ public class APIManager : Singleton<APIManager>
         protected override void OnMessage(MessageEventArgs e){
             MainThreadUtil.Run(() => { this._onMessage(e.Data, this.ID); });
         }
+
+        protected override void OnClose(CloseEventArgs e){
+           Debug.LogFormat("Closing {0} API...", this._path);
+        }
     }
 
     #endregion
