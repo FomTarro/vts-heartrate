@@ -64,6 +64,12 @@ public class UIManager : Singleton<UIManager>
         }
     }
 
+    public void ResizeContent(){
+        foreach(TabMapper entry in this._tabs){
+            LayoutRebuilder.ForceRebuildLayoutImmediate(entry.element);
+        }
+    }
+
     public void ShowPopUp(string titleKey, string bodyKey, params PopUp.PopUpOption[] options){
         this._popUp.Show(titleKey, bodyKey, options);
     }
