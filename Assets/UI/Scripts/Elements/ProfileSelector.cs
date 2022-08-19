@@ -6,7 +6,7 @@ public class ProfileSelector : RefreshableDropdown
     private Dictionary<string, SaveDataManager.ModelProfileInfo> _idNameMap = new Dictionary<string, SaveDataManager.ModelProfileInfo>();
 
     protected override void Initialize(){
-        UIManager.Instance.RegisterTabCallback(UIManager.Tabs.OUTPUTS, Refresh);
+        UIManager.Instance.RegisterEventCallback(UIManager.Tabs.OUTPUTS, Refresh);
         SaveDataManager.Instance.RegisterEventCallback(SaveDataManager.SaveDataEventType.PROFILE_READ, Refresh);
         SaveDataManager.Instance.RegisterEventCallback(SaveDataManager.SaveDataEventType.PROFILE_WRITE, Refresh);
     }

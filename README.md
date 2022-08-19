@@ -110,7 +110,7 @@ The following parameters are primarily suited for controlling Live2D props, but 
 * `VTS_Heartrate_Repeat_30`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 30 heartbeats.
 * `VTS_Heartrate_Repeat_60`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 60 heartbeats.
 * `VTS_Heartrate_Repeat_120`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.
-* `VTS_Heartrate_Repeat_Breath`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.
+* `VTS_Heartrate_Repeat_Breath`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with the frequency of the `VTS_Heartrate_Breath` parameter.
 
 
 For more information on how to integrate these tracking parameters into your model, please refer to the [Official VTube Studio documentation](https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters).

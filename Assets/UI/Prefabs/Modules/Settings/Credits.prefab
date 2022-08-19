@@ -447,6 +447,11 @@ PrefabInstance:
       propertyPath: m_text
       value: Credits
       objectReference: {fileID: 0}
+    - target: {fileID: 4218589909857315793, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
+      propertyPath: _content
+      value: 
+      objectReference: {fileID: 1169720732139015686}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d7281de2a75a5d0499f18eaba111deaf, type: 3}
 --- !u!224 &9203402629852672350 stripped

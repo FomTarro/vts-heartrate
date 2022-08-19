@@ -9,10 +9,8 @@ public class AntPlusDeviceSelector : RefreshableDropdown
     private List<string> _devices = new List<string>();
     public AntDevice Device { get { return AntPlusManager.Instance.Devices.Count > 0 ? 
     AntPlusManager.Instance.Devices[this._dropdown.value] : null; } }
-    public override void Refresh()
-    {
+    public override void Refresh(){
         AntPlusManager.Instance.StartScan(this._status.SetStatus);
-    
     }
 
     private void Update(){
@@ -23,8 +21,7 @@ public class AntPlusDeviceSelector : RefreshableDropdown
         RefreshValues(_devices);
     }
 
-    protected override void Initialize()
-    {
+    protected override void Initialize(){
 
     }
 

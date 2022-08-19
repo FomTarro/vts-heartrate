@@ -113,6 +113,7 @@ Please note that Pulsoid may be deprecating this input method in the future, in 
 input_pulsoid_feed_url,Feed Reference URL,「Feed Reference URL」
 input_pulsoid_feed_url_placeholder,Widgets -> Advanced -> Feed reference URL,Widgets -> Advanced -> Feed reference URL
 input_pulsoid_overview,"<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.
+
 Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.",<b>Pulsoid</b> とは、Android/iOS用の無料サードパーティーアプリで、モバイル端末のBluetooth経由で幅広い心拍計に簡単・確実に接続することができます。Pulsoid のアカウントを作成すれば、この入力方式を用いて心拍数データを取得することができます。
 input_file_title,Read from File,ファイルからの読み込み
 input_file_tooltip,"Use this input method to read heartrate data from an external file.
@@ -147,6 +148,7 @@ input_ant_devices,Available Devices,接続可能なデバイス
 ,,
 input_hyperate_title,HypeRate,
 input_hyperate_tooltip,"<b>HypeRate</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.
+
 Once you have a HypeRate account, you can use this input method to collect heartrate data from the service.",
 input_hyperate_button_visit,Visit hyperate.io,
 input_hyperate_id,HypeRate User ID,
@@ -188,7 +190,7 @@ output_hotkey_behavior_a,Trigger above,閾値以上になると動作
 output_hotkey_behavior_b,Trigger below,閾値以下になると動作
 ,,
 output_custom_params_title,Custom Parameters,カスタムパラメータ
-output_custom_params_tooltip,"This plugin outputs four custom tracking parameters for use. They are as follows:
+output_custom_params_tooltip,"This plugin outputs fifteen custom tracking parameters for use. They are as follows:
 
 <b>VTS_Heartrate_Linear</b>: %param_vts_heartrate_linear
 
@@ -227,7 +229,7 @@ param_vts_heartrate_repeat_20,A value that scales linearly from 0.0 to 1.0 and r
 param_vts_heartrate_repeat_30,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 30 heartbeats.,
 param_vts_heartrate_repeat_60,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 60 heartbeats.,
 param_vts_heartrate_repeat_120,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.,
-param_vts_heartrate_repeat_breath,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.,
+param_vts_heartrate_repeat_breath,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with the frequency of the VTS_Heartrate_Breath parameter.,
 ,,
 output_copy_profile_title,Other Profiles,
 output_copy_profile_tooltip,"This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.

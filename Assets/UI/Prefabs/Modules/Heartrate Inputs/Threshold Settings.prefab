@@ -89,7 +89,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -757,6 +757,11 @@ PrefabInstance:
       propertyPath: _tooltip
       value: 101
       objectReference: {fileID: 0}
+    - target: {fileID: 2989076560334540612, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3113968578081100292, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
       propertyPath: m_Pivot.x
@@ -862,6 +867,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3287027763330811175, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3358280298084568026, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
       propertyPath: m_text
@@ -870,13 +880,18 @@ PrefabInstance:
     - target: {fileID: 3358280298084568026, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
       propertyPath: m_fontSize
-      value: 21.05
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 4218589909857315793, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
       propertyPath: _content
       value: 
       objectReference: {fileID: 7470845211005412977}
+    - target: {fileID: 6720784406349852932, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
+      propertyPath: m_fontSize
+      value: 14
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d7281de2a75a5d0499f18eaba111deaf, type: 3}
 --- !u!224 &3720683675006925526 stripped

@@ -32,7 +32,11 @@ public class TooltipButton : MonoBehaviour
             case Tooltips.HEARTRATE_WEBSOCKET:
                 UIManager.Instance.ShowPopUp(
                     "input_websocket_title",
-                    "input_websocket_tooltip"
+                    "input_websocket_tooltip",
+                    new PopUp.PopUpOption(
+                        "settings_api_server_button_open_readme",
+                        ColorUtils.ColorPreset.BLUE,
+                        () => { Application.OpenURL("https://github.com/FomTarro/vts-heartrate/#api"); })
                 );
                 break;
             case Tooltips.HEARTRATE_PULSOID_CONNECT:

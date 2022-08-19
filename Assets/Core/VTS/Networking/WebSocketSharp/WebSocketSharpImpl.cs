@@ -43,8 +43,10 @@ namespace VTS.Networking.Impl{
         {
             this._socket = new WebSocket(URL);
             
-            this._socket.OnMessage += (sender, e) => { 
-                this._intakeQueue.Enqueue(e.Data); 
+            this._socket.OnMessage += (sender, e) => {
+                MainThreadUtil.Run(() => {
+                    this._intakeQueue.Enqueue(e.Data); 
+                });
             };
             this._socket.OnOpen += (sender, e) => { 
                 MainThreadUtil.Run(() => {

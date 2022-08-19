@@ -117,11 +117,12 @@ public class HeartratePlugin : VTSPlugin
     #region Lifecycle
 
     private void OnValidate(){
-        this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
-        this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
+        
     }
 
     public void OnLaunch(){
+        this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
+        this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
         FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
         FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
         Connect();

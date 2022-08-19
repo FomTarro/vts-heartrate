@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using System;
 
-public class UIManager : Singleton<UIManager>
+public class UIManager : Singleton<UIManager>, IEventPublisher<UIManager.Tabs>
 {
     [Header("Tabs")]
     [SerializeField]
@@ -34,16 +35,22 @@ public class UIManager : Singleton<UIManager>
         this._scroll.content.sizeDelta = new Vector2(this._scroll.content.sizeDelta.x, this._selected.rect.height);
     }
 
-    public override void Initialize()
-    {
-
+    public override void Initialize(){
+        foreach(TabMapper entry in this._tabs){
+            entry.element.gameObject.SetActive(true);
+        }
     }
 
-    public void RegisterTabCallback(Tabs tab, System.Action onSelect){
+    public EventCallbackRegistration RegisterEventCallback(Tabs tab, System.Action onSelect){
         if(!this._tabEvents.ContainsKey(tab)){
             this._tabEvents.Add(tab, new UnityEvent());
         }
         this._tabEvents[tab].AddListener(new UnityAction(onSelect));
+        return new EventCallbackRegistration(System.Guid.NewGuid().ToString());
+    }
+
+    public void UnregisterEventCallback(EventCallbackRegistration registration){
+        // TODO
     }
 
     public void GoTo(Tabs tab){
