@@ -24,14 +24,18 @@ public class UIManager : Singleton<UIManager>, IEventPublisher<UIManager.Tabs>
 
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start(){
         GoTo(Tabs.HEARTRATE_INPUTS);
     }
 
     // Update is called once per frame
-    void LateUpdate()
-    {
+    void LateUpdate(){
+        if(this._requestRebuild){
+            foreach(TabMapper entry in this._tabs){
+                LayoutRebuilder.ForceRebuildLayoutImmediate(entry.element);
+            }
+            this._requestRebuild = false;
+        }
         this._scroll.content.sizeDelta = new Vector2(this._scroll.content.sizeDelta.x, this._selected.rect.height);
     }
 
@@ -71,10 +75,9 @@ public class UIManager : Singleton<UIManager>, IEventPublisher<UIManager.Tabs>
         }
     }
 
+    private bool _requestRebuild = false;
     public void ResizeContent(){
-        foreach(TabMapper entry in this._tabs){
-            LayoutRebuilder.ForceRebuildLayoutImmediate(entry.element);
-        }
+        this._requestRebuild = true;
     }
 
     public void ShowPopUp(string titleKey, string bodyKey, params PopUp.PopUpOption[] options){

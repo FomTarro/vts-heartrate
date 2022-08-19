@@ -28,6 +28,8 @@ public class HotkeyModule : MonoBehaviour
     private TMP_Dropdown _behavior = null;
     public TriggerBehavior Behavior { get { return (TriggerBehavior)this._behavior.value; } }
     private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW;
+    [SerializeField]
+    private TMP_Text _minimizedSummary = null;
 
     public void Clone(){
         HeartrateManager.Instance.Plugin.CreateHotkeyModule(this.ToSaveData());
@@ -102,6 +104,12 @@ public class HotkeyModule : MonoBehaviour
         else if (this._dropdown.options.Count > 0){
             this._dropdown.SetValueWithoutNotify(index);
         }
+        this._minimizedSummary.text = string.Format("({0})", 
+            this.SelectedHotkey.Length > 48 
+            ? string.Format("{0}...", this.SelectedHotkey.Substring(0, 45))
+            : this.SelectedHotkey.Length <= 0 
+            ? "NO HOTKEY SET" 
+            : this.SelectedHotkey);
     }
 
     // TODO: consolidate this behavior into RefreshableDropdown
@@ -130,8 +138,7 @@ public class HotkeyModule : MonoBehaviour
         public int threshold;
         public TriggerBehavior behavior;
 
-        public override string ToString()
-        {
+        public override string ToString(){
             return JsonUtility.ToJson(this);
         }
     }

@@ -782,7 +782,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4218589909857315793, guid: d7281de2a75a5d0499f18eaba111deaf,
         type: 3}
+      propertyPath: _root
+      value: 
+      objectReference: {fileID: 7432733188862503524}
+    - target: {fileID: 4218589909857315793, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
       propertyPath: _content
+      value: 
+      objectReference: {fileID: 9029685299611909327}
+    - target: {fileID: 4218589909857315793, guid: d7281de2a75a5d0499f18eaba111deaf,
+        type: 3}
+      propertyPath: _content.Array.data[0]
       value: 
       objectReference: {fileID: 9029685299611909327}
     m_RemovedComponents: []

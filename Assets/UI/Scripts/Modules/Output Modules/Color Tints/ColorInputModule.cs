@@ -26,6 +26,8 @@ public class ColorInputModule : MonoBehaviour
     private TMP_InputField _alphaField = null;
     [SerializeField]
     private TMP_InputField _matchersField = null;
+    [SerializeField]
+    private TMP_Text _minimizedSummary = null;
 
     [SerializeField]
     private Image _background = null;
@@ -119,15 +121,18 @@ public class ColorInputModule : MonoBehaviour
         ApplyColor(0);
         this._matchers = sanitized.ToArray();
         this._matchersField.text = string.Join(",", sanitized);
+        this._minimizedSummary.text = string.Format("({0})", 
+            this._matchersField.text.Length > 48 
+            ? string.Format("{0}...", this._matchersField.text.Substring(0, 45))
+            : this._matchersField.text);
     }
 
     [System.Serializable]
-    public class SaveData{
+    public class SaveData {
         public Color32 color = Color.white;
         public string[] matchers = new string[0];
 
-        public override string ToString()
-        {
+        public override string ToString(){
             return JsonUtility.ToJson(this);
         }
     }

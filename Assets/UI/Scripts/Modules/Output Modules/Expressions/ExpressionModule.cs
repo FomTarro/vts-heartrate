@@ -29,6 +29,8 @@ public class ExpressionModule : MonoBehaviour
     private TMP_Dropdown _behavior = null;
     public TriggerBehavior Behavior { get { return (TriggerBehavior)this._behavior.value; } }
     private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW;
+    [SerializeField]
+    private TMP_Text _minimizedSummary = null;
 
     public void Clone(){
         HeartrateManager.Instance.Plugin.CreateExpressionModule(this.ToSaveData());
@@ -116,6 +118,12 @@ public class ExpressionModule : MonoBehaviour
         else if (this._dropdown.options.Count > 0){
             this._dropdown.SetValueWithoutNotify(index);
         }
+        this._minimizedSummary.text = string.Format("({0})", 
+            this.SelectedExpression.Length > 48 
+            ? string.Format("{0}...", this.SelectedExpression.Substring(0, 45))
+            : this.SelectedExpression.Length <= 0 
+            ? "NO EXPRESSION SET" 
+            : this.SelectedExpression);
     }
 
     // TODO: consolidate this behavior into RefreshableDropdown
