@@ -32,7 +32,6 @@ Getting up and running is relatively straightforward. The plugin will automatica
 * Hook up [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), to your model for things like breathing speed!
  
 
- 
 ## Heartrate Input Methods
 In the interest of being widely accessible, this plugin features a wide set of possible input methods, which you may freely switch between at any time.
  
@@ -121,6 +120,10 @@ For more information on how to integrate these tracking parameters into your mod
 As of version 1.0.0, settings are saved on a per-model basis. This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
 
 As a result, any settings configured for your currently loaded model will be permanently erased.
+
+## Profiles
+TODO: Fill this out!
+
 
 # API
 As of version 1.2.0, vts-heartrate features its own <b>Plugin API</b>, so that you can build your own apps that consume or write heartrate data! That's right, this VTube Studio plugin now supports plugins of its own.
@@ -240,6 +243,7 @@ First, you will need to authenticate your client before you are granted write pe
     data: {
         pluginName: "My Heartrate Plugin",
         pluginAuthor: "Skeletom",
+        pluginAbout: "A plugin for connecting a third-party service."
     }
 }
 ```

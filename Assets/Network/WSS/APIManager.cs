@@ -26,8 +26,8 @@ public class APIManager : Singleton<APIManager>
     private int _port;
     public int Port { get { return this._port; } }
 
-    private Dictionary<string, PluginData> _tokenToSessionMap = new Dictionary<string, PluginData>();
-    public List<PluginData> ApprovedPlugins { get { return new List<PluginData>(this._tokenToSessionMap.Values); } }
+    private Dictionary<string, PluginSaveData> _tokenToSessionMap = new Dictionary<string, PluginSaveData>();
+    public List<PluginSaveData> ApprovedPlugins { get { return new List<PluginSaveData>(this._tokenToSessionMap.Values); } }
 
     public override void Initialize(){
         FromTokenSaveData(SaveDataManager.Instance.ReadTokenSaveData());
@@ -78,7 +78,7 @@ public class APIManager : Singleton<APIManager>
     protected void ProcessInput(APIEndpoint endpoint, string message, string sessionID){
         try{
             APIMessage apiMessage = JsonUtility.FromJson<APIMessage>(message);
-            PluginData authenticatedClient = APIManager.Instance.PluginDataFromSessionID(sessionID);
+            PluginSaveData authenticatedClient = APIManager.Instance.PluginDataFromSessionID(sessionID);
             if("InputRequest".Equals(apiMessage.messageType)){
                 InputMessage inputRequest = JsonUtility.FromJson<InputMessage>(message);
                 if(authenticatedClient != null && authenticatedClient.authenticated == true){
@@ -98,12 +98,14 @@ public class APIManager : Singleton<APIManager>
                 if(authRequest.data.token != null 
                 && APIManager.Instance._tokenToSessionMap.ContainsKey(authRequest.data.token)){
                     // they send us a token that has been approved by the user
+                    PluginSaveData existingPluginData = APIManager.Instance._tokenToSessionMap[authRequest.data.token];
                     APIManager.Instance._tokenToSessionMap.Remove(authRequest.data.token);
-                    PluginData pluginData = new PluginData(
+                    PluginSaveData pluginData = new PluginSaveData(
                         authRequest.data.token, 
                         sessionID, 
-                        authRequest.data.pluginName, 
-                        authRequest.data.pluginAuthor,
+                        authRequest.data.pluginName != null ? authRequest.data.pluginName :existingPluginData.pluginName, 
+                        authRequest.data.pluginAuthor != null ? authRequest.data.pluginAuthor :existingPluginData.pluginAuthor,
+                        authRequest.data.pluginAbout != null ? authRequest.data.pluginAbout :existingPluginData.pluginAbout,
                         true); // flag this plugin as authenticated = true
                     APIManager.Instance._tokenToSessionMap.Add(authRequest.data.token, pluginData);
                     Debug.LogFormat("Authenticating session ID {0}", sessionID);
@@ -111,6 +113,7 @@ public class APIManager : Singleton<APIManager>
                     AuthenticationMessage authResponse = new AuthenticationMessage(
                         authRequest.data.pluginName, 
                         authRequest.data.pluginAuthor, 
+                        authRequest.data.pluginAbout,
                         authRequest.data.token,
                         true);
 
@@ -132,17 +135,20 @@ public class APIManager : Singleton<APIManager>
                             "settings_api_server_button_approve",
                             ColorUtils.ColorPreset.GREEN,
                             () => {
+                                // Respond with new token
                                 AuthenticationMessage authResponse = new AuthenticationMessage(
                                     authRequest.data.pluginName,
                                     authRequest.data.pluginAuthor, 
+                                    authRequest.data.pluginAbout,
                                     System.Guid.NewGuid().ToString(),
                                     false);
 
-                                // create new token
-                                PluginData data = new PluginData(authResponse.data.token, 
+                                // Store this token and relevant metadata
+                                PluginSaveData data = new PluginSaveData(authResponse.data.token, 
                                     sessionID, 
                                     authResponse.data.pluginName, 
                                     authResponse.data.pluginAuthor,
+                                    authRequest.data.pluginAbout,
                                     false);
                                 APIManager.Instance._tokenToSessionMap.Add(authResponse.data.token, data);
                                 endpoint.SendToID(authResponse, sessionID);
@@ -185,8 +191,8 @@ public class APIManager : Singleton<APIManager>
 
     #region Data Serialization
 
-    private PluginData PluginDataFromSessionID(string sessionID){
-        foreach(PluginData data in this._tokenToSessionMap.Values){
+    private PluginSaveData PluginDataFromSessionID(string sessionID){
+        foreach(PluginSaveData data in this._tokenToSessionMap.Values){
             if(data.sessionID.Equals(sessionID)){
                 return data;
             }
@@ -207,7 +213,7 @@ public class APIManager : Singleton<APIManager>
     }
 
     private void FromTokenSaveData(TokenSaveData data){
-        foreach(PluginData p in data.tokens){
+        foreach(PluginSaveData p in data.tokens){
             p.authenticated = false; // this is important!
             this._tokenToSessionMap.Add(p.token, p);
         }
@@ -215,13 +221,13 @@ public class APIManager : Singleton<APIManager>
 
     [System.Serializable]
     public class TokenSaveData{
-        public List<PluginData> tokens = new List<PluginData>();
+        public List<PluginSaveData> tokens = new List<PluginSaveData>();
 
         public TokenSaveData(){
-            this.tokens = new List<PluginData>();
+            this.tokens = new List<PluginSaveData>();
         }
-        public TokenSaveData(IEnumerable<PluginData> data){
-            this.tokens = new List<PluginData>(data);
+        public TokenSaveData(IEnumerable<PluginSaveData> data){
+            this.tokens = new List<PluginSaveData>(data);
         }
 
         public override string ToString()
@@ -231,17 +237,19 @@ public class APIManager : Singleton<APIManager>
     }
 
     [System.Serializable]
-    public class PluginData{
+    public class PluginSaveData{
         public string token;
         public string sessionID;
         public string pluginName;
         public string pluginAuthor;
+        public string pluginAbout;
         public bool authenticated = false;
-        public PluginData(string token, string sessionID, string pluginName, string pluginAuthor, bool authenticated){
+        public PluginSaveData(string token, string sessionID, string pluginName, string pluginAuthor, string pluginAbout, bool authenticated){
             this.token = token;
             this.sessionID = sessionID;
             this.pluginName = pluginName;
             this.pluginAuthor = pluginAuthor;
+            this.pluginAbout = pluginAbout != null && pluginAbout.Trim().Length > 512 ? pluginAbout.Trim().Substring(0, 512) : pluginAbout;
             this.authenticated = authenticated;
         }
     }

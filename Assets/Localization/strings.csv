@@ -42,6 +42,10 @@ settings_api_server_revoke_plugin_title,Revoke this Plugin?,
 settings_api_server_revoke_plugin_tooltip,"Do you want to revoke %settings_api_server_input_title access from the plugin named <b>{0}</b>, made by <b>{1}</b>? ",
 settings_api_server_button_keep,Keep,
 settings_api_server_button_revoke,Revoke,
+settings_api_plugin_tooltip,"Made by: <b>{0}</b>
+
+{1}",
+settings_api_plugin_no_desc,No description provided.,
 ,,
 settings_current_version,Current Version: ,現在のバージョン：
 settings_new_version_title,New Version Available!,新しいバージョンが入手可能です。

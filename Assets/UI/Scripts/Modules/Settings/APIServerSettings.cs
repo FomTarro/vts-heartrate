@@ -34,7 +34,7 @@ public class APIServerSettings : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        foreach(APIManager.PluginData plugin in APIManager.Instance.ApprovedPlugins){
+        foreach(APIManager.PluginSaveData plugin in APIManager.Instance.ApprovedPlugins){
             if(!this._pluginAuthEntries.ContainsKey(plugin.token)){
                 PluginAuthEntry entry = Instantiate<PluginAuthEntry>(this._authPrefab, 
                     Vector3.zero, 
