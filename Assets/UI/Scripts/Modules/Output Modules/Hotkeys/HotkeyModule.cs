@@ -104,12 +104,17 @@ public class HotkeyModule : MonoBehaviour
         else if (this._dropdown.options.Count > 0){
             this._dropdown.SetValueWithoutNotify(index);
         }
-        this._minimizedSummary.text = string.Format("({0})", 
-            this.SelectedHotkey.Length > 48 
+        this._minimizedSummary.text = string.Format("({0})", GetMinimizedText());
+    }
+
+    private string GetMinimizedText(){
+        if(this.SelectedHotkey != null && this.SelectedHotkey.Length > 0){
+            return this.SelectedHotkey.Length > 48 
             ? string.Format("{0}...", this.SelectedHotkey.Substring(0, 45))
-            : this.SelectedHotkey.Length <= 0 
-            ? "NO HOTKEY SET" 
-            : this.SelectedHotkey);
+            : this.SelectedHotkey;
+        }else{
+            return "NO HOTKEY SET";
+        }
     }
 
     // TODO: consolidate this behavior into RefreshableDropdown

@@ -154,6 +154,9 @@ input_hyperate_button_visit,Visit hyperate.io,
 input_hyperate_id,HypeRate User ID,
 input_hyperate_id_placeholder,Enter your %input_hyperate_id,
 ,,
+output_create_title,Create New Output Module,
+output_create_tooltip,Which type of output module do you want to create?,
+,,
 output_artmesh_title,Art Mesh Tint,アートメッシュの色付け
 output_artmesh_new,Create %output_artmesh_title,%output_artmesh_title を新規作成
 output_artmesh_tooltip,"This output will gradually tint the matched <b>Art Meshes</b> the desired color, based on your current heartrate.

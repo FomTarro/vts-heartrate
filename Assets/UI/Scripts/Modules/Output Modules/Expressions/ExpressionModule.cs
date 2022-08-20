@@ -118,12 +118,17 @@ public class ExpressionModule : MonoBehaviour
         else if (this._dropdown.options.Count > 0){
             this._dropdown.SetValueWithoutNotify(index);
         }
-        this._minimizedSummary.text = string.Format("({0})", 
-            this.SelectedExpression.Length > 48 
+        this._minimizedSummary.text = string.Format("({0})", GetMinimizedText());
+    }
+
+    private string GetMinimizedText(){
+        if(this.SelectedExpression != null && this.SelectedExpression.Length > 0){
+            return this.SelectedExpression.Length > 48 
             ? string.Format("{0}...", this.SelectedExpression.Substring(0, 45))
-            : this.SelectedExpression.Length <= 0 
-            ? "NO EXPRESSION SET" 
-            : this.SelectedExpression);
+            : this.SelectedExpression;
+        }else{
+            return "NO EXPRESSION SET";
+        }
     }
 
     // TODO: consolidate this behavior into RefreshableDropdown

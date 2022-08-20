@@ -456,7 +456,7 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private int GetModuleNewChildIndex(){
-        return Math.Max(1, TransformUtils.GetActiveChildCount(this._outputModulesParent) - 3);
+        return 1; //Math.Max(1, TransformUtils.GetActiveChildCount(this._outputModulesParent) - 3);
     }
 
     #endregion

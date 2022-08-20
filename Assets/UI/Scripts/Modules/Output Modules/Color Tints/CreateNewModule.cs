@@ -2,6 +2,23 @@
 
 public class CreateNewModule : MonoBehaviour
 {
+
+    public void CreateNewModulePrompt(){
+        UIManager.Instance.ShowPopUp("output_create_title", "output_create_tooltip",
+            new PopUp.PopUpOption("output_artmesh_title", ColorUtils.ColorPreset.GREEN, () => {
+                CreateColorModule();
+                UIManager.Instance.HidePopUp();
+            }),
+            new PopUp.PopUpOption("output_expressions_title", ColorUtils.ColorPreset.GREEN, () => {
+                CreateExpressionModule();
+                UIManager.Instance.HidePopUp();
+            }),
+            new PopUp.PopUpOption("output_hotkey_title", ColorUtils.ColorPreset.GREEN, () => {
+                CreateHotkeyModule();
+                UIManager.Instance.HidePopUp();
+            }));
+    }
+
     public void CreateColorModule(){
         HeartrateManager.Instance.Plugin.CreateColorTintModule(new ColorInputModule.SaveData());
     }
