@@ -101,5 +101,6 @@ public class UIManager : Singleton<UIManager>, IEventPublisher<UIManager.Tabs>
         OUTPUTS = 2,
         DEBUG_LOGS = 3,
         SETTINGS = 4,
+        PROFILES = 5,
     }
 }

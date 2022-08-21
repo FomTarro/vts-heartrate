@@ -238,7 +238,6 @@ param_vts_heartrate_repeat_60,A value that scales linearly from 0.0 to 1.0 and r
 param_vts_heartrate_repeat_120,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.,
 param_vts_heartrate_repeat_breath,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with the frequency of the VTS_Heartrate_Breath parameter.,
 ,,
-output_copy_profile_title,Other Profiles,
 output_copy_profile_tooltip,"This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
 
 As a result, any settings configured for your currently loaded model will be permanently erased.","この機能により、あるモデルの<b>すべての出力設定</b>（アートメッシュの色付け、表情の切り替えなど）を、現在読み込んでいるモデルにコピーすることが可能です。
@@ -253,7 +252,7 @@ output_copy_profile_button_yes,Copy,コピー
 output_copy_profile_button_no,Cancel,キャンセル
 ,,
 output_current_profile_title,Current Profile,
-output_current_profile_new,Create New Profile,
+output_current_profile_display,<b>%output_current_profile_title:</b> {0},
 output_current_profile_name_paceholder,Enter profile name...,
 ,,
 output_delete_profile_title,Delete this Profile?,
@@ -292,6 +291,7 @@ button_generic_delete,Delete,削除
 button_tab_inputs,Inputs,入力
 button_tab_outputs,Outputs,出力
 button_tab_settings,Settings,設定
+button_tab_profiles,Profiles,
 button_generic_connect,Connect,接続
 button_generic_disconnect,Disconnect,接続解除
 label_generic_settings,Settings,設定

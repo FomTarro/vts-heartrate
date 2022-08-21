@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.Events;
+using TMPro;
 
 public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveDataManager.SaveDataEventType>
 {
@@ -29,8 +29,17 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
         PROFILE_WRITE,
     }
 
-    public override void Initialize()
-    {
+    [SerializeField]
+    private RectTransform _profileTab = null;
+    [SerializeField]
+    private ProfileInfoModule _profilePrefab = null;
+    private List<ProfileInfoModule> _profileModules = new List<ProfileInfoModule>();
+    [SerializeField]
+    private CurrentProfileInfoModule _currentProfileModule = null;
+    [SerializeField]
+    private TMP_Text _currentProfileNavBar = null;
+
+    public override void Initialize(){
         this.GLOBAL_SAVE_DIRECTORY = Application.persistentDataPath;
         this.GLOBAL_SAVE_FILE_PATH = Path.Combine(this.GLOBAL_SAVE_DIRECTORY, "save.json");
         this.MODEL_SAVE_DIRECTORY = Path.Combine(this.GLOBAL_SAVE_DIRECTORY, "models");
@@ -39,6 +48,8 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
         CreateDirectoryIfNotFound(this.GLOBAL_SAVE_DIRECTORY);
         CreateDirectoryIfNotFound(this.MODEL_SAVE_DIRECTORY);
         CreateDirectoryIfNotFound(this.PLUGINS_SAVE_DIRECTORY);
+        RegisterEventCallback(SaveDataEventType.PROFILE_READ, PopulateProfilesTab);
+        RegisterEventCallback(SaveDataEventType.PROFILE_WRITE, PopulateProfilesTab);
     }
 
     private void CreateDirectoryIfNotFound(string path){
@@ -199,7 +210,9 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
             HeartratePlugin.ModelSaveData data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
             data = ModernizeLegacyModelSaveData(data, text);
             ModelProfileInfo info = new ModelProfileInfo(data.modelName, data.modelID, data.profileName, data.profileID);
-            dict.Add(string.Format("{0}<size=0>{1}</size> ({2})", data.modelName, data.profileID, data.profileName), info);
+            string key = string.Format("{0}<size=0>{1}</size> ({2})", info.modelName, info.profileID, info.profileName);
+            // Debug.Log(key);
+            dict.Add(key, info);
         }
         return dict;
     }
@@ -456,6 +469,32 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 
     private static string GenerateUUID(){
         return System.Guid.NewGuid().ToString().Replace("-", "");
+    }
+
+    #endregion
+
+    #region UI Hooks
+
+    private void PopulateProfilesTab(){
+        List<ProfileInfoModule> tempProfiles = new List<ProfileInfoModule>(this._profileModules);
+        foreach(ProfileInfoModule p in tempProfiles){
+            Destroy(p.gameObject);
+        }
+        this._profileModules.Clear();
+        this._currentProfileModule.FromSaveData(this.CurrentProfile);
+        _currentProfileNavBar.text = string.Format(Localization.LocalizationManager.Instance.GetString("output_current_profile_display"), this.CurrentProfile.DisplayName);
+        Dictionary<string, ModelProfileInfo> profiles = GetModelProfileMap();
+        foreach(ModelProfileInfo profile in profiles.Values){
+            ProfileInfoModule instance = Instantiate<ProfileInfoModule>(this._profilePrefab, Vector3.zero, Quaternion.identity, this._profileTab);
+            int index = GetModuleNewChildIndex();
+            instance.transform.SetSiblingIndex(index);
+            instance.FromSaveData(profile);
+            this._profileModules.Add(instance);
+        }
+    }
+
+    private int GetModuleNewChildIndex(){
+        return 2;
     }
 
     #endregion
