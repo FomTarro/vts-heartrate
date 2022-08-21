@@ -4760,7 +4760,7 @@ PrefabInstance:
     - target: {fileID: 602570265671584824, guid: 5c274aa34ce949a498347f07ed6775ca,
         type: 3}
       propertyPath: onPointerUp.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: CreateNewProfileForCurrentModel
+      value: CreateAndLoadNewProfile
       objectReference: {fileID: 0}
     - target: {fileID: 1483377866392988590, guid: 5c274aa34ce949a498347f07ed6775ca,
         type: 3}

@@ -227,7 +227,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 
     public void CreateNewProfileForCurrentModel(){
         string profileID = GenerateUUID();
-        string profileName = String.Format("{0}_{1}", ModelProfileInfo.PROFILE_NEW, profileID);
+        string profileName = String.Format("{0}", ModelProfileInfo.PROFILE_NEW);
         SetCurrentProfileInfo(
             this._currentProfile.modelName,
             this._currentProfile.modelID,
@@ -333,7 +333,6 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
                 errorKey = "output_rename_profile_error_not_unique";   
             }
             if(errorKey.Length > 0){
-                Debug.Log(errorKey);
                 UIManager.Instance.ShowPopUp(
                     "output_rename_profile_error_title",
                     errorKey
@@ -359,6 +358,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
                                 CurrentProfile.profileID);
                             // save it!
                             WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
+                            ExecuteWriteCallbacks();
                             UIManager.Instance.HidePopUp();
                         }),
                     new PopUp.PopUpOption(
@@ -370,7 +370,6 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
                 );
             }
         }
-        ExecuteWriteCallbacks();
     }
 
     public EventCallbackRegistration RegisterEventCallback(SaveDataEventType eventType, Action callback){
@@ -483,14 +482,23 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
         this._profileModules.Clear();
         this._currentProfileModule.FromSaveData(this.CurrentProfile);
         _currentProfileNavBar.text = string.Format(Localization.LocalizationManager.Instance.GetString("output_current_profile_display"), this.CurrentProfile.DisplayName);
-        Dictionary<string, ModelProfileInfo> profiles = GetModelProfileMap();
-        foreach(ModelProfileInfo profile in profiles.Values){
-            ProfileInfoModule instance = Instantiate<ProfileInfoModule>(this._profilePrefab, Vector3.zero, Quaternion.identity, this._profileTab);
-            int index = GetModuleNewChildIndex();
-            instance.transform.SetSiblingIndex(index);
-            instance.FromSaveData(profile);
-            this._profileModules.Add(instance);
+        List<ModelProfileInfo> profiles = new List<ModelProfileInfo>(GetModelProfileMap().Values);
+
+        foreach(ModelProfileInfo profile in profiles){
+            if(!profile.Equals(this.CurrentProfile)){
+                ProfileInfoModule instance = Instantiate<ProfileInfoModule>(this._profilePrefab, Vector3.zero, Quaternion.identity, this._profileTab);
+                int index = GetModuleNewChildIndex();
+                instance.transform.SetSiblingIndex(index);
+                instance.FromSaveData(profile);
+                this._profileModules.Add(instance);
+            }
         }
+    }
+
+    public void CreateAndLoadNewProfile(){
+        SaveDataManager.Instance.CreateNewProfileForCurrentModel();
+        HeartrateManager.Instance.Plugin.FromModelSaveData(new HeartratePlugin.ModelSaveData());
+        SaveDataManager.Instance.WriteModelSaveData(HeartrateManager.Instance.Plugin.ToModelSaveData());
     }
 
     private int GetModuleNewChildIndex(){
