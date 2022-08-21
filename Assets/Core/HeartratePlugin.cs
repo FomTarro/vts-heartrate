@@ -124,7 +124,7 @@ public class HeartratePlugin : VTSPlugin
         this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
         this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
         FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
-        FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
+        FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
         Connect();
     }
 
@@ -193,20 +193,23 @@ public class HeartratePlugin : VTSPlugin
         if(this.IsAuthenticated){
             GetCurrentModel(
                 (s) => {
-                    if(s.data.modelLoaded && !s.data.modelID.Equals(SaveDataManager.Instance.CurrentProfile.modelID)){
-                        SaveDataManager.Instance.SetCurrentProfileInfo(
+                    // Model is loaded in VTS and it's not the model we have a loaded profile for
+                    if(s.data.modelLoaded && !s.data.modelID.Equals(ProfileManager.Instance.CurrentProfile.modelID)){
+                        // load Default profile for the new model
+                        ProfileManager.Instance.SetCurrentProfileInfo(
                             s.data.modelName, 
                             s.data.modelID);
-                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
+                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
                         SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
-                    }else if(!s.data.modelLoaded && SaveDataManager.Instance.IsModelLoaded()){
-                        SaveDataManager.Instance.CreateDefaultUnloadedProfile();
-                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
+                    // If no model is loaded in VTS but we do have a model profile loaded here, revent to the NO_MODEL default profile
+                    }else if(!s.data.modelLoaded && ProfileManager.Instance.IsModelLoaded()){
+                        ProfileManager.Instance.CreateDefaultNoModelProfile();
+                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
                         SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
                     }
                 },
                 (e) => {
-                    SaveDataManager.Instance.CreateDefaultUnloadedProfile();
+                    ProfileManager.Instance.CreateDefaultNoModelProfile();
                     Debug.LogError(e.data.message);
                 }
             );
@@ -230,9 +233,9 @@ public class HeartratePlugin : VTSPlugin
         }
         // get all hotkeys in currently loaded model
         if(this.IsAuthenticated){
-            if(SaveDataManager.Instance.IsModelLoaded()){
+            if(ProfileManager.Instance.IsModelLoaded()){
                 GetHotkeysInCurrentModel(
-                    SaveDataManager.Instance.CurrentProfile.modelID,
+                    ProfileManager.Instance.CurrentProfile.modelID,
                     (s) => {
                         try{
                         this._hotkeys.Clear();
@@ -479,7 +482,7 @@ public class HeartratePlugin : VTSPlugin
 
     public ModelSaveData ToModelSaveData(){
         ModelSaveData data = new ModelSaveData();
-        SaveDataManager.ModelProfileInfo currentModel = SaveDataManager.Instance.CurrentProfile;
+        ProfileManager.ProfileData currentModel = ProfileManager.Instance.CurrentProfile;
         data.version = Application.version;
         data.modelName = currentModel.modelName;
         data.modelID = currentModel.modelID;

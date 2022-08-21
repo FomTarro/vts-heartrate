@@ -254,17 +254,18 @@ output_copy_profile_button_no,Cancel,キャンセル
 output_current_profile_title,Current Profile,
 output_current_profile_display,<b>%output_current_profile_title:</b> {0},
 output_current_profile_name_paceholder,Enter profile name...,
+output_profile_file_name,<b>File Name:</b>  {0}.json,
 ,,
 output_delete_profile_title,Delete this Profile?,
-output_delete_profile_warning,"Are you sure that you want to <b>permanently delete</b> the profile <b>'{0}'</b>?
+output_delete_profile_warning,"Are you sure that you want to <b>permanently delete</b> the profile <b>{0}</b>?
 
 Deleting a profile is an <b>irreversible</b> operation.",
 ,,
 output_rename_profile_confirm_title,Rename this Profile?,
 output_rename_profile_confirm_warning,"Are you sure that you want to <b>rename</b> this profile?
 
-Old name: <b>'{0}'</b>
-New name: <b>'{1}'</b>",
+Old name: <b>{0}</b>
+New name: <b>{1}</b>",
 output_rename_profile_confirm_button_yes,Rename,
 output_rename_profile_confirm_button_no,Cancel,キャンセル
 output_rename_profile_error_title,Error!,
@@ -279,8 +280,8 @@ Current model: <b>'{0}'</b>
 Profile model: <b>'{1}'</b>",
 output_load_profile_error,"Loading a profile that belongs to a model other than the currently active model is not currently supported.
 
-Current model: <b>'{0}'</b>
-Profile model: <b>'{1}'</b>",
+Current model: <b>{0}</b>
+Profile model: <b>{1}</b>",
 ,,
 ,,
 button_generic_confirm,Confirm,
