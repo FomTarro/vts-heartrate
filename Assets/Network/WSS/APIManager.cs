@@ -33,6 +33,10 @@ public class APIManager : Singleton<APIManager>
         FromTokenSaveData(SaveDataManager.Instance.ReadTokenSaveData());
     }
 
+    private void OnApplicationQuit(){
+        Stop((s) => {});
+    }
+
     public void SetPort(int port){
         this._port = port;
     }

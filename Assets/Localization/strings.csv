@@ -177,6 +177,7 @@ If you are unsure of what your Art Meshes are named, a great web-tool was develo
 自分のモデルのアートメッシュの名前がわからない場合、<b>Hawkbar</b> により開発された <b>VTubeStudioTagger</b> という優れたウェブツールを利用することで、モデルのアートメッシュの名前を簡単に確認することができます。"
 output_artmesh_label_mesh,Meshes,メッシュ
 output_artmesh_label_meshes_placeholder,Enter mesh names (comma separated),メッシュ名を入力（カンマ区切り）
+output_artmesh_hex_placeholder,Enter hex code...,
 output_artmesh_button,Visit VTubeStudioTagger,VTubeStudioTagger にアクセス
 ,,
 output_expressions_title,Expression Trigger,表情の切り替え
@@ -255,7 +256,6 @@ output_current_profile_title,Current Profile,
 output_current_profile_display,<b>%output_current_profile_title:</b> {0},
 output_current_profile_name_paceholder,Enter profile name...,
 output_profile_file_name,<b>File Name:</b>  {0}.json,
-output_profile_group_count,{0} profiles,
 ,,
 output_delete_profile_title,Delete this Profile?,
 output_delete_profile_warning,"Are you sure that you want to <b>permanently delete</b> the profile <b>{0}</b>?

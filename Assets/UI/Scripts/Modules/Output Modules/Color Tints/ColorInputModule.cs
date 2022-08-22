@@ -125,8 +125,7 @@ public class ColorInputModule : MonoBehaviour
             SetBlue(colorBytes.b.ToString());
             SetAlpha(colorBytes.a.ToString());
         }else{
-            // Do nothing?
-            // this._hexField.text = "#ffffff";
+            this._hexField.text = "#"+ColorUtility.ToHtmlStringRGBA(this._color);
         }
     }
 
