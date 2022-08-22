@@ -205,18 +205,18 @@ public class ProfileManager : Singleton<ProfileManager>{
         List<List<ProfileData>> sorted = SortProfileList(SaveDataManager.Instance.GetProfileList());
         for(int i = 0; i < sorted.Count; i++){
             List<ProfileData> list = sorted[i];
-            foreach(ProfileData profile in list){
-                if(!profile.Equals(this.CurrentProfile)){
-                    ProfileInfoModule instance = Instantiate<ProfileInfoModule>(this._profilePrefab, Vector3.zero, Quaternion.identity, this._profileModulesParent);
-                    instance.transform.SetSiblingIndex(GetModuleNewChildIndex());
-                    instance.FromSaveData(profile);
-                    this._profileModules.Add(instance.gameObject);
-                }
-            }
             ProfileSpacer spacer = Instantiate<ProfileSpacer>(this._spacerPrefab, Vector3.zero, Quaternion.identity, this._profileModulesParent);
             spacer.transform.SetSiblingIndex(GetModuleNewChildIndex());
             spacer.Configure(list[0].modelName);
+            spacer.ToggleCollapse(list[0].modelID.Equals(ProfileManager.Instance.CurrentProfile.modelID));
             this._profileModules.Add(spacer.gameObject);
+            foreach(ProfileData profile in list){
+                if(!profile.Equals(this.CurrentProfile)){
+                    ProfileInfoModule instance = Instantiate<ProfileInfoModule>(this._profilePrefab, Vector3.zero, Quaternion.identity, spacer.Content);
+                    instance.transform.SetSiblingIndex(GetModuleNewChildIndex());
+                    instance.FromSaveData(profile);
+                }
+            }
         }
     }
 

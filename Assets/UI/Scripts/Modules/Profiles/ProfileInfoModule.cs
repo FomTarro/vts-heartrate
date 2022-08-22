@@ -25,7 +25,7 @@ public class ProfileInfoModule : MonoBehaviour{
 
     public void FromSaveData(ProfileManager.ProfileData data){
         this._data = data;
-        this._title.text = data.DisplayName;
+        this._title.text = data.profileName;
         this._fileName.text = string.Format(Localization.LocalizationManager.Instance.GetString("output_profile_file_name"), data.FileName);
     }
 }

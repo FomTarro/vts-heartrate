@@ -38,7 +38,7 @@ public class CollapseButton : MonoBehaviour
         ToggleCollapse(this._initialState);
     }
 
-    private void ToggleCollapse(bool state){
+    public void ToggleCollapse(bool state){
         if(this._content != null &&  this._content.Count > 0){
             foreach(GameObject go in this._content){
                 go.SetActive(state);
