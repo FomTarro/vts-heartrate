@@ -15,6 +15,6 @@ public class HeartrateInfo : MonoBehaviour
     void LateUpdate()
     {
         this._heartRateAnimation.scaleTime = 60f/((float)HeartrateManager.Instance.Plugin.HeartRate);
-        this._heartRate.text = HeartrateManager.Instance.Plugin.HeartRate.ToString();
+        this._heartRate.text = string.Format("<b>{0}</b> <size=6>bpm</size>", HeartrateManager.Instance.Plugin.HeartRate.ToString());
     }
 }

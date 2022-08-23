@@ -3274,6 +3274,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 77813089656326593, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 77813089656326593, guid: 7aa98a72e703362429617be53603a2ef,
+        type: 3}
       propertyPath: m_enableWordWrapping
       value: 1
       objectReference: {fileID: 0}
@@ -3391,6 +3396,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4652839764813826325, guid: 7aa98a72e703362429617be53603a2ef,
+        type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 256
       objectReference: {fileID: 0}
     - target: {fileID: 4652839764813826325, guid: 7aa98a72e703362429617be53603a2ef,
         type: 3}

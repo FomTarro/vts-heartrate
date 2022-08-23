@@ -125,6 +125,7 @@ public class HeartratePlugin : VTSPlugin
         this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
         FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
         FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
+        CreateAllParameters();
         Connect();
     }
 
@@ -318,6 +319,8 @@ public class HeartratePlugin : VTSPlugin
             (e) => {
                 Debug.LogError(e.data.message);
             });
+        }else if(!this.IsAuthenticated){
+            InjectedParamValuesToDictionary(this._paramValues.ToArray());
         }
 
         // set API data values
@@ -351,7 +354,7 @@ public class HeartratePlugin : VTSPlugin
         CreateNewParameter(PARAMETER_LINEAR, "param_vts_heartrate_linear", 1, this._linear);
         CreateNewParameter(PARAMETER_SINE_PULSE, "param_vts_heartrate_pulse", 1, this._pulse);
         CreateNewParameter(PARAMETER_SINE_BREATH, "param_vts_heartrate_breath", 1, this._breath);
-        CreateNewParameter(PARAMETER_BPM, "param_vts_heartrate_bpm", 255, this._bpm);
+        CreateNewParameter(PARAMETER_BPM, "param_vts_heartrate_bpm_all", 255, this._bpm);
         CreateNewParameter(PARAMETER_BPM_ONES, "param_vts_heartrate_bpm_ones", 9, this._bpm_ones);
         CreateNewParameter(PARAMETER_BPM_TENS, "param_vts_heartrate_bpm_tens", 9, this._bpm_tens);
         CreateNewParameter(PARAMETER_BPM_HUNDREDS, "param_vts_heartrate_bpm_hundreds", 9, this._bpm_hundreds);
@@ -366,24 +369,28 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private void CreateNewParameter(string paramName, string paramDescriptionKey, int paramMax, VTSParameterInjectionValue value){
-        VTSCustomParameter newParam = new VTSCustomParameter();
-        newParam.defaultValue = 0;
-        newParam.min = 0;
-        newParam.max = paramMax;
-        newParam.parameterName = paramName;
-        newParam.explanation = Localization.LocalizationManager.Instance.GetString(paramDescriptionKey);
-        Debug.Log(string.Format("Creating tracking parameter: {0}", paramName));
-        this.AddCustomParameter(
-            newParam,
-            (s) => {
-                value.id = paramName;
-                value.value = 0;
-                value.weight = 1;
-                this._paramValues.Add(value);
-            },
-            (e) => {
-                Debug.LogError(e.ToString());
-            });
+        
+        value.id = paramName;
+        value.value = 0;
+        value.weight = 1;
+        this._paramValues.Add(value);
+        if(this.IsAuthenticated){
+            VTSCustomParameter newParam = new VTSCustomParameter();
+            newParam.defaultValue = 0;
+            newParam.min = 0;
+            newParam.max = paramMax;
+            newParam.parameterName = paramName;
+            newParam.explanation = Localization.LocalizationManager.Instance.GetString(paramDescriptionKey);
+            Debug.Log(string.Format("Creating tracking parameter: {0}", paramName));
+            this.AddCustomParameter(
+                newParam,
+                (s) => {
+                    Debug.Log(string.Format("Successfully created parameter in VTube Studio: {0}", paramName));
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
+        }
     }
 
     private void InjectedParamValuesToDictionary(VTSParameterInjectionValue[] values){

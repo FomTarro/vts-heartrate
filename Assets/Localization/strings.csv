@@ -6,7 +6,7 @@ settings_system_data_open_save_data,Open Save Data,「Save Data」フォルダ�
 settings_system_data_open_readme,Open README,README を開く
 settings_system_current_version,Current version,現在のバージョン
 ,,
-settings_port_title,VTube Studio Port,VTube Studio ポート
+settings_port_title,VTube Studio Connection,VTube Studio ポート
 ,,
 settings_api_server_title,API Server Settings,
 settings_api_server_tooltip,"As of version 1.2.0, vts-heartrate features its own <b>Plugin API</b>, so that you can build your own apps that consume or write heartrate data.
