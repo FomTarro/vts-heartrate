@@ -11,6 +11,7 @@ public class HeartrateManager : Singleton<HeartrateManager>
     private const string VERSION_URL = @"https://www.skeletom.net/vts-heartrate/version";
 
     public override void Initialize(){
+        Application.targetFrameRate = 30;
         this.Plugin.OnLaunch();
         CheckVersion();
     }

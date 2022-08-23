@@ -45,7 +45,9 @@ namespace VTS.Networking.Impl{
             
             this._socket.OnMessage += (sender, e) => {
                 MainThreadUtil.Run(() => {
-                    this._intakeQueue.Enqueue(e.Data); 
+                    if(e != null){
+                        this._intakeQueue.Enqueue(e.Data); 
+                    }
                 });
             };
             this._socket.OnOpen += (sender, e) => { 
@@ -55,7 +57,9 @@ namespace VTS.Networking.Impl{
             };
             this._socket.OnError += (sender, e) => { 
                 MainThreadUtil.Run(() => {
-                    Debug.LogError(e.Message);
+                    if(e != null){
+                        Debug.LogError(e.Message);
+                    }
                     onError(); 
                 });
             };
@@ -107,7 +111,11 @@ namespace VTS.Networking.Impl{
             do{
                 System.Action action = null;
                 if(CALL_QUEUE.Count > 0 && CALL_QUEUE.TryDequeue(out action)){
-                    action();
+                    try{
+                        action();
+                    }catch(Exception e){
+                        Debug.LogError(String.Format("Error from socket: {0}", e.StackTrace));
+                    }
                 }
             }while(CALL_QUEUE.Count > 0);
         }

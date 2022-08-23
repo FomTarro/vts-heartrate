@@ -217,20 +217,31 @@ public class HeartratePlugin : VTSPlugin
         }
         // get all expressions for currently loaded model
         if(this.IsAuthenticated){
-            GetExpressionStateList(
-                (s) => {
-                    this._expressions.Clear();
-                    foreach(ExpressionData expression in s.data.expressions){
-                        this._expressions.Add(expression.file);
+            if(ProfileManager.Instance.IsModelLoaded()){
+                GetExpressionStateList(
+                    (s) => {
+                        try{
+                            this._expressions.Clear();
+                            foreach(ExpressionData expression in s.data.expressions){
+                                this._expressions.Add(expression.file);
+                            }
+                            foreach(ExpressionModule module in this._expressionModules){
+                                module.RefreshExpressionList();
+                            }
+                        }catch(System.Exception e){
+                            Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
+                        }
+                    },
+                    (e) => {
+                        Debug.LogError(e.data.message);
                     }
-                    foreach(ExpressionModule module in this._expressionModules){
-                        module.RefreshExpressionList();
-                    }
-                },
-                (e) => {
-                    Debug.LogError(e.data.message);
+                );
+            }else{
+                this._expressions.Clear();
+                foreach(ExpressionModule module in this._expressionModules){
+                    module.RefreshExpressionList();
                 }
-            );
+            }
         }
         // get all hotkeys in currently loaded model
         if(this.IsAuthenticated){
@@ -239,31 +250,36 @@ public class HeartratePlugin : VTSPlugin
                     ProfileManager.Instance.CurrentProfile.modelID,
                     (s) => {
                         try{
-                        this._hotkeys.Clear();
-                        foreach(HotkeyData hotkey in s.data.availableHotkeys){
-                            this._hotkeys.Add(new HotkeyListItem(
-                                string.Format(
-                                    "[{0}] {1} <size=0>{2}</size>", 
-                                    hotkey.type, 
-                                    hotkey.name, 
-                                    hotkey.hotkeyID),
-                                string.Format(
-                                    "[{0}] {1}", 
-                                    hotkey.type, 
-                                    hotkey.name),
-                                hotkey.hotkeyID));
-                        }
-                        foreach(HotkeyModule module in this._hotkeyModules){
-                            module.RefreshHotkeyList();
-                        }
+                            this._hotkeys.Clear();
+                            foreach(HotkeyData hotkey in s.data.availableHotkeys){
+                                this._hotkeys.Add(new HotkeyListItem(
+                                    string.Format(
+                                        "[{0}] {1} <size=0>{2}</size>", 
+                                        hotkey.type, 
+                                        hotkey.name, 
+                                        hotkey.hotkeyID),
+                                    string.Format(
+                                        "[{0}] {1}", 
+                                        hotkey.type, 
+                                        hotkey.name),
+                                    hotkey.hotkeyID));
+                            }
+                            foreach(HotkeyModule module in this._hotkeyModules){
+                                module.RefreshHotkeyList();
+                            }
                         }catch(System.Exception e){
-                            Debug.LogError(e);
+                            Debug.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
                         }
                     },
                     (e) => {
                         Debug.LogError(e.data.message);
                     }
                 );
+            }else{
+                this._hotkeys.Clear();
+                foreach(HotkeyModule module in this._hotkeyModules){
+                    module.RefreshHotkeyList();
+                }
             }
         }
 
