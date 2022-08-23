@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class LoggingManager : Singleton<LoggingManager>
 {
-
-    [SerializeField]
-    private RectTransform _logParent = null;
     private Queue<string> _loggingQueue = new Queue<string>();
     public override void Initialize()
     {

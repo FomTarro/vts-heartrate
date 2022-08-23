@@ -15,14 +15,6 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
     private Dictionary<EventCallbackRegistration, Action> _onFileRead = new Dictionary<EventCallbackRegistration, Action>();
     private Dictionary<EventCallbackRegistration, Action> _onFileWrite = new Dictionary<EventCallbackRegistration, Action>();
 
-    [SerializeField]
-    private RectTransform _profileTab = null;
-    [SerializeField]
-    private ProfileInfoModule _profilePrefab = null;
-    private List<ProfileInfoModule> _profileModules = new List<ProfileInfoModule>();
-    [SerializeField]
-    private CurrentProfileInfoModule _currentProfileModule = null;
-
     public override void Initialize(){
         this.GLOBAL_SAVE_DIRECTORY = Application.persistentDataPath;
         this.GLOBAL_SAVE_FILE_PATH = Path.Combine(this.GLOBAL_SAVE_DIRECTORY, "save.json");

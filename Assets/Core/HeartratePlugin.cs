@@ -246,6 +246,10 @@ public class HeartratePlugin : VTSPlugin
                                     hotkey.type, 
                                     hotkey.name, 
                                     hotkey.hotkeyID),
+                                string.Format(
+                                    "[{0}] {1}", 
+                                    hotkey.type, 
+                                    hotkey.name),
                                 hotkey.hotkeyID));
                         }
                         foreach(HotkeyModule module in this._hotkeyModules){
@@ -501,9 +505,9 @@ public class HeartratePlugin : VTSPlugin
     }
 
     public void FromGlobalSaveData(GlobalSaveData data){    
-        this._maxRate = data.maxRate;
+        this._maxRate = Mathf.Clamp(data.maxRate, 0, 255);
         this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
-        this._minRate = data.minRate;
+        this._minRate = Mathf.Clamp(data.minRate, 0, 255);
         this._heartrateRanges.SetMinRate(this._minRate.ToString());
         // Default to SLIDER if we can't find the provided input type
         HeartrateInputModule activeModule = this._heartrateInputs.Find((x => x.Type == data.activeInput));

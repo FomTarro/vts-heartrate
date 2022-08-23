@@ -11,8 +11,7 @@ public static class MathUtils
     public static byte StringToByte(string value){
         try{
             return Convert.ToByte(value);
-        }catch(Exception e){
-            Debug.LogWarning(e);
+        }catch{
             return 0;
         }
     }
@@ -25,8 +24,7 @@ public static class MathUtils
     public static int StringToInt(string value){
         try{
             return Convert.ToInt32(value);
-        }catch(Exception e){
-            Debug.LogWarning(e);
+        }catch{
             return 0;
         }
     }

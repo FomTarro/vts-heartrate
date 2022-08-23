@@ -4,7 +4,7 @@ public class CreateNewModule : MonoBehaviour
 {
 
     public void CreateNewModulePrompt(){
-        UIManager.Instance.ShowPopUp("output_create_title", "output_create_tooltip",
+        UIManager.Instance.ShowPopUp("output_create_title", null,
             new PopUp.PopUpOption("output_artmesh_title", ColorUtils.ColorPreset.GREEN, () => {
                 CreateColorModule();
                 UIManager.Instance.HidePopUp();

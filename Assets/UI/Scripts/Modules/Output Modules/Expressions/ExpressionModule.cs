@@ -8,7 +8,8 @@ public class ExpressionModule : MonoBehaviour
 {
     [SerializeField]
     private TMP_InputField _threshold = null;
-    public int Threshold { get { return MathUtils.StringToByte(this._threshold.text); } }
+    private int _thresholdVal = 0;
+    public int Threshold { get { return this._thresholdVal; } }
     private int _priorThreshold = 0;
     [SerializeField]
     private TMP_Dropdown _dropdown = null;
@@ -149,6 +150,12 @@ public class ExpressionModule : MonoBehaviour
         }
     }
 
+    private void OnEditThreshold(string value){
+        this._thresholdVal = Mathf.Clamp(MathUtils.StringToInt(value), 0, 255);
+        this._threshold.text = this._thresholdVal.ToString();
+    }
+
+
     [System.Serializable]
     public class SaveData {
         public string expressionFile;
@@ -173,6 +180,8 @@ public class ExpressionModule : MonoBehaviour
         this._behavior.ClearOptions();
         this._behavior.AddOptions(Names());
         this._threshold.text = data.threshold.ToString();
+        this._thresholdVal = Mathf.Clamp(data.threshold, 0, 255);
+        this._threshold.onEndEdit.AddListener(OnEditThreshold);
         this._behavior.SetValueWithoutNotify((int)data.behavior);
         SetExpression(data.expressionFile);
     }

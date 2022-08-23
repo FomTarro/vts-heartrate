@@ -7,7 +7,8 @@ public class HotkeyModule : MonoBehaviour
 {
     [SerializeField]
     private TMP_InputField _threshold = null;
-    public int Threshold { get { return MathUtils.StringToByte(this._threshold.text); } }
+    private int _thresholdVal = 0;
+    public int Threshold { get { return this._thresholdVal; } }
     private int _priorThreshold = 0;
     [SerializeField]
     private TMP_Dropdown _dropdown = null;
@@ -108,12 +109,13 @@ public class HotkeyModule : MonoBehaviour
     }
 
     private string GetMinimizedText(){
-        if(this.SelectedHotkey != null && this.SelectedHotkey.Length > 0){
-            return this.SelectedHotkey.Length > 48 
-            ? string.Format("{0}...", this.SelectedHotkey.Substring(0, 45))
-            : this.SelectedHotkey;
+        string name = this._dropdown.options.Count > 0 && HeartrateManager.Instance.Plugin.Hotkeys.Count >= this._dropdown.options.Count 
+            ? HeartrateManager.Instance.Plugin.Hotkeys[this._dropdown.value].nameWithoutID 
+            : "NO HOTKEY SET";
+        if(name.Length > 48){
+            return string.Format("{0}...", name.Substring(0, 45));
         }else{
-            return "NO HOTKEY SET";
+            return name;
         }
     }
 
@@ -124,7 +126,7 @@ public class HotkeyModule : MonoBehaviour
         this._dropdown.ClearOptions();
         List<string> hotkeyNames = new List<string>();
         foreach(HotkeyListItem data in HeartrateManager.Instance.Plugin.Hotkeys){
-            hotkeyNames.Add(data.name);
+            hotkeyNames.Add(data.nameWithID);
         }
         this._dropdown.AddOptions(hotkeyNames);
         this._dropdown.RefreshShownValue();
@@ -135,6 +137,11 @@ public class HotkeyModule : MonoBehaviour
         else {
             SetHotkey(hotkey);
         }
+    }
+
+    private void OnEditThreshold(string value){
+        this._thresholdVal = Mathf.Clamp(MathUtils.StringToInt(value), 0, 255);
+        this._threshold.text = this._thresholdVal.ToString();
     }
 
     [System.Serializable]
@@ -160,6 +167,8 @@ public class HotkeyModule : MonoBehaviour
         this._behavior.ClearOptions();
         this._behavior.AddOptions(Names());
         this._threshold.text = data.threshold.ToString();
+        this._thresholdVal = Mathf.Clamp(data.threshold, 0, 255);
+        this._threshold.onEndEdit.AddListener(OnEditThreshold);
         this._behavior.SetValueWithoutNotify((int)data.behavior);
         SetHotkey(data.hotkeyID);
     }
@@ -183,10 +192,12 @@ public class HotkeyModule : MonoBehaviour
 }
 
 public struct HotkeyListItem {
-    public string name;
+    public string nameWithID;
+    public string nameWithoutID;
     public string id;
-    public HotkeyListItem(string name, string id){
-        this.name = name;
+    public HotkeyListItem(string name, string nameWithoutID, string id){
+        this.nameWithID = name;
+        this.nameWithoutID = nameWithoutID;
         this.id = id;
     }
 }

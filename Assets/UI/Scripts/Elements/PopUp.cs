@@ -43,7 +43,11 @@ public class PopUp : MonoBehaviour
 
     public void Show(string titleKey, string bodyKey, params PopUpOption[] options){
         this._title.text = Localization.LocalizationManager.Instance.GetString(titleKey);
-        this._content.text = Localization.LocalizationManager.Instance.GetString(bodyKey);
+        if(bodyKey != null && bodyKey.Length >= 0){
+            this._content.text = Localization.LocalizationManager.Instance.GetString(bodyKey);
+        }else{
+            this._content.text = "";
+        }
         foreach(Transform child in this._buttonParent){
             Destroy(child.gameObject);
         }
