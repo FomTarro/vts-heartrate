@@ -111,10 +111,10 @@ public class TooltipButton : MonoBehaviour
                     "output_expressions_tooltip"
                 );
                 break;
-            case Tooltips.OUTPUT_COPY:
+            case Tooltips.OUTPUT_PROFILE:
                 UIManager.Instance.ShowPopUp(
-                    "output_copy_profile_title",
-                    "output_copy_profile_tooltip"
+                    "output_current_profile_title",
+                    "output_current_profile_tooltip"
                 );
                 break;
             case Tooltips.OUTPUT_HOTKEY:
@@ -155,6 +155,7 @@ public class TooltipButton : MonoBehaviour
         OUTPUT_EXPRESSION = 203,
         OUTPUT_COPY = 204,
         OUTPUT_HOTKEY = 205,
+        OUTPUT_PROFILE = 206,
 
         SETTINGS_API = 301,
     }

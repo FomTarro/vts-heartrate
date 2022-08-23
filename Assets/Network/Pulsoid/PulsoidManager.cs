@@ -58,7 +58,7 @@ public class PulsoidManager : Singleton<PulsoidManager>
     }
 
     IEnumerator GetAppData(System.Action<HttpUtils.ConnectionStatus> onStatus){
-        while(this._appRequestIsLooping){
+        while(this._appRequestIsLooping && this._appToken != null && this._appToken.Length > 0){
             yield return HttpUtils.GetRequest(PULSOID_APP_URL, 
             (e) => { 
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();

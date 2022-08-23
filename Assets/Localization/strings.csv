@@ -198,7 +198,7 @@ output_hotkey_behavior_a,Trigger above,閾値以上になると動作
 output_hotkey_behavior_b,Trigger below,閾値以下になると動作
 ,,
 output_custom_params_title,Custom Parameters,カスタムパラメータ
-output_custom_params_tooltip,"This plugin outputs fifteen custom tracking parameters for use. They are as follows:
+output_custom_params_tooltip,"This plugin outputs <b>15</b> custom tracking parameters for use. They are as follows:
 
 <b>VTS_Heartrate_Linear</b>: %param_vts_heartrate_linear
 
@@ -239,46 +239,41 @@ param_vts_heartrate_repeat_60,A value that scales linearly from 0.0 to 1.0 and r
 param_vts_heartrate_repeat_120,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.,
 param_vts_heartrate_repeat_breath,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with the frequency of the VTS_Heartrate_Breath parameter.,
 ,,
-output_copy_profile_tooltip,"This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
+output_copy_profile_title,Copy this Profile?,
+output_copy_profile_warning,"Are you sure that you want to <b>copy the profile configuration</b> from <b>{0}</b> to your currently loaded profile, <b>{1}</b>?
 
-As a result, any settings configured for your currently loaded model will be permanently erased.","この機能により、あるモデルの<b>すべての出力設定</b>（アートメッシュの色付け、表情の切り替えなど）を、現在読み込んでいるモデルにコピーすることが可能です。
-
-コピーする場合、現在読み込んでいるモデルに対する設定は永久的に削除されます。"
-output_copy_profile_warning,"Are you sure that you want to <b>copy model settings data</b> from <b>'{0}'</b> to your currently loaded model, <b>'{1}'</b>?
-
-Doing so will <b>permanently erase</b> any settings your currently loaded model has configured.","現在読み込んでいるモデル <b>{1}</b> に、モデル <b>{0}</b> の設定をコピーしますか？
+Doing so will <b>permanently overwrite</b> the settings of your currently loaded profile.","現在読み込んでいるモデル <b>{1}</b> に、モデル <b>{0}</b> の設定をコピーしますか？
 
 コピーすると、現在読み込んでいるモデルに対する設定は<b>永久的に削除</b>されます。"
 output_copy_profile_button_yes,Copy,コピー
 output_copy_profile_button_no,Cancel,キャンセル
 ,,
 output_current_profile_title,Current Profile,
+output_current_profile_tooltip,"Profiles allow you to have <b>multiple output configurations</b> for the same model. For example, you may want one profile where you go blue in the face for Horror Games, and another profile where you flush red and activate a sweating expression for Workouts.
+
+You can even <b>copy profile configurations</b> from one profile to another, even across models. This is useful if you have multiple variations of the same base model, such as different outfits.
+
+When a model is loaded in VTube Studio, a <b>DEFAULT</b> profile is automatically loaded along with it. User-created profiles <b>must be loaded manually</b>. ",
 output_current_profile_display,<b>%output_current_profile_title:</b> {0},
 output_current_profile_name_paceholder,Enter profile name...,
-output_profile_file_name,<b>File Name:</b>  {0}.json,
+output_profile_file_name,File Name,
+output_profile_model_name,Model Name,
+output_profile_profile_name,Profile Name,
 ,,
 output_delete_profile_title,Delete this Profile?,
 output_delete_profile_warning,"Are you sure that you want to <b>permanently delete</b> the profile <b>{0}</b>?
 
-Deleting a profile is an <b>irreversible</b> operation.",
+A profile <b>cannot be restored</b> once it is deleted.",
 ,,
 output_rename_profile_confirm_title,Rename this Profile?,
-output_rename_profile_confirm_warning,"Are you sure that you want to <b>rename</b> this profile?
-
-Old name: <b>{0}</b>
-New name: <b>{1}</b>",
+output_rename_profile_confirm_warning,Are you sure that you want to <b>rename</b> this profile from <b>{0}</b> to <b>{1}</b>?,
 output_rename_profile_confirm_button_yes,Rename,
 output_rename_profile_confirm_button_no,Cancel,キャンセル
-output_rename_profile_error_title,Error!,
+output_rename_profile_error_title,Sorry...,
 output_rename_profile_error_not_unique,A profile with this name <b>already exists</b> for the currently active model.,
+output_rename_profile_error_default_rename,The <b>DEFAULT</b> profile cannot be renamed.,
 ,,
 output_load_profile_warning_title,Error!,
-output_load_profile_warning,"Are you sure that you want to <b>load</b> this profile, despite it belonging to a different model? 
-
-Doing so may cause <b>%output_expressions_title</b> and <b>%output_hotkey_title</b> on the profile to <b>lose reference</b> to their original values, as those values <b>may not be present</b> on the currently active model.
-
-Current model: <b>'{0}'</b>
-Profile model: <b>'{1}'</b>",
 output_load_profile_error,"Loading a profile that belongs to a model other than the currently active model is not currently supported.
 
 Current model: <b>{0}</b>

@@ -31,7 +31,7 @@ public class PluginAuthEntry : MonoBehaviour
                 "settings_api_server_revoke_plugin_tooltip_populated",
                 new PopUp.PopUpOption(
                     "settings_api_server_button_keep",
-                    ColorUtils.ColorPreset.WHITE,
+                    ColorUtils.ColorPreset.GREY,
                     () => {
                         UIManager.Instance.HidePopUp();
                     }),

@@ -9,6 +9,9 @@ public class CurrentProfileInfoModule : MonoBehaviour {
     private TMP_Text _minimizedText = null;
     [SerializeField]
     private TMP_InputField _profileName = null;
+
+    [SerializeField]
+    private TMP_Text _fileName = null;
     [SerializeField]
     private TMP_Text _currentProfileNavBar = null;
 
@@ -21,6 +24,7 @@ public class CurrentProfileInfoModule : MonoBehaviour {
         this._modelName.text = data.modelName;
         this._minimizedText.text = data.DisplayName;
         this._profileName.text = data.profileName;
+        this._fileName.text = data.FileName + ".json";
         this._currentProfileNavBar.text = string.Format(Localization.LocalizationManager.Instance.GetString("output_current_profile_display"), data.DisplayName);
     }
 

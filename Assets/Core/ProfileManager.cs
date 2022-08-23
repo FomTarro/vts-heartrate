@@ -78,7 +78,7 @@ public class ProfileManager : Singleton<ProfileManager>{
                 }),
             new PopUp.PopUpOption(
                 "output_copy_profile_button_no",
-                ColorUtils.ColorPreset.WHITE,
+                ColorUtils.ColorPreset.GREY,
                 () => {
                     UIManager.Instance.HidePopUp();
                 })
@@ -132,7 +132,7 @@ public class ProfileManager : Singleton<ProfileManager>{
                 }),
             new PopUp.PopUpOption(
                 "button_generic_cancel",
-                ColorUtils.ColorPreset.WHITE,
+                ColorUtils.ColorPreset.GREY,
                 () => {
                     UIManager.Instance.HidePopUp();
                 })
@@ -143,11 +143,12 @@ public class ProfileManager : Singleton<ProfileManager>{
         string errorKey = string.Empty;
         if(newProfileName.Length <= 0 || this.CurrentProfile.profileName.Equals(newProfileName)){
             Debug.Log("Reverting rename attempt...");
-            //TODO: need to have the input field text content
             onError(this.CurrentProfile);
         }else{
             if(!IsProfileNameUnique(this.CurrentProfile.modelID, newProfileName)){
                 errorKey = "output_rename_profile_error_not_unique";   
+            }else if(IsDefaultProfile()){
+                errorKey = "output_rename_profile_error_default_rename";
             }
             if(errorKey.Length > 0){
                 UIManager.Instance.ShowPopUp(
@@ -182,7 +183,7 @@ public class ProfileManager : Singleton<ProfileManager>{
                         }),
                     new PopUp.PopUpOption(
                         "output_rename_profile_confirm_button_no",
-                        ColorUtils.ColorPreset.WHITE,
+                        ColorUtils.ColorPreset.GREY,
                         () => {
                             UIManager.Instance.HidePopUp();
                             onError(this.CurrentProfile);
@@ -281,7 +282,7 @@ public class ProfileManager : Singleton<ProfileManager>{
     }
 
     public bool IsDefaultProfile(){
-        return ProfileData.PROFILE_DEFAULT.Equals(this.CurrentProfile.profileName);
+        return this.CurrentProfile.modelID.Equals(this.CurrentProfile.profileID);
     }
 
     private bool IsProfileNameUnique(string modelID, string newProfileName){
