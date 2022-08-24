@@ -11,6 +11,7 @@ public class HeartrateManager : Singleton<HeartrateManager>
     private const string VERSION_URL = @"https://www.skeletom.net/vts-heartrate/version";
 
     public override void Initialize(){
+        Application.targetFrameRate = 30;
         this.Plugin.OnLaunch();
         CheckVersion();
     }
@@ -20,7 +21,23 @@ public class HeartrateManager : Singleton<HeartrateManager>
         StartCoroutine(HttpUtils.GetRequest(
             VERSION_URL,
             (e) => {
-                Debug.LogError(e);
+                Debug.LogError(e.message);
+                Dictionary<string, string> strings = new Dictionary<string, string>();
+                    strings.Add("error_cannot_resolve_tooltip_populated", 
+                        string.Format(Localization.LocalizationManager.Instance.GetString("error_cannot_resolve_tooltip"), e.message));
+                    Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
+                UIManager.Instance.ShowPopUp(
+                    "error_generic_title",
+                    "error_cannot_resolve_tooltip_populated",
+                    new PopUp.PopUpOption(
+                            "settings_feedback_button_tweet", 
+                            ColorUtils.ColorPreset.GREEN, 
+                            () => { Application.OpenURL("https://twitter.com/intent/tweet?text=@FomTarro"); }),
+                    new PopUp.PopUpOption(
+                            "settings_feedback_button_email", 
+                            ColorUtils.ColorPreset.GREEN, 
+                            () => { Application.OpenURL("mailto:tom@skeletom.net"); })
+                );
             },
             (s) => {
                 VersionUtils.VersionInfo info = JsonUtility.FromJson<VersionUtils.VersionInfo>(s);

@@ -4,9 +4,8 @@ public class PortSelector : RefreshableDropdown
 {
     private List<string> _portNumbers = new List<string>();
 
-    protected override void Initialize()
-    {
-        UIManager.Instance.RegisterTabCallback(UIManager.Tabs.SETTINGS, Refresh);
+    protected override void Initialize(){
+        UIManager.Instance.RegisterEventCallback(UIManager.Tabs.SETTINGS, Refresh);
     }
 
     protected override void SetValue(int index){

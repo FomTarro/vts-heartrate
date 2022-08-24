@@ -25,7 +25,11 @@ public class ColorInputModule : MonoBehaviour
     [SerializeField]
     private TMP_InputField _alphaField = null;
     [SerializeField]
+    private TMP_InputField _hexField = null;
+    [SerializeField]
     private TMP_InputField _matchersField = null;
+    [SerializeField]
+    private TMP_Text _minimizedSummary = null;
 
     [SerializeField]
     private Image _background = null;
@@ -35,6 +39,7 @@ public class ColorInputModule : MonoBehaviour
         this._greenField.onEndEdit.AddListener(SetGreen);
         this._blueField.onEndEdit.AddListener(SetBlue);
         this._alphaField.onEndEdit.AddListener(SetAlpha);
+        this._hexField.onEndEdit.AddListener(SetHex);
         this._matchersField.onEndEdit.AddListener(SetMatchers);
     }
 
@@ -70,6 +75,7 @@ public class ColorInputModule : MonoBehaviour
             this._color.b, 
             this._color.a);
         this._redField.text = v.ToString();
+        this._hexField.text = "#"+ColorUtility.ToHtmlStringRGBA(this._color);
         this._background.color = this._color;
     }
     
@@ -81,6 +87,7 @@ public class ColorInputModule : MonoBehaviour
             this._color.b,
             this._color.a);
         this._greenField.text = v.ToString();
+        this._hexField.text = "#"+ColorUtility.ToHtmlStringRGBA(this._color);
         this._background.color = this._color;
     }
 
@@ -92,6 +99,7 @@ public class ColorInputModule : MonoBehaviour
             v, 
             this._color.a);
         this._blueField.text = v.ToString();
+        this._hexField.text = "#"+ColorUtility.ToHtmlStringRGBA(this._color);
         this._background.color = this._color;
     }
 
@@ -103,7 +111,22 @@ public class ColorInputModule : MonoBehaviour
             this._color.b,
             v);
         this._alphaField.text = v.ToString();
+        this._hexField.text = "#"+ColorUtility.ToHtmlStringRGBA(this._color);
         this._background.color = this._color;
+    }
+
+    public void SetHex(string hex){
+        Color color;
+        if(ColorUtility.TryParseHtmlString(hex, out color)){
+            this._hexField.text = hex.ToLower();
+            Color32 colorBytes = (Color32)color;
+            SetRed(colorBytes.r.ToString());
+            SetGreen(colorBytes.g.ToString());
+            SetBlue(colorBytes.b.ToString());
+            SetAlpha(colorBytes.a.ToString());
+        }else{
+            this._hexField.text = "#"+ColorUtility.ToHtmlStringRGBA(this._color);
+        }
     }
 
     public void SetMatchers(string value){
@@ -119,15 +142,18 @@ public class ColorInputModule : MonoBehaviour
         ApplyColor(0);
         this._matchers = sanitized.ToArray();
         this._matchersField.text = string.Join(",", sanitized);
+        this._minimizedSummary.text = string.Format("({0})", 
+            this._matchersField.text.Length > 48 
+            ? string.Format("{0}...", this._matchersField.text.Substring(0, 45))
+            : this._matchersField.text);
     }
 
     [System.Serializable]
-    public class SaveData{
+    public class SaveData {
         public Color32 color = Color.white;
         public string[] matchers = new string[0];
 
-        public override string ToString()
-        {
+        public override string ToString(){
             return JsonUtility.ToJson(this);
         }
     }

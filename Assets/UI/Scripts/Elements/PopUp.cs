@@ -20,6 +20,8 @@ public class PopUp : MonoBehaviour
     private ExtendedButton _buttonPrefab = null;
     [SerializeField]
     private RectTransform _buttonParent = null;
+    [SerializeField]
+    private GridLayoutGroup _buttonLayout = null;
 
     [SerializeField]
     private ExtendedButton _closeButton = null;
@@ -41,7 +43,11 @@ public class PopUp : MonoBehaviour
 
     public void Show(string titleKey, string bodyKey, params PopUpOption[] options){
         this._title.text = Localization.LocalizationManager.Instance.GetString(titleKey);
-        this._content.text = Localization.LocalizationManager.Instance.GetString(bodyKey);
+        if(bodyKey != null && bodyKey.Length >= 0){
+            this._content.text = Localization.LocalizationManager.Instance.GetString(bodyKey);
+        }else{
+            this._content.text = "";
+        }
         foreach(Transform child in this._buttonParent){
             Destroy(child.gameObject);
         }
@@ -56,6 +62,7 @@ public class PopUp : MonoBehaviour
             button.onPointerUp.AddListener(() => {option.callback();});
         }
         this._buttonParent.gameObject.SetActive(options.Length > 0);
+        this._buttonLayout.cellSize = new Vector2(options.Length > 1 ? 160 : 330, 30);
         this._show = true;
         this._flash.SetAlpha(0);
         this.gameObject.SetActive(true);

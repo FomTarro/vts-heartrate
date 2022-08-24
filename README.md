@@ -1,9 +1,11 @@
+![We finally have a logo!](img/logo.png)
+
 # VTS-Heartrate
 A VTube Studio plugin that allows for connectivity between heart rate monitors (HRM) and VTube Studio!
  
 [Download the latest version here!](https://skeletom-ch.itch.io/vts-heartrate) Or, in the [release section](https://github.com/FomTarro/vts-heartrate/releases) of this repo.
 
-![Working Example](img/akari_gif.gif)
+![Working Example](img/akari_gif_2.gif)
  
 # Features
 
@@ -16,6 +18,32 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
 💓 Custom <b>tracking parameters</b> for pulse and breath!
 
 💓 NEW! <b>Plugin API</b> so that you can build your own apps that consume or write heartrate data!
+
+# Table of Contents
+* [About](#about)
+* [Usage](#usage)
+    * [Heartrate Input Methods](#heartrate-input-methods)
+        * [Test Slider](#test-slider)
+        * [Read from File](#read-from-file)
+        * [API WebSocket](#api-websocket)
+        * [Pulsoid](#pulsoid)
+        * [ANT+](#ant)
+        * [HypeRate](#hyperate)
+    * [Outputs](#outputs)
+        * [Art Mesh Tinting](#art-mesh-tinting)
+        * [Automatic Expression Triggering](#automatic-expression-triggering)
+        * [Automatic Hotkey Triggering](#automatic-hotkey-triggering)
+        * [Custom Tracking Parameters](#custom-tracking-parameters)
+    * [Profiles](#profiles)
+* [API](#api)
+    * [Data API](#data-api)
+    * [Events API](#event-api)
+    * [Input API](#input-api)
+        * [Authenticating Your Plugin](#authenticating-your-plugin)
+        * [Writing Heartrate Data](#writing-heartrate-data)
+    * [Errors](#errors)
+* [Roadmap](#roadmap)
+
 
 # About
 This plugin is developed by Tom "Skeletom" Farro. If you need to contact him, the best way to do so is via [Twitter](https://www.twitter.com/FomTarro).
@@ -32,7 +60,6 @@ Getting up and running is relatively straightforward. The plugin will automatica
 * Hook up [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), to your model for things like breathing speed!
  
 
- 
 ## Heartrate Input Methods
 In the interest of being widely accessible, this plugin features a wide set of possible input methods, which you may freely switch between at any time.
  
@@ -47,7 +74,9 @@ The file must simply contain the <b>numeric heartrate value</b> in <b>plain text
 This input method allows you to read heartrate data from the <b>Input API</b>. For more information about the API, consult the [API Documentation](#API).
 
 ### Pulsoid
-[<b>Pulsoid</b>](https://www.pulsoid.net) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
+[<b>Pulsoid</b>](https://www.pulsoid.net) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. 
+
+Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
  
 By clicking the <b>'Login' button</b> in the plugin, you will be asked to grant this plugin permission to connect to your account. You will then be given an <b>'Authentication Token'</b> which you must paste into the plugin.
  
@@ -62,7 +91,9 @@ Then, simply select one from the dropdown and click the <b>'Connect' button</b>.
 Please note that this plugin is not an officially licensed or certified affiliate of the ANT+ Brand.
 
 ### HypeRate
-[<b>HypeRate</b>](https://www.hyperate.io/) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. Once you have a HypeRate account, you can use this input method to collect heartrate data from the service.
+[<b>HypeRate</b>](https://www.hyperate.io/) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. 
+
+Once you have a HypeRate account, you can use this input method to collect heartrate data from the service.
 
 ## Outputs
  
@@ -74,21 +105,21 @@ Text to match must be <b>comma separated</b> and should <b>not contain spaces</b
  
 If you are unsure of what your Art Meshes are named, a great web-tool was developed by <b>Hawkbar</b> called [<b>VTubeStudioTagger</b>](https://hawk.bar/VTubeStudioTagger/), which offers an intuitive way to discover the names of your model's Art Meshes.
  
-![Working Example](img/color_setup.png)
+![Working Example](img/color_setup_2.png)
 
 ### Automatic Expression Triggering
 This output will cause an <b>Expression</b> to <b>activate or deactivate</b> when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings.
 
-For example, the configuration in the provided image will cause the `angry` Expression to automatically activate when the heartrate exceeds 125 BPM, and will deactivate when the heartrate falls back beneath 125 BPM.
+For example, the configuration in the provided image will cause the `angry` Expression to automatically activate when the heartrate exceeds 120 BPM, and will deactivate when the heartrate falls back beneath 120 BPM.
 
-![Working Example](img/expression_trigger.png)
+![Working Example](img/expression_trigger_2.png)
 
 ### Automatic Hotkey Triggering
 This output will cause a <b>Hotkey</b> to be triggered when the current heartrate is <b>above or below a given threshold</b>, based on the selected behavior settings.
  
-For example, the configuration in the provided image will cause the `panic` Item Scene to automatically toggle when the heartrate exceeds 125 BPM, and will toggle again when the heartrate falls back beneath 125 BPM.
+For example, the configuration in the provided image will cause the `panic` Item Scene to automatically toggle when the heartrate exceeds 120 BPM, and will toggle again when the heartrate falls back beneath 120 BPM.
 
-![Working Example](img/hotkey_trigger.png)
+![Working Example](img/hotkey_trigger_2.png)
 
 ### Custom Tracking Parameters
 This plugin outputs <b>fifteen custom tracking parameters</b> for use. They are as follows:
@@ -110,24 +141,30 @@ The following parameters are primarily suited for controlling Live2D props, but 
 * `VTS_Heartrate_Repeat_30`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 30 heartbeats.
 * `VTS_Heartrate_Repeat_60`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 60 heartbeats.
 * `VTS_Heartrate_Repeat_120`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.
-* `VTS_Heartrate_Repeat_Breath`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.
+* `VTS_Heartrate_Repeat_Breath`: A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with the frequency of the `VTS_Heartrate_Breath` parameter.
 
 
 For more information on how to integrate these tracking parameters into your model, please refer to the [Official VTube Studio documentation](https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters).
  
 ![Custom Parameter setup](img/parameter_setup.png)
 
-### Copy Profile Settings
-As of version 1.0.0, settings are saved on a per-model basis. This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
 
-As a result, any settings configured for your currently loaded model will be permanently erased.
+## Profiles
+As of version 1.2.0, vts-heartrate supports <b>profiles</b>.
+
+Profiles allow you to have <b>multiple output configurations</b> for the same model. For example, you may want one profile where you go blue in the face for Horror Games, and another profile where you flush red and activate a sweating expression for Workouts.
+
+You can even <b>copy profile configurations</b> from one profile to another, even across models. This is useful if you have multiple variations of the same base model, such as different outfits.
+
+When a model is loaded in VTube Studio, a <b>DEFAULT</b> profile is automatically loaded along with it. User-created profiles <b>must be loaded manually</b>.
+
 
 # API
 As of version 1.2.0, vts-heartrate features its own <b>Plugin API</b>, so that you can build your own apps that consume or write heartrate data! That's right, this VTube Studio plugin now supports plugins of its own.
  
 There are three underlying API endpoints, all accessible via WebSocket: the [Data API](#Data-API), the [Events API](#Events-API), and the [Input API](#Input-API).
  
-### Data API
+## Data API
  
 The <b>Data API</b> is a read-only endpoint accessible at `ws://localhost:<your chosen port>/data`. Upon connecting to this endpoint, your WebSocket will receive a message containing current heartrate and output parameter data once per frame (60 times per second).
  
@@ -173,7 +210,7 @@ The message structure is as follows:
 ```
 For more information about the output parameters, consult the [Custom Tracking Parameter Documentation](#Custom-Tracking-Parameters) and [Art Mesh Tinting Documentation](#Art-Mesh-Tinting).
  
-### Event API
+## Event API
  
 The <b>Event API</b> is a read-only endpoint accessible at `ws://localhost:<your chosen port>/events`. Upon connecting to this endpoint, your WebSocket will receive a message containing event information every time an [Expression Trigger](#Automatic-Expression-Triggering) or [Hotkey Trigger](#Automatic-Hotkey-Triggering) is triggered.
  
@@ -227,11 +264,11 @@ ACTIVATE_ABOVE = 1,
 ACTIVATE_BELOW = 2,
 ```
  
-### Input API
+## Input API
  
 The <b>Input API</b> is a read and write endpoint accessible at `ws://localhost:<your chosen port>/input`. Upon connecting to this endpoint, your WebSocket will be able to write heartrate data for use with the [API WebSocket](#API-WebSocket) input method.
  
-#### Authenticating Your Plugin
+### Authenticating Your Plugin
  
 First, you will need to authenticate your client before you are granted write permission. In order to authenticate, you must first <b>request a token</b> by sending a message with the following structure:
 ```
@@ -240,6 +277,7 @@ First, you will need to authenticate your client before you are granted write pe
     data: {
         pluginName: "My Heartrate Plugin",
         pluginAuthor: "Skeletom",
+        pluginAbout: "A plugin for connecting a third-party service."
     }
 }
 ```
@@ -292,7 +330,7 @@ The message structure is as follows:
 }
 ```
  
-#### Writing Heartrate Data
+### Writing Heartrate Data
  
 Once your plugin is fully authenticated, you can write heartrate data sending a message with the following structure:
 ```
@@ -305,7 +343,7 @@ Once your plugin is fully authenticated, you can write heartrate data sending a 
 ```
 Upon successfully writing data, the API Server will echo your message back to you as an `InputResponse`, to confirm that it has been received.
  
-### Errors
+## Errors
  
 In the event that something goes wrong, such as the API Server receiving a message it cannot parse, or a message from an unauthenticated client, your WebSocket will receive an error message.
  

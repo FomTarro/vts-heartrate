@@ -7,6 +7,8 @@ using TMPro;
 public class StatusIndicator : MonoBehaviour
 {
     [SerializeField]
+    private string _prefix = "Status";
+    [SerializeField]
     private Image _indicatorImage = null;
     [SerializeField]
     private TMP_Text _statusText = null;
@@ -42,6 +44,6 @@ public class StatusIndicator : MonoBehaviour
                 break;
         }
 
-        this._statusText.text = string.Format("Status: {0}", status.message != null ? status.message : status.status.ToString().ToLower());
+        this._statusText.text = string.Format("{0}: {1}", this._prefix, status.message != null ? status.message : status.status.ToString().ToLower());
     }
 }

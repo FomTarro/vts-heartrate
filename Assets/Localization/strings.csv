@@ -6,7 +6,7 @@ settings_system_data_open_save_data,Open Save Data,「Save Data」フォルダ�
 settings_system_data_open_readme,Open README,README を開く
 settings_system_current_version,Current version,現在のバージョン
 ,,
-settings_port_title,VTube Studio Port,VTube Studio ポート
+settings_port_title,VTube Studio Connection,VTube Studio ポート
 ,,
 settings_api_server_title,API Server Settings,
 settings_api_server_tooltip,"As of version 1.2.0, vts-heartrate features its own <b>Plugin API</b>, so that you can build your own apps that consume or write heartrate data.
@@ -42,6 +42,10 @@ settings_api_server_revoke_plugin_title,Revoke this Plugin?,
 settings_api_server_revoke_plugin_tooltip,"Do you want to revoke %settings_api_server_input_title access from the plugin named <b>{0}</b>, made by <b>{1}</b>? ",
 settings_api_server_button_keep,Keep,
 settings_api_server_button_revoke,Revoke,
+settings_api_plugin_tooltip,"Made by: <b>{0}</b>
+
+{1}",
+settings_api_plugin_no_desc,No description provided.,
 ,,
 settings_current_version,Current Version: ,現在のバージョン：
 settings_new_version_title,New Version Available!,新しいバージョンが入手可能です。
@@ -113,6 +117,7 @@ Please note that Pulsoid may be deprecating this input method in the future, in 
 input_pulsoid_feed_url,Feed Reference URL,「Feed Reference URL」
 input_pulsoid_feed_url_placeholder,Widgets -> Advanced -> Feed reference URL,Widgets -> Advanced -> Feed reference URL
 input_pulsoid_overview,"<b>Pulsoid</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.
+
 Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.",<b>Pulsoid</b> とは、Android/iOS用の無料サードパーティーアプリで、モバイル端末のBluetooth経由で幅広い心拍計に簡単・確実に接続することができます。Pulsoid のアカウントを作成すれば、この入力方式を用いて心拍数データを取得することができます。
 input_file_title,Read from File,ファイルからの読み込み
 input_file_tooltip,"Use this input method to read heartrate data from an external file.
@@ -147,10 +152,14 @@ input_ant_devices,Available Devices,接続可能なデバイス
 ,,
 input_hyperate_title,HypeRate,
 input_hyperate_tooltip,"<b>HypeRate</b> is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors.
+
 Once you have a HypeRate account, you can use this input method to collect heartrate data from the service.",
 input_hyperate_button_visit,Visit hyperate.io,
 input_hyperate_id,HypeRate User ID,
 input_hyperate_id_placeholder,Enter your %input_hyperate_id,
+,,
+output_create_title,Create New Output Module,
+output_create_tooltip,Which type of output module do you want to create?,
 ,,
 output_artmesh_title,Art Mesh Tint,アートメッシュの色付け
 output_artmesh_new,Create %output_artmesh_title,%output_artmesh_title を新規作成
@@ -168,6 +177,7 @@ If you are unsure of what your Art Meshes are named, a great web-tool was develo
 自分のモデルのアートメッシュの名前がわからない場合、<b>Hawkbar</b> により開発された <b>VTubeStudioTagger</b> という優れたウェブツールを利用することで、モデルのアートメッシュの名前を簡単に確認することができます。"
 output_artmesh_label_mesh,Meshes,メッシュ
 output_artmesh_label_meshes_placeholder,Enter mesh names (comma separated),メッシュ名を入力（カンマ区切り）
+output_artmesh_hex_placeholder,Enter hex code...,
 output_artmesh_button,Visit VTubeStudioTagger,VTubeStudioTagger にアクセス
 ,,
 output_expressions_title,Expression Trigger,表情の切り替え
@@ -188,7 +198,7 @@ output_hotkey_behavior_a,Trigger above,閾値以上になると動作
 output_hotkey_behavior_b,Trigger below,閾値以下になると動作
 ,,
 output_custom_params_title,Custom Parameters,カスタムパラメータ
-output_custom_params_tooltip,"This plugin outputs four custom tracking parameters for use. They are as follows:
+output_custom_params_tooltip,"This plugin outputs <b>15</b> custom tracking parameters for use. They are as follows:
 
 <b>VTS_Heartrate_Linear</b>: %param_vts_heartrate_linear
 
@@ -227,53 +237,54 @@ param_vts_heartrate_repeat_20,A value that scales linearly from 0.0 to 1.0 and r
 param_vts_heartrate_repeat_30,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 30 heartbeats.,
 param_vts_heartrate_repeat_60,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 60 heartbeats.,
 param_vts_heartrate_repeat_120,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.,
-param_vts_heartrate_repeat_breath,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 120 heartbeats.,
+param_vts_heartrate_repeat_breath,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with the frequency of the VTS_Heartrate_Breath parameter.,
 ,,
-output_copy_profile_title,Other Profiles,
-output_copy_profile_tooltip,"This feature allows you to <b>copy all of your output settings</b> (art mesh tints, expression triggers) from one model to your currently loaded model.
+output_copy_profile_title,Copy this Profile?,
+output_copy_profile_warning,"Are you sure that you want to <b>copy the profile configuration</b> from <b>{0}</b> to your currently loaded profile, <b>{1}</b>?
 
-As a result, any settings configured for your currently loaded model will be permanently erased.","この機能により、あるモデルの<b>すべての出力設定</b>（アートメッシュの色付け、表情の切り替えなど）を、現在読み込んでいるモデルにコピーすることが可能です。
-
-コピーする場合、現在読み込んでいるモデルに対する設定は永久的に削除されます。"
-output_copy_profile_warning,"Are you sure that you want to <b>copy model settings data</b> from <b>'{0}'</b> to your currently loaded model, <b>'{1}'</b>?
-
-Doing so will <b>permanently erase</b> any settings your currently loaded model has configured.","現在読み込んでいるモデル <b>{1}</b> に、モデル <b>{0}</b> の設定をコピーしますか？
+Doing so will <b>permanently overwrite</b> the settings of your currently loaded profile.","現在読み込んでいるモデル <b>{1}</b> に、モデル <b>{0}</b> の設定をコピーしますか？
 
 コピーすると、現在読み込んでいるモデルに対する設定は<b>永久的に削除</b>されます。"
 output_copy_profile_button_yes,Copy,コピー
 output_copy_profile_button_no,Cancel,キャンセル
 ,,
 output_current_profile_title,Current Profile,
-output_current_profile_new,Create New Profile,
+output_current_profile_tooltip,"Profiles allow you to have <b>multiple output configurations</b> for the same model. For example, you may want one profile where you go blue in the face for Horror Games, and another profile where you flush red and activate a sweating expression for Workouts.
+
+You can even <b>copy profile configurations</b> from one profile to another, even across models. This is useful if you have multiple variations of the same base model, such as different outfits.
+
+When a model is loaded in VTube Studio, a <b>DEFAULT</b> profile is automatically loaded along with it. User-created profiles <b>must be loaded manually</b>. ",
+output_current_profile_display,<b>%output_current_profile_title:</b> {0},
 output_current_profile_name_paceholder,Enter profile name...,
+output_profile_file_name,File Name,
+output_profile_model_name,Model Name,
+output_profile_profile_name,Profile Name,
 ,,
 output_delete_profile_title,Delete this Profile?,
-output_delete_profile_warning,"Are you sure that you want to <b>permanently delete</b> the profile <b>'{0}'</b>?
+output_delete_profile_warning,"Are you sure that you want to <b>permanently delete</b> the profile <b>{0}</b>?
 
-Deleting a profile is an <b>irreversible</b> operation.",
+A profile <b>cannot be restored</b> once it is deleted.",
 ,,
 output_rename_profile_confirm_title,Rename this Profile?,
-output_rename_profile_confirm_warning,"Are you sure that you want to <b>rename</b> this profile?
-
-Old name: <b>'{0}'</b>
-New name: <b>'{1}'</b>",
+output_rename_profile_confirm_warning,Are you sure that you want to <b>rename</b> this profile from <b>{0}</b> to <b>{1}</b>?,
 output_rename_profile_confirm_button_yes,Rename,
 output_rename_profile_confirm_button_no,Cancel,キャンセル
-output_rename_profile_error_title,Error!,
+output_rename_profile_error_title,Sorry...,
 output_rename_profile_error_not_unique,A profile with this name <b>already exists</b> for the currently active model.,
+output_rename_profile_error_default_rename,The <b>DEFAULT</b> profile cannot be renamed.,
 ,,
 output_load_profile_warning_title,Error!,
-output_load_profile_warning,"Are you sure that you want to <b>load</b> this profile, despite it belonging to a different model? 
-
-Doing so may cause <b>%output_expressions_title</b> and <b>%output_hotkey_title</b> on the profile to <b>lose reference</b> to their original values, as those values <b>may not be present</b> on the currently active model.
-
-Current model: <b>'{0}'</b>
-Profile model: <b>'{1}'</b>",
 output_load_profile_error,"Loading a profile that belongs to a model other than the currently active model is not currently supported.
 
-Current model: <b>'{0}'</b>
-Profile model: <b>'{1}'</b>",
+Current model: <b>{0}</b>
+Profile model: <b>{1}</b>",
 ,,
+error_generic_title,Sorry...,
+error_cannot_resolve_tooltip,"Communication with the version server, <b>https://skeletom.net</b>, has failed with the following error: <i>{0}</i>. 
+
+This may result in the <b>inability check for a new version</b> of this plugin, and an <b>inability to receive a new Pulsoid authentication token</b>. Existing authentication tokens should still work.
+
+Please feel free to alert Tom to this issue via one of the contact methods below.",
 ,,
 button_generic_confirm,Confirm,
 button_generic_copy,Copy,コピー
@@ -283,6 +294,7 @@ button_generic_delete,Delete,削除
 button_tab_inputs,Inputs,入力
 button_tab_outputs,Outputs,出力
 button_tab_settings,Settings,設定
+button_tab_profiles,Profiles,
 button_generic_connect,Connect,接続
 button_generic_disconnect,Disconnect,接続解除
 label_generic_settings,Settings,設定

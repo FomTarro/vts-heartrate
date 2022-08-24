@@ -57,6 +57,7 @@ inputWS.onopen = () => {
         data: {
             pluginName: "My Heartrate Plugin",
             pluginAuthor: "Skeletom",
+            pluginAbout: "A plugin for connecting a third-party service."
         }
     }));
 }

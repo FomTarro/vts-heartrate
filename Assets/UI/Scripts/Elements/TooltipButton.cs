@@ -32,7 +32,11 @@ public class TooltipButton : MonoBehaviour
             case Tooltips.HEARTRATE_WEBSOCKET:
                 UIManager.Instance.ShowPopUp(
                     "input_websocket_title",
-                    "input_websocket_tooltip"
+                    "input_websocket_tooltip",
+                    new PopUp.PopUpOption(
+                        "settings_api_server_button_open_readme",
+                        ColorUtils.ColorPreset.BLUE,
+                        () => { Application.OpenURL("https://github.com/FomTarro/vts-heartrate/#api"); })
                 );
                 break;
             case Tooltips.HEARTRATE_PULSOID_CONNECT:
@@ -107,10 +111,10 @@ public class TooltipButton : MonoBehaviour
                     "output_expressions_tooltip"
                 );
                 break;
-            case Tooltips.OUTPUT_COPY:
+            case Tooltips.OUTPUT_PROFILE:
                 UIManager.Instance.ShowPopUp(
-                    "output_copy_profile_title",
-                    "output_copy_profile_tooltip"
+                    "output_current_profile_title",
+                    "output_current_profile_tooltip"
                 );
                 break;
             case Tooltips.OUTPUT_HOTKEY:
@@ -151,6 +155,7 @@ public class TooltipButton : MonoBehaviour
         OUTPUT_EXPRESSION = 203,
         OUTPUT_COPY = 204,
         OUTPUT_HOTKEY = 205,
+        OUTPUT_PROFILE = 206,
 
         SETTINGS_API = 301,
     }

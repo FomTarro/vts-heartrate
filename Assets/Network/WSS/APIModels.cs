@@ -204,11 +204,12 @@ public class InputMessage : APIMessage {
 
 public class AuthenticationMessage : APIMessage {
     public Data data = new Data();
-    public AuthenticationMessage(string pluginName, string pluginAuthor, string token, bool authenticated){
+    public AuthenticationMessage(string pluginName, string pluginAuthor, string pluginAbout, string token, bool authenticated){
         this.messageType = "AuthenticationResponse";
         this.data = new Data();
         this.data.pluginName = pluginName;
         this.data.pluginAuthor = pluginAuthor;
+        this.data.pluginAbout = pluginAbout;
         this.data.token = token;
         this.data.authenticated = authenticated;
     }
@@ -217,6 +218,7 @@ public class AuthenticationMessage : APIMessage {
     public class Data{
         public string pluginName;
         public string pluginAuthor;
+        public string pluginAbout;
         public string token;
         public bool authenticated = false;
     }

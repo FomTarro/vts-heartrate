@@ -8,7 +8,8 @@ public class ExpressionModule : MonoBehaviour
 {
     [SerializeField]
     private TMP_InputField _threshold = null;
-    public int Threshold { get { return MathUtils.StringToByte(this._threshold.text); } }
+    private int _thresholdVal = 0;
+    public int Threshold { get { return this._thresholdVal; } }
     private int _priorThreshold = 0;
     [SerializeField]
     private TMP_Dropdown _dropdown = null;
@@ -19,8 +20,8 @@ public class ExpressionModule : MonoBehaviour
     public string SelectedExpression {
         get {
             return this._waitingOn == null ?
-            (this._dropdown.value < HeartrateManager.Instance.Plugin.Expressions.Count ?
-                HeartrateManager.Instance.Plugin.Expressions[this._dropdown.value] : null) :
+            (this._dropdown.value < this._expressions.Count ?
+                this._expressions[this._dropdown.value].file : null) :
             this._waitingOn;
         }
     }
@@ -29,6 +30,10 @@ public class ExpressionModule : MonoBehaviour
     private TMP_Dropdown _behavior = null;
     public TriggerBehavior Behavior { get { return (TriggerBehavior)this._behavior.value; } }
     private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW;
+    [SerializeField]
+    private TMP_Text _minimizedSummary = null;
+
+    private List<VTS.Models.ExpressionData> _expressions = new List<VTS.Models.ExpressionData>();
 
     public void Clone(){
         HeartrateManager.Instance.Plugin.CreateExpressionModule(this.ToSaveData());
@@ -110,31 +115,51 @@ public class ExpressionModule : MonoBehaviour
 
     private void SetExpression(string expressionFile){
         int index = ExpressionToIndex(expressionFile);
+        // index will only be -1 if the desired item is not in the list
         if (index < 0){
             this._waitingOn = expressionFile;
-        }
-        else if (this._dropdown.options.Count > 0){
+        }else if (this._dropdown.options.Count > 0 && this._dropdown.options.Count > index){
             this._dropdown.SetValueWithoutNotify(index);
+            // finally found what we were waiting for
+            this._waitingOn = null;
+        }
+        this._minimizedSummary.text = string.Format("({0})", GetMinimizedText());
+    }
+
+    private string GetMinimizedText(){
+        if(this.SelectedExpression != null && this.SelectedExpression.Length > 0){
+            return this.SelectedExpression.Length > 48 
+            ? string.Format("{0}...", this.SelectedExpression.Substring(0, 45))
+            : this.SelectedExpression;
+        }else{
+            return "NO EXPRESSION SET";
         }
     }
 
     // TODO: consolidate this behavior into RefreshableDropdown
     public void RefreshExpressionList(){
         int currentIndex = this._dropdown.value;
-        string expressionFile = this._dropdown.options.Count > 0 ?
-                                this._dropdown.options[currentIndex].text :
-                                null;
+        string expressionFile = this._dropdown.options.Count > 0 ? this._dropdown.options[currentIndex].text : null;
         this._dropdown.ClearOptions();
-        this._dropdown.AddOptions(HeartrateManager.Instance.Plugin.Expressions);
+        this._expressions = HeartrateManager.Instance.Plugin.GetExpressionsForModelID(ProfileManager.Instance.CurrentProfile.modelID);
+        List<string> expressionNames = new List<string>();
+        foreach(VTS.Models.ExpressionData data in this._expressions){
+            expressionNames.Add(data.file);
+        }
+        this._dropdown.AddOptions(expressionNames);
         this._dropdown.RefreshShownValue();
         if (this._waitingOn != null) {
             SetExpression(this._waitingOn);
-            this._waitingOn = null;
-        }
-        else {
+        }else {
             SetExpression(expressionFile);
         }
     }
+
+    private void OnEditThreshold(string value){
+        this._thresholdVal = Mathf.Clamp(MathUtils.StringToInt(value), 0, 255);
+        this._threshold.text = this._thresholdVal.ToString();
+    }
+
 
     [System.Serializable]
     public class SaveData {
@@ -160,6 +185,8 @@ public class ExpressionModule : MonoBehaviour
         this._behavior.ClearOptions();
         this._behavior.AddOptions(Names());
         this._threshold.text = data.threshold.ToString();
+        this._thresholdVal = Mathf.Clamp(data.threshold, 0, 255);
+        this._threshold.onEndEdit.AddListener(OnEditThreshold);
         this._behavior.SetValueWithoutNotify((int)data.behavior);
         SetExpression(data.expressionFile);
     }

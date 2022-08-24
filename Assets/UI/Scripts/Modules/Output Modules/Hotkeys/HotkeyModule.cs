@@ -7,7 +7,8 @@ public class HotkeyModule : MonoBehaviour
 {
     [SerializeField]
     private TMP_InputField _threshold = null;
-    public int Threshold { get { return MathUtils.StringToByte(this._threshold.text); } }
+    private int _thresholdVal = 0;
+    public int Threshold { get { return this._thresholdVal; } }
     private int _priorThreshold = 0;
     [SerializeField]
     private TMP_Dropdown _dropdown = null;
@@ -18,8 +19,8 @@ public class HotkeyModule : MonoBehaviour
     public string SelectedHotkey {
         get {
             return this._waitingOn == null ?
-            (this._dropdown.value < HeartrateManager.Instance.Plugin.Hotkeys.Count ?
-                HeartrateManager.Instance.Plugin.Hotkeys[this._dropdown.value].id : null) :
+            (this._dropdown.value < this._hotkeys.Count ?
+                this._hotkeys[this._dropdown.value].hotkeyID : null) :
             this._waitingOn;
         }
     }
@@ -28,6 +29,10 @@ public class HotkeyModule : MonoBehaviour
     private TMP_Dropdown _behavior = null;
     public TriggerBehavior Behavior { get { return (TriggerBehavior)this._behavior.value; } }
     private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW;
+    [SerializeField]
+    private TMP_Text _minimizedSummary = null;
+
+    private List<VTS.Models.HotkeyData> _hotkeys = new List<VTS.Models.HotkeyData>();
 
     public void Clone(){
         HeartrateManager.Instance.Plugin.CreateHotkeyModule(this.ToSaveData());
@@ -95,12 +100,26 @@ public class HotkeyModule : MonoBehaviour
     }
 
     private void SetHotkey(string hotkeyID){
+        // index will only be -1 if the desired item is not in the list
         int index = HotkeyToIndex(hotkeyID);
         if (index < 0){
             this._waitingOn = hotkeyID;
-        }
-        else if (this._dropdown.options.Count > 0){
+        }else if (this._dropdown.options.Count > 0 && this._dropdown.options.Count > index){
             this._dropdown.SetValueWithoutNotify(index);
+            // finally found what we were waiting for
+            this._waitingOn = null;
+        }
+        this._minimizedSummary.text = string.Format("({0})", GetMinimizedText());
+    }
+
+    private string GetMinimizedText(){
+        string name = this._dropdown.options.Count > 0 && this._hotkeys.Count >= this._dropdown.options.Count 
+            ? string.Format("[{0}] {1}", this._hotkeys[this._dropdown.value].type, this._hotkeys[this._dropdown.value].name)
+            : "NO HOTKEY SET";
+        if(name.Length > 48){
+            return string.Format("{0}...", name.Substring(0, 45));
+        }else{
+            return name;
         }
     }
 
@@ -109,19 +128,23 @@ public class HotkeyModule : MonoBehaviour
         int currentIndex = this._dropdown.value;
         string hotkey = this._dropdown.options.Count > 0 ? this._dropdown.options[currentIndex].text : null;
         this._dropdown.ClearOptions();
+        this._hotkeys = HeartrateManager.Instance.Plugin.GetHotkeysForModelID(ProfileManager.Instance.CurrentProfile.modelID);
         List<string> hotkeyNames = new List<string>();
-        foreach(HotkeyListItem data in HeartrateManager.Instance.Plugin.Hotkeys){
-            hotkeyNames.Add(data.name);
+        foreach(VTS.Models.HotkeyData data in this._hotkeys){
+            hotkeyNames.Add(string.Format("[{0}] <size=0>{1}</size>{2}", data.type, data.hotkeyID, data.name));
         }
         this._dropdown.AddOptions(hotkeyNames);
         this._dropdown.RefreshShownValue();
         if (this._waitingOn != null) {
             SetHotkey(this._waitingOn);
-            this._waitingOn = null;
-        }
-        else {
+        }else {
             SetHotkey(hotkey);
         }
+    }
+
+    private void OnEditThreshold(string value){
+        this._thresholdVal = Mathf.Clamp(MathUtils.StringToInt(value), 0, 255);
+        this._threshold.text = this._thresholdVal.ToString();
     }
 
     [System.Serializable]
@@ -130,8 +153,7 @@ public class HotkeyModule : MonoBehaviour
         public int threshold;
         public TriggerBehavior behavior;
 
-        public override string ToString()
-        {
+        public override string ToString(){
             return JsonUtility.ToJson(this);
         }
     }
@@ -148,6 +170,8 @@ public class HotkeyModule : MonoBehaviour
         this._behavior.ClearOptions();
         this._behavior.AddOptions(Names());
         this._threshold.text = data.threshold.ToString();
+        this._thresholdVal = Mathf.Clamp(data.threshold, 0, 255);
+        this._threshold.onEndEdit.AddListener(OnEditThreshold);
         this._behavior.SetValueWithoutNotify((int)data.behavior);
         SetHotkey(data.hotkeyID);
     }
@@ -167,14 +191,5 @@ public class HotkeyModule : MonoBehaviour
             // "Activate above",
             // "Activate below",
         } ); 
-    }
-}
-
-public struct HotkeyListItem {
-    public string name;
-    public string id;
-    public HotkeyListItem(string name, string id){
-        this.name = name;
-        this.id = id;
     }
 }

@@ -85,20 +85,21 @@ public class HeartratePlugin : VTSPlugin
     [Header("Expressions")]
     [SerializeField]
     private ExpressionModule _expressionPrefab = null;
-    private List<string> _expressions = new List<string>();
-    public List<string> Expressions { get { return this._expressions; } }
+
     [SerializeField]
     private List<ExpressionModule> _expressionModules = new List<ExpressionModule>();
     public List<ExpressionModule> ExpressionModules { get { return new List<ExpressionModule>(this._expressionModules); } }
+    private Dictionary<string, List<ExpressionData>> _expressionsByModelID = new Dictionary<string, List<ExpressionData>>();
 
     [Header("Hotkeys")]
     [SerializeField]
     private HotkeyModule _hotkeyPrefab = null;
-    private List<HotkeyListItem> _hotkeys = new List<HotkeyListItem>();
-    public List<HotkeyListItem> Hotkeys { get { return this._hotkeys; } }
+    // public List<HotkeyData> Hotkeys { get { return this._hotkeysByModelID; } }
+
     [SerializeField]
     private List<HotkeyModule> _hotkeyModules = new List<HotkeyModule>();
     public List<HotkeyModule> HotkeyModules { get { return new List<HotkeyModule>(this._hotkeyModules); } }
+    private Dictionary<string, List<HotkeyData>> _hotkeysByModelID = new Dictionary<string, List<HotkeyData>>();
 
     [Header("Input Modules")]
     [SerializeField]
@@ -117,13 +118,15 @@ public class HeartratePlugin : VTSPlugin
     #region Lifecycle
 
     private void OnValidate(){
-        this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
-        this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
+        
     }
 
     public void OnLaunch(){
+        this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
+        this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
         FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
-        FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
+        FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
+        CreateAllParameters();
         Connect();
     }
 
@@ -192,63 +195,41 @@ public class HeartratePlugin : VTSPlugin
         if(this.IsAuthenticated){
             GetCurrentModel(
                 (s) => {
-                    if(s.data.modelLoaded && !s.data.modelID.Equals(SaveDataManager.Instance.CurrentProfile.modelID)){
-                        SaveDataManager.Instance.SetCurrentProfileInfo(
+                    // Model is loaded in VTS and it's not the model we have a loaded profile for
+                    if(s.data.modelLoaded && !s.data.modelID.Equals(ProfileManager.Instance.CurrentProfile.modelID)){
+                        // load Default profile for the new model
+                        ProfileManager.Instance.SetCurrentProfileInfo(
                             s.data.modelName, 
                             s.data.modelID);
-                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
+                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
                         SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
-                    }else if(!s.data.modelLoaded && SaveDataManager.Instance.IsModelLoaded()){
-                        SaveDataManager.Instance.CreateDefaultUnloadedProfile();
-                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(SaveDataManager.Instance.CurrentProfile));
+                    // If no model is loaded in VTS but we do have a model profile loaded here, revent to the NO_MODEL default profile
+                    }else if(!s.data.modelLoaded && ProfileManager.Instance.IsModelLoaded()){
+                        ProfileManager.Instance.CreateDefaultNoModelProfile();
+                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
                         SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
                     }
                 },
                 (e) => {
-                    SaveDataManager.Instance.CreateDefaultUnloadedProfile();
+                    ProfileManager.Instance.CreateDefaultNoModelProfile();
                     Debug.LogError(e.data.message);
                 }
             );
         }
         // get all expressions for currently loaded model
         if(this.IsAuthenticated){
-            GetExpressionStateList(
-                (s) => {
-                    this._expressions.Clear();
-                    foreach(ExpressionData expression in s.data.expressions){
-                        this._expressions.Add(expression.file);
-                    }
-                    foreach(ExpressionModule module in this._expressionModules){
-                        module.RefreshExpressionList();
-                    }
-                },
-                (e) => {
-                    Debug.LogError(e.data.message);
-                }
-            );
-        }
-        // get all hotkeys in currently loaded model
-        if(this.IsAuthenticated){
-            if(SaveDataManager.Instance.IsModelLoaded()){
-                GetHotkeysInCurrentModel(
-                    SaveDataManager.Instance.CurrentProfile.modelID,
+            if(ProfileManager.Instance.IsModelLoaded()){
+                GetExpressionStateList(
                     (s) => {
                         try{
-                        this._hotkeys.Clear();
-                        foreach(HotkeyData hotkey in s.data.availableHotkeys){
-                            this._hotkeys.Add(new HotkeyListItem(
-                                string.Format(
-                                    "[{0}] {1} <size=0>{2}</size>", 
-                                    hotkey.type, 
-                                    hotkey.name, 
-                                    hotkey.hotkeyID),
-                                hotkey.hotkeyID));
-                        }
-                        foreach(HotkeyModule module in this._hotkeyModules){
-                            module.RefreshHotkeyList();
-                        }
+                            Debug.Log(s.data.modelID);
+                            if(this._expressionsByModelID.ContainsKey(s.data.modelID)){
+                                this._expressionsByModelID[s.data.modelID] = new List<ExpressionData>(s.data.expressions);
+                            }else{
+                                this._expressionsByModelID.Add(s.data.modelID, new List<ExpressionData>(s.data.expressions));
+                            }
                         }catch(System.Exception e){
-                            Debug.LogError(e);
+                            Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
                         }
                     },
                     (e) => {
@@ -256,6 +237,36 @@ public class HeartratePlugin : VTSPlugin
                     }
                 );
             }
+        }
+        // get all hotkeys in currently loaded model
+        if(this.IsAuthenticated){
+            if(ProfileManager.Instance.IsModelLoaded()){
+                GetHotkeysInCurrentModel(
+                    ProfileManager.Instance.CurrentProfile.modelID,
+                    (s) => {
+                        try{
+                            if(this._hotkeysByModelID.ContainsKey(s.data.modelID)){
+                                this._hotkeysByModelID[s.data.modelID] = new List<HotkeyData>(s.data.availableHotkeys);
+                            }else{
+                                this._hotkeysByModelID.Add(s.data.modelID, new List<HotkeyData>(s.data.availableHotkeys));
+                            }
+                        }catch(System.Exception e){
+                            Debug.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
+                        }
+                    },
+                    (e) => {
+                        Debug.LogError(e.data.message);
+                    }
+                );
+            }
+        }
+
+        foreach(ExpressionModule module in this._expressionModules){
+            module.RefreshExpressionList();
+        }
+
+        foreach(HotkeyModule module in this._hotkeyModules){
+            module.RefreshHotkeyList();
         }
 
         // apply art mesh tints
@@ -310,6 +321,8 @@ public class HeartratePlugin : VTSPlugin
             (e) => {
                 Debug.LogError(e.data.message);
             });
+        }else if(!this.IsAuthenticated){
+            InjectedParamValuesToDictionary(this._paramValues.ToArray());
         }
 
         // set API data values
@@ -343,7 +356,7 @@ public class HeartratePlugin : VTSPlugin
         CreateNewParameter(PARAMETER_LINEAR, "param_vts_heartrate_linear", 1, this._linear);
         CreateNewParameter(PARAMETER_SINE_PULSE, "param_vts_heartrate_pulse", 1, this._pulse);
         CreateNewParameter(PARAMETER_SINE_BREATH, "param_vts_heartrate_breath", 1, this._breath);
-        CreateNewParameter(PARAMETER_BPM, "param_vts_heartrate_bpm", 255, this._bpm);
+        CreateNewParameter(PARAMETER_BPM, "param_vts_heartrate_bpm_all", 255, this._bpm);
         CreateNewParameter(PARAMETER_BPM_ONES, "param_vts_heartrate_bpm_ones", 9, this._bpm_ones);
         CreateNewParameter(PARAMETER_BPM_TENS, "param_vts_heartrate_bpm_tens", 9, this._bpm_tens);
         CreateNewParameter(PARAMETER_BPM_HUNDREDS, "param_vts_heartrate_bpm_hundreds", 9, this._bpm_hundreds);
@@ -358,24 +371,28 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private void CreateNewParameter(string paramName, string paramDescriptionKey, int paramMax, VTSParameterInjectionValue value){
-        VTSCustomParameter newParam = new VTSCustomParameter();
-        newParam.defaultValue = 0;
-        newParam.min = 0;
-        newParam.max = paramMax;
-        newParam.parameterName = paramName;
-        newParam.explanation = Localization.LocalizationManager.Instance.GetString(paramDescriptionKey);
-        Debug.Log(string.Format("Creating tracking parameter: {0}", paramName));
-        this.AddCustomParameter(
-            newParam,
-            (s) => {
-                value.id = paramName;
-                value.value = 0;
-                value.weight = 1;
-                this._paramValues.Add(value);
-            },
-            (e) => {
-                Debug.LogError(e.ToString());
-            });
+        
+        value.id = paramName;
+        value.value = 0;
+        value.weight = 1;
+        this._paramValues.Add(value);
+        if(this.IsAuthenticated){
+            VTSCustomParameter newParam = new VTSCustomParameter();
+            newParam.defaultValue = 0;
+            newParam.min = 0;
+            newParam.max = paramMax;
+            newParam.parameterName = paramName;
+            newParam.explanation = Localization.LocalizationManager.Instance.GetString(paramDescriptionKey);
+            Debug.Log(string.Format("Creating tracking parameter: {0}", paramName));
+            this.AddCustomParameter(
+                newParam,
+                (s) => {
+                    Debug.Log(string.Format("Successfully created parameter in VTube Studio: {0}", paramName));
+                },
+                (e) => {
+                    Debug.LogError(e.ToString());
+                });
+        }
     }
 
     private void InjectedParamValuesToDictionary(VTSParameterInjectionValue[] values){
@@ -455,7 +472,23 @@ public class HeartratePlugin : VTSPlugin
     }
 
     private int GetModuleNewChildIndex(){
-        return Math.Max(1, TransformUtils.GetActiveChildCount(this._outputModulesParent) - 3);
+        return 1; //Math.Max(1, TransformUtils.GetActiveChildCount(this._outputModulesParent) - 3);
+    }
+
+    public List<HotkeyData> GetHotkeysForModelID(string modelID){
+        if(this._hotkeysByModelID.ContainsKey(modelID)){
+            return new List<HotkeyData>(this._hotkeysByModelID[modelID]);
+        }else{
+            return new List<HotkeyData>();
+        }
+    }
+
+    public List<ExpressionData> GetExpressionsForModelID(string modelID){
+        if(this._expressionsByModelID.ContainsKey(modelID)){
+            return new List<ExpressionData>(this._expressionsByModelID[modelID]);
+        }else{
+            return new List<ExpressionData>();
+        }
     }
 
     #endregion
@@ -478,7 +511,7 @@ public class HeartratePlugin : VTSPlugin
 
     public ModelSaveData ToModelSaveData(){
         ModelSaveData data = new ModelSaveData();
-        SaveDataManager.ModelProfileInfo currentModel = SaveDataManager.Instance.CurrentProfile;
+        ProfileManager.ProfileData currentModel = ProfileManager.Instance.CurrentProfile;
         data.version = Application.version;
         data.modelName = currentModel.modelName;
         data.modelID = currentModel.modelID;
@@ -497,9 +530,9 @@ public class HeartratePlugin : VTSPlugin
     }
 
     public void FromGlobalSaveData(GlobalSaveData data){    
-        this._maxRate = data.maxRate;
+        this._maxRate = Mathf.Clamp(data.maxRate, 0, 255);
         this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
-        this._minRate = data.minRate;
+        this._minRate = Mathf.Clamp(data.minRate, 0, 255);
         this._heartrateRanges.SetMinRate(this._minRate.ToString());
         // Default to SLIDER if we can't find the provided input type
         HeartrateInputModule activeModule = this._heartrateInputs.Find((x => x.Type == data.activeInput));
