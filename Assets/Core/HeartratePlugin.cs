@@ -85,20 +85,21 @@ public class HeartratePlugin : VTSPlugin
     [Header("Expressions")]
     [SerializeField]
     private ExpressionModule _expressionPrefab = null;
-    private List<string> _expressions = new List<string>();
-    public List<string> Expressions { get { return this._expressions; } }
+
     [SerializeField]
     private List<ExpressionModule> _expressionModules = new List<ExpressionModule>();
     public List<ExpressionModule> ExpressionModules { get { return new List<ExpressionModule>(this._expressionModules); } }
+    private Dictionary<string, List<ExpressionData>> _expressionsByModelID = new Dictionary<string, List<ExpressionData>>();
 
     [Header("Hotkeys")]
     [SerializeField]
     private HotkeyModule _hotkeyPrefab = null;
-    private List<HotkeyListItem> _hotkeys = new List<HotkeyListItem>();
-    public List<HotkeyListItem> Hotkeys { get { return this._hotkeys; } }
+    // public List<HotkeyData> Hotkeys { get { return this._hotkeysByModelID; } }
+
     [SerializeField]
     private List<HotkeyModule> _hotkeyModules = new List<HotkeyModule>();
     public List<HotkeyModule> HotkeyModules { get { return new List<HotkeyModule>(this._hotkeyModules); } }
+    private Dictionary<string, List<HotkeyData>> _hotkeysByModelID = new Dictionary<string, List<HotkeyData>>();
 
     [Header("Input Modules")]
     [SerializeField]
@@ -221,12 +222,11 @@ public class HeartratePlugin : VTSPlugin
                 GetExpressionStateList(
                     (s) => {
                         try{
-                            this._expressions.Clear();
-                            foreach(ExpressionData expression in s.data.expressions){
-                                this._expressions.Add(expression.file);
-                            }
-                            foreach(ExpressionModule module in this._expressionModules){
-                                module.RefreshExpressionList();
+                            Debug.Log(s.data.modelID);
+                            if(this._expressionsByModelID.ContainsKey(s.data.modelID)){
+                                this._expressionsByModelID[s.data.modelID] = new List<ExpressionData>(s.data.expressions);
+                            }else{
+                                this._expressionsByModelID.Add(s.data.modelID, new List<ExpressionData>(s.data.expressions));
                             }
                         }catch(System.Exception e){
                             Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
@@ -236,11 +236,6 @@ public class HeartratePlugin : VTSPlugin
                         Debug.LogError(e.data.message);
                     }
                 );
-            }else{
-                this._expressions.Clear();
-                foreach(ExpressionModule module in this._expressionModules){
-                    module.RefreshExpressionList();
-                }
             }
         }
         // get all hotkeys in currently loaded model
@@ -250,22 +245,10 @@ public class HeartratePlugin : VTSPlugin
                     ProfileManager.Instance.CurrentProfile.modelID,
                     (s) => {
                         try{
-                            this._hotkeys.Clear();
-                            foreach(HotkeyData hotkey in s.data.availableHotkeys){
-                                this._hotkeys.Add(new HotkeyListItem(
-                                    string.Format(
-                                        "[{0}] {1} <size=0>{2}</size>", 
-                                        hotkey.type, 
-                                        hotkey.name, 
-                                        hotkey.hotkeyID),
-                                    string.Format(
-                                        "[{0}] {1}", 
-                                        hotkey.type, 
-                                        hotkey.name),
-                                    hotkey.hotkeyID));
-                            }
-                            foreach(HotkeyModule module in this._hotkeyModules){
-                                module.RefreshHotkeyList();
+                            if(this._hotkeysByModelID.ContainsKey(s.data.modelID)){
+                                this._hotkeysByModelID[s.data.modelID] = new List<HotkeyData>(s.data.availableHotkeys);
+                            }else{
+                                this._hotkeysByModelID.Add(s.data.modelID, new List<HotkeyData>(s.data.availableHotkeys));
                             }
                         }catch(System.Exception e){
                             Debug.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
@@ -275,12 +258,15 @@ public class HeartratePlugin : VTSPlugin
                         Debug.LogError(e.data.message);
                     }
                 );
-            }else{
-                this._hotkeys.Clear();
-                foreach(HotkeyModule module in this._hotkeyModules){
-                    module.RefreshHotkeyList();
-                }
             }
+        }
+
+        foreach(ExpressionModule module in this._expressionModules){
+            module.RefreshExpressionList();
+        }
+
+        foreach(HotkeyModule module in this._hotkeyModules){
+            module.RefreshHotkeyList();
         }
 
         // apply art mesh tints
@@ -487,6 +473,22 @@ public class HeartratePlugin : VTSPlugin
 
     private int GetModuleNewChildIndex(){
         return 1; //Math.Max(1, TransformUtils.GetActiveChildCount(this._outputModulesParent) - 3);
+    }
+
+    public List<HotkeyData> GetHotkeysForModelID(string modelID){
+        if(this._hotkeysByModelID.ContainsKey(modelID)){
+            return new List<HotkeyData>(this._hotkeysByModelID[modelID]);
+        }else{
+            return new List<HotkeyData>();
+        }
+    }
+
+    public List<ExpressionData> GetExpressionsForModelID(string modelID){
+        if(this._expressionsByModelID.ContainsKey(modelID)){
+            return new List<ExpressionData>(this._expressionsByModelID[modelID]);
+        }else{
+            return new List<ExpressionData>();
+        }
     }
 
     #endregion

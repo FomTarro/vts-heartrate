@@ -58,6 +58,7 @@ public class UIManager : Singleton<UIManager>, IEventPublisher<UIManager.Tabs>
     }
 
     public void GoTo(Tabs tab){
+        this._scroll.verticalScrollbar.value = 0;
         foreach(TabMapper entry in this._tabs){
             CanvasGroup group = entry.element.GetComponent<CanvasGroup>();
             group.interactable = entry.tab == tab;

@@ -19,8 +19,8 @@ public class HotkeyModule : MonoBehaviour
     public string SelectedHotkey {
         get {
             return this._waitingOn == null ?
-            (this._dropdown.value < HeartrateManager.Instance.Plugin.Hotkeys.Count ?
-                HeartrateManager.Instance.Plugin.Hotkeys[this._dropdown.value].id : null) :
+            (this._dropdown.value < this._hotkeys.Count ?
+                this._hotkeys[this._dropdown.value].hotkeyID : null) :
             this._waitingOn;
         }
     }
@@ -31,6 +31,8 @@ public class HotkeyModule : MonoBehaviour
     private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW;
     [SerializeField]
     private TMP_Text _minimizedSummary = null;
+
+    private List<VTS.Models.HotkeyData> _hotkeys = new List<VTS.Models.HotkeyData>();
 
     public void Clone(){
         HeartrateManager.Instance.Plugin.CreateHotkeyModule(this.ToSaveData());
@@ -98,19 +100,21 @@ public class HotkeyModule : MonoBehaviour
     }
 
     private void SetHotkey(string hotkeyID){
+        // index will only be -1 if the desired item is not in the list
         int index = HotkeyToIndex(hotkeyID);
         if (index < 0){
             this._waitingOn = hotkeyID;
-        }
-        else if (this._dropdown.options.Count > 0){
+        }else if (this._dropdown.options.Count > 0 && this._dropdown.options.Count > index){
             this._dropdown.SetValueWithoutNotify(index);
+            // finally found what we were waiting for
+            this._waitingOn = null;
         }
         this._minimizedSummary.text = string.Format("({0})", GetMinimizedText());
     }
 
     private string GetMinimizedText(){
-        string name = this._dropdown.options.Count > 0 && HeartrateManager.Instance.Plugin.Hotkeys.Count >= this._dropdown.options.Count 
-            ? HeartrateManager.Instance.Plugin.Hotkeys[this._dropdown.value].nameWithoutID 
+        string name = this._dropdown.options.Count > 0 && this._hotkeys.Count >= this._dropdown.options.Count 
+            ? string.Format("[{0}] {1}", this._hotkeys[this._dropdown.value].type, this._hotkeys[this._dropdown.value].name)
             : "NO HOTKEY SET";
         if(name.Length > 48){
             return string.Format("{0}...", name.Substring(0, 45));
@@ -124,17 +128,16 @@ public class HotkeyModule : MonoBehaviour
         int currentIndex = this._dropdown.value;
         string hotkey = this._dropdown.options.Count > 0 ? this._dropdown.options[currentIndex].text : null;
         this._dropdown.ClearOptions();
+        this._hotkeys = HeartrateManager.Instance.Plugin.GetHotkeysForModelID(ProfileManager.Instance.CurrentProfile.modelID);
         List<string> hotkeyNames = new List<string>();
-        foreach(HotkeyListItem data in HeartrateManager.Instance.Plugin.Hotkeys){
-            hotkeyNames.Add(data.nameWithID);
+        foreach(VTS.Models.HotkeyData data in this._hotkeys){
+            hotkeyNames.Add(string.Format("[{0}] <size=0>{1}</size>{2}", data.type, data.hotkeyID, data.name));
         }
         this._dropdown.AddOptions(hotkeyNames);
         this._dropdown.RefreshShownValue();
         if (this._waitingOn != null) {
             SetHotkey(this._waitingOn);
-            this._waitingOn = null;
-        }
-        else {
+        }else {
             SetHotkey(hotkey);
         }
     }
@@ -188,16 +191,5 @@ public class HotkeyModule : MonoBehaviour
             // "Activate above",
             // "Activate below",
         } ); 
-    }
-}
-
-public struct HotkeyListItem {
-    public string nameWithID;
-    public string nameWithoutID;
-    public string id;
-    public HotkeyListItem(string name, string nameWithoutID, string id){
-        this.nameWithID = name;
-        this.nameWithoutID = nameWithoutID;
-        this.id = id;
     }
 }

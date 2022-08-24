@@ -279,6 +279,12 @@ output_load_profile_error,"Loading a profile that belongs to a model other than 
 Current model: <b>{0}</b>
 Profile model: <b>{1}</b>",
 ,,
+error_generic_title,Sorry...,
+error_cannot_resolve_tooltip,"Communication with the version server, <b>https://skeletom.net</b>, has failed with the following error: <i>{0}</i>. 
+
+This may result in the <b>inability check for a new version</b> of this plugin, and an <b>inability to receive a new Pulsoid authentication token</b>. Existing authentication tokens should still work.
+
+Please feel free to alert Tom to this issue via one of the contact methods below.",
 ,,
 button_generic_confirm,Confirm,
 button_generic_copy,Copy,コピー
