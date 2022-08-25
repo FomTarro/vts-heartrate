@@ -222,7 +222,6 @@ public class HeartratePlugin : VTSPlugin
                 GetExpressionStateList(
                     (s) => {
                         try{
-                            Debug.Log(s.data.modelID);
                             if(this._expressionsByModelID.ContainsKey(s.data.modelID)){
                                 this._expressionsByModelID[s.data.modelID] = new List<ExpressionData>(s.data.expressions);
                             }else{

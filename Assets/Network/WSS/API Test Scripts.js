@@ -16,7 +16,7 @@ inputWS.onmessage = (e) => {
         inputWS.send(JSON.stringify({
             messageType: "AuthenticationRequest",
             data: {
-                pluginName: "My Heartrate Plugin",
+                pluginName: "My Cool New Plugin",
                 pluginAuthor: "Skeletom",
                 token: parsed.data.token
             }
@@ -35,7 +35,7 @@ inputWS.onmessage = (e) => {
                 ws.send(JSON.stringify({
                     messageType: "AuthenticationRequest",
                     data: {
-                        pluginName: "My Heartrate Plugin",
+                        pluginName: "My Cool New Plugin",
                         pluginAuthor: "Skeletom",
                         token: parsed.data.token
                     }
@@ -55,9 +55,9 @@ inputWS.onopen = () => {
     inputWS.send(JSON.stringify({
         messageType: "AuthenticationRequest",
         data: {
-            pluginName: "My Heartrate Plugin",
+            pluginName: "My Cool New Plugin",
             pluginAuthor: "Skeletom",
-            pluginAbout: "A plugin for connecting a third-party service."
+            pluginAbout: "A plugin for connecting a my exercise bike to vts-heartrate!"
         }
     }));
 }
