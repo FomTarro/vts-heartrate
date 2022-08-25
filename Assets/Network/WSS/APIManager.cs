@@ -341,7 +341,7 @@ public class APIManager : Singleton<APIManager>
         }
     }
 
-    public class APIService : WebSocketService {
+    public class APIService : WebSocketBehavior {
 
         private string _path;
         private System.Action _onOpen;
