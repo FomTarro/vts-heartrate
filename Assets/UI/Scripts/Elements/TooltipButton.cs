@@ -29,13 +29,23 @@ public class TooltipButton : MonoBehaviour
                     "input_slider_tooltip"
                 );
                 break;
+            case Tooltips.HEARTRATE_WEBSOCKET:
+                UIManager.Instance.ShowPopUp(
+                    "input_websocket_title",
+                    "input_websocket_tooltip",
+                    new PopUp.PopUpOption(
+                        "settings_api_server_button_open_readme",
+                        ColorUtils.ColorPreset.BLUE,
+                        () => { Application.OpenURL("https://github.com/FomTarro/vts-heartrate/#api"); })
+                );
+                break;
             case Tooltips.HEARTRATE_PULSOID_CONNECT:
                 UIManager.Instance.ShowPopUp(
                     "input_pulsoid_app_title",
                     "input_pulsoid_app_tooltip",
                     new PopUp.PopUpOption(
                         "input_pulsoid_button_visit",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://www.pulsoid.net"); })
                 );
                 break;
@@ -45,7 +55,7 @@ public class TooltipButton : MonoBehaviour
                     "input_pulsoid_feed_tooltip",
                     new PopUp.PopUpOption(
                         "input_pulsoid_button_visit",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://www.pulsoid.net"); })
                 );
                 break;
@@ -61,7 +71,7 @@ public class TooltipButton : MonoBehaviour
                     "input_ant_plus_tooltip",
                     new PopUp.PopUpOption(
                         "input_ant_plus_button_visit",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://www.thisisant.com/company/"); })
                 );
                 break;
@@ -71,7 +81,7 @@ public class TooltipButton : MonoBehaviour
                     "input_hyperate_tooltip",
                     new PopUp.PopUpOption(
                         "input_hyperate_button_visit",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://www.hyperate.io"); })
                 );
                 break;
@@ -81,7 +91,7 @@ public class TooltipButton : MonoBehaviour
                     "output_artmesh_tooltip",
                     new PopUp.PopUpOption(
                         "output_artmesh_button",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://hawk.bar/VTubeStudioTagger/"); })
                 );
                 break;
@@ -89,9 +99,9 @@ public class TooltipButton : MonoBehaviour
                 UIManager.Instance.ShowPopUp(
                     "output_custom_params_title",
                     "output_custom_params_tooltip",
-                     new PopUp.PopUpOption(
+                    new PopUp.PopUpOption(
                         "output_custom_params_button",
-                        true,
+                        ColorUtils.ColorPreset.BLUE,
                         () => { Application.OpenURL("https://github.com/DenchiSoft/VTubeStudio/wiki/Plugins#what-are-custom-parameters"); })
                 );
                 break;
@@ -101,16 +111,26 @@ public class TooltipButton : MonoBehaviour
                     "output_expressions_tooltip"
                 );
                 break;
-            case Tooltips.OUTPUT_COPY:
+            case Tooltips.OUTPUT_PROFILE:
                 UIManager.Instance.ShowPopUp(
-                    "output_copy_profile_title",
-                    "output_copy_profile_tooltip"
+                    "output_current_profile_title",
+                    "output_current_profile_tooltip"
                 );
                 break;
             case Tooltips.OUTPUT_HOTKEY:
                 UIManager.Instance.ShowPopUp(
                     "output_hotkey_title",
                     "output_hotkey_tooltip"
+                );
+                break;
+            case Tooltips.SETTINGS_API:
+                UIManager.Instance.ShowPopUp(
+                    "settings_api_server_title",
+                    "settings_api_server_tooltip",
+                    new PopUp.PopUpOption(
+                        "settings_api_server_button_open_readme",
+                        ColorUtils.ColorPreset.BLUE,
+                        () => { Application.OpenURL("https://github.com/FomTarro/vts-heartrate/#api"); })
                 );
                 break;
             default:
@@ -128,11 +148,15 @@ public class TooltipButton : MonoBehaviour
         HEARTRATE_BLUETOOTH = 106,
         HEARTRATE_ANT_PLUS = 107,
         HEARTRATE_HYPERATE = 108,
+        HEARTRATE_WEBSOCKET = 109,
  
         OUTPUT_PARAMS = 201,
         OUTPUT_COLOR = 202,
         OUTPUT_EXPRESSION = 203,
         OUTPUT_COPY = 204,
         OUTPUT_HOTKEY = 205,
+        OUTPUT_PROFILE = 206,
+
+        SETTINGS_API = 301,
     }
 }

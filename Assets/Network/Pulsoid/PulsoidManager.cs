@@ -59,25 +59,31 @@ public class PulsoidManager : Singleton<PulsoidManager>
 
     IEnumerator GetAppData(System.Action<HttpUtils.ConnectionStatus> onStatus){
         while(this._appRequestIsLooping){
-            yield return HttpUtils.GetRequest(PULSOID_APP_URL, 
-            (e) => { 
+            if(this._appToken != null && this._appToken.Length > 0){
+                yield return HttpUtils.GetRequest(PULSOID_APP_URL, 
+                (e) => { 
+                    HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+                    status.status = HttpUtils.ConnectionStatus.Status.ERROR;
+                    if(e.statusCode == 403 || e.statusCode == 401){
+                        status.message = "Invalid token";
+                    }else{
+                        status.message = e.message;
+                    }
+                    onStatus.Invoke(status);
+                }, 
+                (s) => {
+                    PulsoidAppResult result = JsonUtility.FromJson<PulsoidAppResult>(s);
+                    this._appHeartrate = result.data.heart_rate;
+                    HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+                    status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
+                    onStatus.Invoke(status);
+                },
+                this._appToken);
+            }else{
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
-                status.status = HttpUtils.ConnectionStatus.Status.ERROR;
-                if(e.statusCode == 403 || e.statusCode == 401){
-                    status.message = "Invalid token";
-                }else{
-                    status.message = e.message;
-                }
+                status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
                 onStatus.Invoke(status);
-            }, 
-            (s) => {
-                PulsoidAppResult result = JsonUtility.FromJson<PulsoidAppResult>(s);
-                this._appHeartrate = result.data.heart_rate;
-                HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
-                status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
-                onStatus.Invoke(status);
-            },
-            this._appToken);
+            }
             float t = 0;
             while(t < this._appRefreshInterval){
                 t+= Time.deltaTime;

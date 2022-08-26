@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class HeartrateManager : Singleton<HeartrateManager>
 {
@@ -10,20 +11,38 @@ public class HeartrateManager : Singleton<HeartrateManager>
     private const string VERSION_URL = @"https://www.skeletom.net/vts-heartrate/version";
 
     public override void Initialize(){
+        Application.targetFrameRate = 30;
         this.Plugin.OnLaunch();
         CheckVersion();
     }
-
+    
+    #region Version
     private void CheckVersion(){
         StartCoroutine(HttpUtils.GetRequest(
             VERSION_URL,
             (e) => {
-                Debug.LogError(e);
+                Debug.LogError(e.message);
+                Dictionary<string, string> strings = new Dictionary<string, string>();
+                    strings.Add("error_cannot_resolve_tooltip_populated", 
+                        string.Format(Localization.LocalizationManager.Instance.GetString("error_cannot_resolve_tooltip"), e.message));
+                    Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
+                UIManager.Instance.ShowPopUp(
+                    "error_generic_title",
+                    "error_cannot_resolve_tooltip_populated",
+                    new PopUp.PopUpOption(
+                            "settings_feedback_button_tweet", 
+                            ColorUtils.ColorPreset.GREEN, 
+                            () => { Application.OpenURL("https://twitter.com/intent/tweet?text=@FomTarro"); }),
+                    new PopUp.PopUpOption(
+                            "settings_feedback_button_email", 
+                            ColorUtils.ColorPreset.GREEN, 
+                            () => { Application.OpenURL("mailto:tom@skeletom.net"); })
+                );
             },
             (s) => {
-                VersionInfo info = JsonUtility.FromJson<VersionInfo>(s);
-                Debug.Log(CompareVersion(info) ? "Newer version needed: " + info.url : "Up to date.");
-                if(CompareVersion(info)){
+                VersionUtils.VersionInfo info = JsonUtility.FromJson<VersionUtils.VersionInfo>(s);
+                Debug.Log(VersionUtils.CompareVersion(info) ? "Newer version needed: " + info.url : "Up to date.");
+                if(VersionUtils.CompareVersion(info)){
                     Dictionary<string, string> strings = new Dictionary<string, string>();
                     strings.Add("settings_new_version_body_populated", 
                         string.Format(Localization.LocalizationManager.Instance.GetString("settings_new_version_body"), 
@@ -36,7 +55,7 @@ public class HeartrateManager : Singleton<HeartrateManager>
                         string.Format("settings_new_version_body_populated", info.version, info.date, info.url),
                         new PopUp.PopUpOption(
                             "settings_new_version_button_download", 
-                            true, 
+                            ColorUtils.ColorPreset.GREEN, 
                             () => { Application.OpenURL(info.url); })
                         );
                 }
@@ -45,25 +64,5 @@ public class HeartrateManager : Singleton<HeartrateManager>
         ));
     }
 
-    /// <summary>
-    /// Compares the current version to the remote version. Returns true if the remote is newer.
-    /// </summary>
-    /// <param name="remoteVersion"></param>
-    /// <returns></returns>
-    private bool CompareVersion(VersionInfo remoteVersion){
-        string currentVersion = Application.version;
-        return currentVersion.CompareTo(remoteVersion.version) < 0;
-    }
-
-    [System.Serializable]
-    public class VersionInfo{
-        public string version;
-        public string date;
-        public string url;
-
-        public override string ToString()
-        {
-            return JsonUtility.ToJson(this);
-        }
-    }
+    #endregion
 }

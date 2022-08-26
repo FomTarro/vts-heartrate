@@ -12,6 +12,13 @@ namespace VTS.Networking.Impl{
 
         private WebSocket _socket;
         private ConcurrentQueue<string> _intakeQueue = new ConcurrentQueue<string>();
+        private bool _attemptReconnect = false;
+
+        private System.Action _onConnect = () => {};
+        private System.Action _onDisconnect = () => {};
+        private System.Action _onError = () => {};
+        private string _url = "";
+
         public WebSocketSharpImpl(){
             this._intakeQueue = new ConcurrentQueue<string>();
         }
@@ -25,41 +32,61 @@ namespace VTS.Networking.Impl{
 
         public bool IsConnecting()
         {
-            return this._socket != null && this._socket.ReadyState == WebSocketState.CONNECTING;
+            return this._socket != null && this._socket.ReadyState == WebSocketState.Connecting;
         }
 
         public bool IsConnectionOpen()
         {
-            return this._socket != null && this._socket.ReadyState == WebSocketState.OPEN;
+            return this._socket != null && this._socket.ReadyState == WebSocketState.Open;
         }
 
         public void Send(string message)
         {
-            byte[] buffer = ENCODER.GetBytes(message);
-            this._socket.Send(buffer);
+            // byte[] buffer = ENCODER.GetBytes(message);
+            this._socket.SendAsync(message, (success) => {});
         }
 
         public void Start(string URL, Action onConnect, Action onDisconnect, Action onError)
         {
-            this._socket = new WebSocket(URL);
-            
-            this._socket.OnMessage += (sender, e) => { 
-                this._intakeQueue.Enqueue(e.Data); 
+            this._url = URL;
+            if(this._socket != null){
+                this._socket.Close();
+            }
+            this._socket = new WebSocket(this._url);
+            this._socket.WaitTime = TimeSpan.FromSeconds(10);
+            this._onConnect = onConnect;
+            this._onDisconnect = onDisconnect;
+            this._onError = onError;
+            this._socket.OnMessage += (sender, e) => {
+                MainThreadUtil.Run(() => {
+                    if(e != null && e.IsText){
+                        this._intakeQueue.Enqueue(e.Data); 
+                    }
+                });
             };
             this._socket.OnOpen += (sender, e) => { 
                 MainThreadUtil.Run(() => {
-                    onConnect(); 
+                    this._onConnect();
+                    Debug.Log("Main socket open!");
+                    this._attemptReconnect = true;
                 });
             };
             this._socket.OnError += (sender, e) => { 
                 MainThreadUtil.Run(() => {
-                    Debug.LogError(e.Message);
-                    onError(); 
+                    Debug.LogError("Main socket error...");
+                    if(e != null){
+                        Debug.LogError(string.Format("'{0}', {1}", e.Message, e.Exception));
+                    }
+                    this._onError();
                 });
             };
             this._socket.OnClose += (sender, e) => { 
                 MainThreadUtil.Run(() => {
-                    onDisconnect(); 
+                    Debug.Log(string.Format("Main socket closing: {0}, '{1}', {2}", e.Code, e.Reason, e.WasClean));
+                    this._onDisconnect();
+                    if(this._attemptReconnect && !e.WasClean){
+                        Reconnect();
+                    }
                 });
             };
 
@@ -68,7 +95,14 @@ namespace VTS.Networking.Impl{
 
         public void Stop()
         {
-            this._socket.Close();
+            this._attemptReconnect = false;
+            if(this._socket != null && this._socket.IsAlive){
+                this._socket.Close();
+            }
+        }
+
+        private void Reconnect(){
+            Start(this._url, this._onConnect, this._onDisconnect, this._onError);
         }
     }
 
@@ -78,6 +112,7 @@ namespace VTS.Networking.Impl{
     /// </summary>
     public class MainThreadUtil : MonoBehaviour {
         private static MainThreadUtil INSTANCE;
+        public static MainThreadUtil Instance { get { return INSTANCE; } } 
         private static ConcurrentQueue<System.Action> CALL_QUEUE = new ConcurrentQueue<Action>();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -102,7 +137,11 @@ namespace VTS.Networking.Impl{
             do{
                 System.Action action = null;
                 if(CALL_QUEUE.Count > 0 && CALL_QUEUE.TryDequeue(out action)){
-                    action();
+                    try{
+                        action();
+                    }catch(Exception e){
+                        Debug.LogError(String.Format("Error from socket: {0}", e.StackTrace));
+                    }
                 }
             }while(CALL_QUEUE.Count > 0);
         }

@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
+using System;
 
-public class UIManager : Singleton<UIManager>
+public class UIManager : Singleton<UIManager>, IEventPublisher<UIManager.Tabs>
 {
     [Header("Tabs")]
     [SerializeField]
     private List<TabMapper> _tabs = new List<TabMapper>();
+    private Dictionary<Tabs, UnityEvent> _tabEvents = new Dictionary<Tabs, UnityEvent>();
 
     [SerializeField]
     private ScrollRect _scroll = null;
@@ -21,32 +24,61 @@ public class UIManager : Singleton<UIManager>
 
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start(){
         GoTo(Tabs.HEARTRATE_INPUTS);
     }
 
     // Update is called once per frame
-    void LateUpdate()
-    {
+    void LateUpdate(){
+        if(this._requestRebuild){
+            foreach(TabMapper entry in this._tabs){
+                LayoutRebuilder.ForceRebuildLayoutImmediate(entry.element);
+            }
+            this._requestRebuild = false;
+        }
         this._scroll.content.sizeDelta = new Vector2(this._scroll.content.sizeDelta.x, this._selected.rect.height);
     }
 
-    public override void Initialize()
-    {
-        
+    public override void Initialize(){
+        foreach(TabMapper entry in this._tabs){
+            entry.element.gameObject.SetActive(true);
+        }
+    }
+
+    public EventCallbackRegistration RegisterEventCallback(Tabs tab, System.Action onSelect){
+        if(!this._tabEvents.ContainsKey(tab)){
+            this._tabEvents.Add(tab, new UnityEvent());
+        }
+        this._tabEvents[tab].AddListener(new UnityAction(onSelect));
+        return new EventCallbackRegistration(System.Guid.NewGuid().ToString());
+    }
+
+    public void UnregisterEventCallback(EventCallbackRegistration registration){
+        // TODO
     }
 
     public void GoTo(Tabs tab){
         foreach(TabMapper entry in this._tabs){
-            entry.element.gameObject.SetActive(entry.tab == tab);
+            CanvasGroup group = entry.element.GetComponent<CanvasGroup>();
+            group.interactable = entry.tab == tab;
+            group.blocksRaycasts = group.interactable;
+            group.alpha = entry.tab == tab ? 1.0f : 0.0f;
             foreach(RectTransform other in entry.others){
                 other.gameObject.SetActive(entry.tab == tab);
             }
             if(entry.tab == tab){
                 _selected = entry.element;
+                if(this._tabEvents.ContainsKey(tab)){
+                    this._tabEvents[tab].Invoke();
+                }
             }
         }
+        this._scroll.verticalNormalizedPosition = 1;
+    }
+
+    private bool _requestRebuild = false;
+    public void ResizeContent(){
+        this._requestRebuild = true;
     }
 
     public void ShowPopUp(string titleKey, string bodyKey, params PopUp.PopUpOption[] options){
@@ -70,5 +102,6 @@ public class UIManager : Singleton<UIManager>
         OUTPUTS = 2,
         DEBUG_LOGS = 3,
         SETTINGS = 4,
+        PROFILES = 5,
     }
 }

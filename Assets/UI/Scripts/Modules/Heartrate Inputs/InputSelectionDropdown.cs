@@ -4,6 +4,11 @@ public class InputSelectionDropdown : RefreshableDropdown
 {
     private Dictionary<string, HeartrateInputModule> _modules = new Dictionary<string, HeartrateInputModule>();
 
+    protected override void Initialize()
+    {
+        Refresh();
+    }
+
     public override void Refresh()
     {
         this._modules.Clear();

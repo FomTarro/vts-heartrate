@@ -12,6 +12,6 @@ public class GoToButton : MonoBehaviour
     void Start()
     {
         this._button = GetComponent<ExtendedButton>();
-        this._button.onPointerUp.AddListener(() => {UIManager.Instance.GoTo(this._tab); });
+        this._button.onPointerUp.AddListener(() => { UIManager.Instance.GoTo(this._tab); });
     }
 }

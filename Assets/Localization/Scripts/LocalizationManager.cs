@@ -187,13 +187,16 @@ namespace Localization
         {
             foreach(string key in strings.Keys)
             {
-                if (_loadedStrings[(int)(language-1)].ContainsKey(key))
-                {
-                    _loadedStrings[(int)(language-1)][key] = strings[key];
-                }
-                else
-                {
-                    _loadedStrings[(int)(language-1)].Add(key, strings[key]);
+                if(strings[key] != null){
+                    if (_loadedStrings[(int)(language-1)].ContainsKey(key))
+                    {
+
+                        _loadedStrings[(int)(language-1)][key] = strings[key];
+                    }
+                    else
+                    {
+                        _loadedStrings[(int)(language-1)].Add(key, strings[key]);
+                    }
                 }
             }
         }

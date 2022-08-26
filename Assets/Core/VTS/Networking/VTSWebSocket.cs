@@ -195,9 +195,9 @@ namespace VTS.Networking {
         }
 
         public void Send<T>(T request, Action<T> onSuccess, Action<VTSErrorData> onError) where T : VTSMessageData{
-            if(this._ws != null){
+            if(this._ws != null && this._ws.IsConnectionOpen()){
                 try{
-                    _callbacks.Add(request.requestID, new VTSCallbacks((t) => { onSuccess((T)t); } , onError));
+                    this._callbacks.Add(request.requestID, new VTSCallbacks((t) => { onSuccess((T)t); } , onError));
                     // make sure to remove null properties
                     string output = _json.ToJson(request);
                     this._ws.Send(output);

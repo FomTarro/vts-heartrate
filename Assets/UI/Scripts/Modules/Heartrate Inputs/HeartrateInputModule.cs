@@ -31,7 +31,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
     public enum InputType : int {
         SLIDER = 1,
         FILE = 2,
-        // BLUETOOTH_DEVICE = 3,
+        WEBSOCKET = 3,
         PULSOID = 4,
         PULSOID_RSS = 5,
         ANT_PLUS = 6,
