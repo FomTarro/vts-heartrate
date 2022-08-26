@@ -53,6 +53,7 @@ namespace VTS.Networking.Impl{
                 this._socket.Close();
             }
             this._socket = new WebSocket(this._url);
+            this._socket.WaitTime = TimeSpan.FromSeconds(10);
             this._onConnect = onConnect;
             this._onDisconnect = onDisconnect;
             this._onError = onError;

@@ -1,4 +1,4 @@
-![We finally have a logo!](img/logo.png)
+![We finally have a logo!](img/banner_logo.png)
 
 # VTS-Heartrate
 A VTube Studio plugin that allows for connectivity between heart rate monitors (HRM) and VTube Studio!
