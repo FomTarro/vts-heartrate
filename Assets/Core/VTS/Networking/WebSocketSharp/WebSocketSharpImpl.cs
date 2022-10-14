@@ -67,13 +67,13 @@ namespace VTS.Networking.Impl{
             this._socket.OnOpen += (sender, e) => { 
                 MainThreadUtil.Run(() => {
                     this._onConnect();
-                    Debug.Log("Main socket open!");
+                    Debug.Log(this._socket.Url.Host + " Socket open!");
                     this._attemptReconnect = true;
                 });
             };
             this._socket.OnError += (sender, e) => { 
                 MainThreadUtil.Run(() => {
-                    Debug.LogError("Main socket error...");
+                    Debug.LogError(this._socket.Url.Host + " Socket error...");
                     if(e != null){
                         Debug.LogError(string.Format("'{0}', {1}", e.Message, e.Exception));
                     }
@@ -82,7 +82,7 @@ namespace VTS.Networking.Impl{
             };
             this._socket.OnClose += (sender, e) => { 
                 MainThreadUtil.Run(() => {
-                    Debug.Log(string.Format("Main socket closing: {0}, '{1}', {2}", e.Code, e.Reason, e.WasClean));
+                    Debug.Log(string.Format(this._socket.Url.Host + " Socket closing: {0}, '{1}', {2}", e.Code, e.Reason, e.WasClean));
                     this._onDisconnect();
                     if(this._attemptReconnect && !e.WasClean){
                         Reconnect();
