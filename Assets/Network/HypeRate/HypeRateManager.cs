@@ -5,13 +5,13 @@ using VTS.Networking.Impl;
 public class HypeRateManager : Singleton<HypeRateManager>
 {
     private IWebSocket _socket = new WebSocketSharpImpl();
-    private const string HYPERATE_SOCKET_URL = @"wss://app.hyperate.io/socket/websocket?token={0}";
+    private const string HYPERATE_SOCKET_URL = @"ws://app.hyperate.io/socket/websocket?token={0}";
     private string _hyperateID = null;
     public string HypeRateID { get { return this._hyperateID; } }
     private string KEEP_ALIVE_MESSAGE;
 
     private float _timeout = 0f;
-    private const float TIMEOUT_MAX = 2f;
+    private const float TIMEOUT_MAX = 10f;
 
     [SerializeField]
     private int _heartrate = 0;
