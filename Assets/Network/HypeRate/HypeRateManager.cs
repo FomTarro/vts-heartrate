@@ -42,7 +42,6 @@ public class HypeRateManager : Singleton<HypeRateManager>
         this._onError = (message) => {
             Debug.LogError("An error occured while connecting to the HypeRate socket...");
             HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
-            errorStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
             errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
             errorStatus.message = message;
             onStatus.Invoke(errorStatus);
