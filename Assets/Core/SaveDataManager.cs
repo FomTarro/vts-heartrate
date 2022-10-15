@@ -24,6 +24,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
         CreateDirectoryIfNotFound(this.GLOBAL_SAVE_DIRECTORY);
         CreateDirectoryIfNotFound(this.MODEL_SAVE_DIRECTORY);
         CreateDirectoryIfNotFound(this.PLUGINS_SAVE_DIRECTORY);
+        Debug.Log(string.Format("Version: {0}", Application.version));
     }
 
     private void CreateDirectoryIfNotFound(string path){

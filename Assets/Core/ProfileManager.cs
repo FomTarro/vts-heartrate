@@ -240,7 +240,9 @@ public class ProfileManager : Singleton<ProfileManager>{
         sortedNames.Sort((a, b) => 
             { return a.name.CompareTo(b.name); });
         SortTuple currentModelTuple = new SortTuple(this.CurrentProfile.modelName, this.CurrentProfile.modelID);
-        sorted.Add(uniqueModels[currentModelTuple]);
+        if(uniqueModels.ContainsKey(currentModelTuple)){
+            sorted.Add(uniqueModels[currentModelTuple]);
+        }
         foreach(SortTuple key in sortedNames){
             if(!key.Equals(currentModelTuple)){
                 sorted.Add(uniqueModels[key]);

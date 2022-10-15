@@ -38,7 +38,7 @@ public static class HttpUtils
         public HttpError(long statusCode, string message){
             this.statusCode = statusCode;
             this.message = message;
-            Debug.LogError(this.message);
+            // Debug.LogError(this.message);
             // LoggingManager.Instance.Log(this.message);
         }
     }
