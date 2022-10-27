@@ -4,10 +4,9 @@ using System.Collections.Concurrent;
 using UnityEngine;
 using WebSocketSharp;
 
-namespace VTS.Networking.Impl{
+namespace VTS.Networking.Impl {
 
-    public class WebSocketSharpImpl : IWebSocket
-    {
+    public class WebSocketSharpImpl : IWebSocket {
         private static UTF8Encoding ENCODER = new UTF8Encoding();
 
         private WebSocket _socket;
@@ -23,31 +22,26 @@ namespace VTS.Networking.Impl{
             this._intakeQueue = new ConcurrentQueue<string>();
         }
 
-        public string GetNextResponse()
-        {
+        public string GetNextResponse(){
             string response = null;
             this._intakeQueue.TryDequeue(out response);
             return response;
         }
 
-        public bool IsConnecting()
-        {
+        public bool IsConnecting(){
             return this._socket != null && this._socket.ReadyState == WebSocketState.Connecting;
         }
 
-        public bool IsConnectionOpen()
-        {
+        public bool IsConnectionOpen() {
             return this._socket != null && this._socket.ReadyState == WebSocketState.Open;
         }
 
-        public void Send(string message)
-        {
+        public void Send(string message){
             // byte[] buffer = ENCODER.GetBytes(message);
             this._socket.SendAsync(message, (success) => {});
         }
 
-        public void Start(string URL, Action onConnect, Action onDisconnect, Action onError)
-        {
+        public void Start(string URL, Action onConnect, Action onDisconnect, Action onError) {
             this._url = URL;
             if(this._socket != null){
                 this._socket.Close();
@@ -67,13 +61,13 @@ namespace VTS.Networking.Impl{
             this._socket.OnOpen += (sender, e) => { 
                 MainThreadUtil.Run(() => {
                     this._onConnect();
-                    Debug.Log(this._socket.Url.Host + " Socket open!");
+                    Debug.Log(string.Format("{0} Socket open!", this._socket.Url.Host));
                     this._attemptReconnect = true;
                 });
             };
             this._socket.OnError += (sender, e) => { 
                 MainThreadUtil.Run(() => {
-                    Debug.LogError(this._socket.Url.Host + " Socket error...");
+                    Debug.LogError(string.Format("{0} Socket error...", this._socket.Url.Host));
                     if(e != null){
                         Debug.LogError(string.Format("'{0}', {1}", e.Message, e.Exception));
                     }
@@ -82,7 +76,7 @@ namespace VTS.Networking.Impl{
             };
             this._socket.OnClose += (sender, e) => { 
                 MainThreadUtil.Run(() => {
-                    Debug.Log(string.Format(this._socket.Url.Host + " Socket closing: {0}, '{1}', {2}", e.Code, e.Reason, e.WasClean));
+                    Debug.Log(string.Format("{0} Socket closing: {1}, '{2}', {3}", this._socket.Url.Host, e.Code, e.Reason, e.WasClean));
                     this._onDisconnect();
                     if(this._attemptReconnect && !e.WasClean){
                         Reconnect();
@@ -93,8 +87,7 @@ namespace VTS.Networking.Impl{
             this._socket.ConnectAsync();
         }
 
-        public void Stop()
-        {
+        public void Stop(){
             this._attemptReconnect = false;
             if(this._socket != null && this._socket.IsAlive){
                 this._socket.Close();

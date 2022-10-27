@@ -146,6 +146,8 @@ public class HeartratePlugin : VTSPlugin
                 this._connectionStatus.SetStatus(status);
                 // LoggingManager.Instance.Log("Connected to VTube Studio!");
                 CreateAllParameters();
+                SubscribeToLoadEvent();
+                SubscribeToConfigEvent();
             },
             () => {
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
@@ -162,6 +164,49 @@ public class HeartratePlugin : VTSPlugin
             HttpUtils.ConnectionStatus connect = new HttpUtils.ConnectionStatus();
             connect.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
             this._connectionStatus.SetStatus(connect);
+    }
+
+    private void SubscribeToLoadEvent(){
+        SubscribeToModelLoadedEvent(new VTSModelLoadedEventConfigOptions(), 
+            (d) => {
+                OnModelLoaded(new ModelData(d.data.modelName, d.data.modelID, d.data.modelLoaded)); 
+            },
+            (s) => {
+                Debug.Log("Subscribed to model load event.");
+                GetCurrentModel(
+                    (d) => {
+                        Debug.Log("Querying for current model...");
+                        OnModelLoaded(new ModelData(d.data.modelName, d.data.modelID, d.data.modelLoaded));
+                    },
+                    (e) => {
+                        Debug.LogError(e.data.message);
+                        ProfileManager.Instance.CreateDefaultNoModelProfile();
+                    }
+                );
+            },
+            (e) => { 
+                Debug.LogError(e.data.message);
+                SubscribeToLoadEvent();
+            }
+        );
+    }
+
+    private void SubscribeToConfigEvent(){
+        SubscribeToModelConfigChangedEvent(
+            (d) => {
+                if(d.data.hotkeyConfigChanged){
+                    GetHotkeyData();
+                }
+            },
+            (s) => {
+                Debug.Log("Subscribed to config change event.");
+                GetHotkeyData();
+            },
+            (e) => {
+                Debug.LogError(e.data.message);
+                SubscribeToConfigEvent();
+            }
+        );
     }
 
     public void SetMinRate(int rate){
@@ -192,74 +237,9 @@ public class HeartratePlugin : VTSPlugin
         // Data API message
         DataMessage dataMessage = new DataMessage(this.HeartRate);
         // see which model is currently loaded
-        if(this.IsAuthenticated){
-            GetCurrentModel(
-                (s) => {
-                    // Model is loaded in VTS and it's not the model we have a loaded profile for
-                    if(s.data.modelLoaded && !s.data.modelID.Equals(ProfileManager.Instance.CurrentProfile.modelID)){
-                        // load Default profile for the new model
-                        ProfileManager.Instance.SetCurrentProfileInfo(
-                            s.data.modelName, 
-                            s.data.modelID);
-                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
-                        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
-                    // If no model is loaded in VTS but we do have a model profile loaded here, revent to the NO_MODEL default profile
-                    }else if(!s.data.modelLoaded && ProfileManager.Instance.IsModelLoaded()){
-                        ProfileManager.Instance.CreateDefaultNoModelProfile();
-                        FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
-                        SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
-                    }
-                },
-                (e) => {
-                    ProfileManager.Instance.CreateDefaultNoModelProfile();
-                    Debug.LogError(e.data.message);
-                }
-            );
-        }
         // get all expressions for currently loaded model
-        if(this.IsAuthenticated){
-            if(ProfileManager.Instance.IsModelLoaded()){
-                GetExpressionStateList(
-                    (s) => {
-                        try{
-                            if(this._expressionsByModelID.ContainsKey(s.data.modelID)){
-                                this._expressionsByModelID[s.data.modelID] = new List<ExpressionData>(s.data.expressions);
-                            }else{
-                                this._expressionsByModelID.Add(s.data.modelID, new List<ExpressionData>(s.data.expressions));
-                            }
-                        }catch(System.Exception e){
-                            Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
-                        }
-                    },
-                    (e) => {
-                        Debug.LogError(e.data.message);
-                    }
-                );
-            }
-        }
         // get all hotkeys in currently loaded model
-        if(this.IsAuthenticated){
-            if(ProfileManager.Instance.IsModelLoaded()){
-                GetHotkeysInCurrentModel(
-                    ProfileManager.Instance.CurrentProfile.modelID,
-                    (s) => {
-                        try{
-                            if(this._hotkeysByModelID.ContainsKey(s.data.modelID)){
-                                this._hotkeysByModelID[s.data.modelID] = new List<HotkeyData>(s.data.availableHotkeys);
-                            }else{
-                                this._hotkeysByModelID.Add(s.data.modelID, new List<HotkeyData>(s.data.availableHotkeys));
-                            }
-                        }catch(System.Exception e){
-                            Debug.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
-                        }
-                    },
-                    (e) => {
-                        Debug.LogError(e.data.message);
-                    }
-                );
-            }
-        }
-
+    
         foreach(ExpressionModule module in this._expressionModules){
             module.RefreshExpressionList();
         }
@@ -344,6 +324,81 @@ public class HeartratePlugin : VTSPlugin
         dataMessage.data.parameters.vts_heartrate_repeat_breath = this._repeatBreath.value;
 
         APIManager.Instance.SendData(dataMessage);
+    }
+
+    #endregion
+
+    #region Event Callbacks
+
+    private struct ModelData {
+        public string modelName;
+        public string modelID;
+        public bool modelLoaded;
+        public ModelData(string modelName, string modelID, bool modelLoaded){
+            this.modelName = modelName;
+            this.modelID = modelID;
+            this.modelLoaded = modelLoaded;
+        }
+    }
+    private void OnModelLoaded(ModelData data){
+        // Model is loaded in VTS and it's not the model we have a loaded profile for
+        if(data.modelLoaded && !data.modelID.Equals(ProfileManager.Instance.CurrentProfile.modelID)){
+            // load Default profile for the new model
+            ProfileManager.Instance.SetCurrentProfileInfo(
+                data.modelName, 
+                data.modelID);
+            FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
+            SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
+        // If no model is loaded in VTS but we do have a model profile loaded here, revert to the NO_MODEL default profile
+        }else if(!data.modelLoaded && ProfileManager.Instance.IsModelLoaded()){
+            ProfileManager.Instance.CreateDefaultNoModelProfile();
+            FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
+            SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
+        }
+        if(ProfileManager.Instance.IsModelLoaded()){
+            GetHotkeyData();
+            GetExpressionStateList(
+                (s) => {
+                    try{
+                        if(this._expressionsByModelID.ContainsKey(s.data.modelID)){
+                            this._expressionsByModelID[s.data.modelID] = new List<ExpressionData>(s.data.expressions);
+                        }else{
+                            this._expressionsByModelID.Add(s.data.modelID, new List<ExpressionData>(s.data.expressions));
+                        }
+                    }catch(System.Exception e){
+                        Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
+                    }
+                },
+                (e) => {
+                    Debug.LogError(e.data.message);
+                }
+            );
+        }
+    }
+
+    private void GetHotkeyData(){
+        Debug.Log("Querying for hotkey data...");
+        if(ProfileManager.Instance.IsModelLoaded()){
+            GetHotkeysInCurrentModel(
+                ProfileManager.Instance.CurrentProfile.modelID,
+                (s) => {
+                    try{
+                        if(this._hotkeysByModelID.ContainsKey(s.data.modelID)){
+                            this._hotkeysByModelID[s.data.modelID] = new List<HotkeyData>(s.data.availableHotkeys);
+                        }else{
+                            this._hotkeysByModelID.Add(s.data.modelID, new List<HotkeyData>(s.data.availableHotkeys));
+                        }
+                    }catch(System.Exception e){
+                        Debug.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
+                    }
+                },
+                (e) => {
+                    Debug.LogError(e.data.message);
+                }
+            );
+        }else{
+            Debug.Log("No model loaded for hotkeys...");
+        }
     }
 
     #endregion
