@@ -47,6 +47,7 @@ namespace VTS.Networking.Impl {
                 this._socket.Close();
             }
             this._socket = new WebSocket(this._url);
+            Debug.Log(string.Format("Attempting to connect to {0}", this._socket.Url));
             this._socket.WaitTime = TimeSpan.FromSeconds(10);
             this._onConnect = onConnect;
             this._onDisconnect = onDisconnect;
