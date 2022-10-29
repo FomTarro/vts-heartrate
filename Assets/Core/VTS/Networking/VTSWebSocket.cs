@@ -43,10 +43,12 @@ namespace VTS.Networking {
         }
 
         private void OnDestroy(){
-            this._ws.Stop();
+            if(this._ws != null){
+                this._ws.Stop();
+            }
         }
 
-        private void FixedUpdate(){
+        private void Update(){
             ProcessResponses();
             CheckPorts();
         }
@@ -73,6 +75,9 @@ namespace VTS.Networking {
                             PORTS.Remove(data.data.port);
                         }
                         PORTS.Add(data.data.port, data);
+                        // if(!PORTS.ContainsKey(this._port) && PORTS.Count == 1){
+                        //     onPortChange(data.data.port);
+                        // }
                     }
                 }
                 
