@@ -31,7 +31,18 @@ namespace VTS.Networking {
         private static Task<UdpReceiveResult> UDP_RESULT = null;
         private static readonly Dictionary<int, VTSStateBroadcastData> PORTS = new Dictionary<int, VTSStateBroadcastData>();
 
+        public delegate void PortDiscoveryEvent(VTSStateBroadcastData portData);
+        public static event PortDiscoveryEvent OnPortDiscovered;
+
         #region Lifecycle
+
+        /*
+        TODO: make a static event that executes every time the list of ports updates, with the new port
+        Then, in the plugin Initialize method, don't attempt connection/auth until we get the first execution of this event.
+        Correct to the first port you find.
+
+        We should also use the this.Socket accessor internally, and have that do the getComponent<...>() call so we have the socket when we need it.
+        */
 
         public void Initialize(IWebSocket webSocket, IJsonUtility jsonUtility){
             if(this._ws != null){
@@ -75,6 +86,7 @@ namespace VTS.Networking {
                             PORTS.Remove(data.data.port);
                         }
                         PORTS.Add(data.data.port, data);
+                        OnPortDiscovered.Invoke(data);
                         // if(!PORTS.ContainsKey(this._port) && PORTS.Count == 1){
                         //     onPortChange(data.data.port);
                         // }

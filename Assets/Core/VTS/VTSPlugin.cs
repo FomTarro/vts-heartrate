@@ -74,7 +74,41 @@ namespace VTS {
         public void Initialize(IWebSocket webSocket, IJsonUtility jsonUtility, ITokenStorage tokenStorage, Action onConnect, Action onDisconnect, Action onError){
             this._tokenStorage = tokenStorage;
             this._socket = GetComponent<VTSWebSocket>();
+            // VTSWebSocket.OnPortDiscovered += 
             this._socket.Initialize(webSocket, jsonUtility);
+            Action onCombinedConnect = () => {
+                this._socket.ResubscribeToEvents();
+                onConnect();
+            };
+            this._socket.Connect(() => {
+                // If API enabled, authenticate
+                Authenticate(
+                    (r) => { 
+                        if(!r.data.authenticated){
+                            Reauthenticate(onCombinedConnect, onError);
+                        }else{
+                            this._isAuthenticated = true;
+                            onCombinedConnect();
+                        }
+                    }, 
+                    (r) => { 
+                        // If initial authentication fails, try again
+                        // (Likely just needs fresh token)
+                        Reauthenticate(onCombinedConnect, onError); 
+                    }
+                );
+            },
+            () => {
+                this._isAuthenticated = false;
+                onDisconnect();
+            },
+            () => {
+                this._isAuthenticated = false;
+                onError();
+            });
+        }
+
+        private void OnPortCallback(VTSStateBroadcastData port, Action onConnect, Action onDisconnect, Action onError){
             Action onCombinedConnect = () => {
                 this._socket.ResubscribeToEvents();
                 onConnect();
