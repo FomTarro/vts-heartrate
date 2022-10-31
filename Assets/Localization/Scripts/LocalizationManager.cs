@@ -4,8 +4,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Localization
-{
+namespace Localization {
     public class LocalizationManager : Singleton<LocalizationManager> {
 
         [Header("Strings")]
@@ -32,8 +31,7 @@ namespace Localization
         private List<Dictionary<string, string>> _loadedStrings;
 
         private int _languageIndex = 0;
-        public SupportedLanguage CurrentLanguage
-        {
+        public SupportedLanguage CurrentLanguage{
             get { return (SupportedLanguage)(_languageIndex + 1);}
         }
 
@@ -46,15 +44,17 @@ namespace Localization
         private bool _initialized = false;
 
         // Use this for initialization
-        public override void Initialize()
-        {
-            if(!_initialized)
-            {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+        private static void OnBoot(){
+            // TODO: Can we load strings in here, somehow?
+        }
+
+        public override void Initialize(){
+            if(!_initialized){
+                // refresh
                 _loadedStrings = new List<Dictionary<string, string>>();
                 ParseTable(_stringTable);
                 _initialized = true;
-                // refresh
-
                 // We can either initialize by choosing the first language, 
                 // or by choosing the system language
                 //SwitchLanguage(_languageIndex);
@@ -62,27 +62,21 @@ namespace Localization
             }
         }
 
-        public static void RegisterLocalizedText(LocalizedText text)
-        {
-            if(!_localizedTexts.Contains(text))
-            {
+        public static void RegisterLocalizedText(LocalizedText text){
+            if(!_localizedTexts.Contains(text)){
                 _localizedTexts.Add(text);
             }
         }
 
-        public static void UnregisterLocalizedText(LocalizedText text)
-        {
-            if(_localizedTexts.Contains(text))
-            {
+        public static void UnregisterLocalizedText(LocalizedText text){
+            if(_localizedTexts.Contains(text)){
                 _localizedTexts.Remove(text);
             }
         }
 
         public void RefreshAllLocalizedText(){
-            foreach(LocalizedText t in _localizedTexts)
-            {
-                if(t.gameObject.activeInHierarchy)
-                {
+            foreach(LocalizedText t in _localizedTexts){
+                if(t.gameObject.activeInHierarchy){
                     t.Localize();
                 }
             }
@@ -92,8 +86,7 @@ namespace Localization
         /// Switch the language to a different language index
         /// </summary>
         /// <param name="language">The numeric index in the list of languages</param>
-        private void SwitchLanguage(int language)
-        {
+        private void SwitchLanguage(int language){
             _languageIndex = language;
             RefreshAllLocalizedText();
         }
@@ -102,8 +95,7 @@ namespace Localization
         /// Switch the language to a different language index
         /// </summary>
         /// <param name="language">The specific supported language</param>
-        public void SwitchLanguage(SupportedLanguage language)
-        {
+        public void SwitchLanguage(SupportedLanguage language){
             SwitchLanguage(((int)language) - 1);
         }
 
@@ -132,11 +124,9 @@ namespace Localization
         /// Defaults to English if no match can be found
         /// </summary>
         /// <param name="sysLanguage"></param>
-        private void SwitchToSystemLanguage(SystemLanguage sysLanguage)
-        {
+        private void SwitchToSystemLanguage(SystemLanguage sysLanguage){
             SupportedLanguage lang = SupportedLanguage.ENGLISH;
-            switch(sysLanguage)
-            {
+            switch(sysLanguage){
                 case SystemLanguage.English:
                     lang = SupportedLanguage.ENGLISH;
                     break;
@@ -168,8 +158,7 @@ namespace Localization
         /// Is the current language a right-to-left language, such as Arabic?
         /// </summary>
         /// <returns></returns>
-        public bool IsRightToLeft()
-        {
+        public bool IsRightToLeft(){
             return false;
             //return CurrentLanguage == (SupportedLanguage.ARABIC);
         }
@@ -183,18 +172,14 @@ namespace Localization
         /// </summary>
         /// <param name="strings"></param>
         /// <param name="language"></param>
-        public void AddStrings(Dictionary<string, string> strings, SupportedLanguage language)
-        {
-            foreach(string key in strings.Keys)
-            {
+        public void AddStrings(Dictionary<string, string> strings, SupportedLanguage language){
+            foreach(string key in strings.Keys){
                 if(strings[key] != null){
-                    if (_loadedStrings[(int)(language-1)].ContainsKey(key))
-                    {
+                    if (_loadedStrings[(int)(language-1)].ContainsKey(key)){
 
                         _loadedStrings[(int)(language-1)][key] = strings[key];
                     }
-                    else
-                    {
+                    else{
                         _loadedStrings[(int)(language-1)].Add(key, strings[key]);
                     }
                 }
@@ -208,8 +193,7 @@ namespace Localization
         /// </summary>
         /// <param name="strings"></param>
         /// <param name="language"></param>
-        public void LoadStringTable(TextAsset stringTable)
-        {
+        public void LoadStringTable(TextAsset stringTable){
             ParseTable(stringTable);
         }
 
@@ -218,8 +202,7 @@ namespace Localization
         /// </summary>
         /// <param name="key">The key to look up</param>
         /// <returns></returns>
-        public string GetString(string key)
-        {
+        public string GetString(string key){
             return GetString(key, _languageIndex);
         }
 
@@ -229,8 +212,7 @@ namespace Localization
         /// <param name="key">The key to look up</param>
         /// <param name="language">The language to reference</param>
         /// <returns></returns>
-        public string GetString(string key, SupportedLanguage language)
-        {
+        public string GetString(string key, SupportedLanguage language){
             return GetString(key, ((int)language) - 1);
         }
 
@@ -240,21 +222,17 @@ namespace Localization
         /// <param name="key">The key to look up</param>
         /// <param name="language">The language to reference</param>
         /// <returns></returns>
-        private string GetString(string key, int language)
-        {
+        private string GetString(string key, int language){
             string value = DUMMY_STRING;
             key = key.ToLower();
-            if (_loadedStrings != null && _loadedStrings.Count > language && _loadedStrings[language].ContainsKey(key))
-            {
+            if (_loadedStrings != null && _loadedStrings.Count > language && _loadedStrings[language].ContainsKey(key)){
                 value = _loadedStrings[language][key];
                 value = RecursiveReplace(value, 0, language, 0);
             }
-            else
-            {
+            else{
                 Debug.LogWarning("String not found in table for key: " + key);
             }
-            if(IsRightToLeft())
-            {
+            if(IsRightToLeft()){
                 // here, you can insert your own method of doing RTL text cleanup.
                 // I'd recommend using https://github.com/Konash/arabic-support-unity 
                 // big thanks to Open Source code from Abdullah Konash!
@@ -271,8 +249,7 @@ namespace Localization
         /// </summary>
         /// <param name="key">The key to check for</param>
         /// <returns></returns>
-        public bool ContainsKey(string key)
-        {
+        public bool ContainsKey(string key){
             return _loadedStrings != null && _loadedStrings.Count > _languageIndex && _loadedStrings[_languageIndex].ContainsKey(key);
         }
 
@@ -288,70 +265,55 @@ namespace Localization
         /// <param name="languageIndex">Which language to do replacement from</param>
         /// <param name="cycleCount">How many levels deep we should try to replace before aborting</param>
         /// <returns></returns>
-        private string RecursiveReplace(string toModify, int startIndex, int languageIndex, int cycleCount)
-        {
+        private string RecursiveReplace(string toModify, int startIndex, int languageIndex, int cycleCount){
             string modifySubstring = toModify.Substring(startIndex);
-            if (cycleCount < REPLACEMENT_CYCLE_MAX && modifySubstring.Contains(REPLACEMENT_KEY_TAG.ToString()) && startIndex < toModify.Length)
-            {
+            if (cycleCount < REPLACEMENT_CYCLE_MAX && modifySubstring.Contains(REPLACEMENT_KEY_TAG.ToString()) && startIndex < toModify.Length){
                 string keySubstring = modifySubstring.Substring(modifySubstring.IndexOf(REPLACEMENT_KEY_TAG) + 1);
                 int punctuationIndex = GetIndexOfPunctuation(keySubstring);
                 int endIndex = (punctuationIndex > 0) ? Mathf.Min(punctuationIndex, keySubstring.Length) : keySubstring.Length;
                 keySubstring = keySubstring.Substring(0, endIndex);
-                if (_loadedStrings[languageIndex].ContainsKey(keySubstring.ToLower()))
-                {
+                if (_loadedStrings[languageIndex].ContainsKey(keySubstring.ToLower())){
                     toModify = toModify.Replace(REPLACEMENT_KEY_TAG + keySubstring, GetString(keySubstring, languageIndex));
                 }
                 cycleCount++;
                 return RecursiveReplace(toModify, startIndex + 1, languageIndex, cycleCount);
             }
-            else
-            {
+            else{
                 return toModify;
             }
         }
 
-        private void ReadLine(int lineIndex, List<string> line)
-        {
+        private void ReadLine(int lineIndex, List<string> line){
             line[0] = line[0].Trim().ToLower();
-            if (line[0] != "")
-            {
+            if (line[0] != ""){
                 if(GetIndexOfPunctuation(line[0]) == -1){
-                    for (int i = 1; i < line.Count; i++)
-                    {
-                        if (_loadedStrings.Count < i)
-                        {
+                    for (int i = 1; i < line.Count; i++){
+                        if (_loadedStrings.Count < i){
                             _loadedStrings.Add(new Dictionary<string, string>());
                         }
-                        if (line[i].Trim() != "")
-                        {
-                            try 
-                            {
+                        if (line[i].Trim() != ""){
+                            try {
                                 line[i] = line[i].Replace("\\n", "\n");
-                                if(_loadedStrings[i - 1].ContainsKey(line[0]))
-                                {
+                                if(_loadedStrings[i - 1].ContainsKey(line[0])){
                                     _loadedStrings[i - 1][line[0]] = line[i];
                                 }
-                                else
-                                {
+                                else{
                                     _loadedStrings[i - 1].Add(line[0], line[i]);
                                 }
                             }
-                            catch (Exception e)
-                            {
+                            catch (Exception e){
                                 Debug.LogWarning(e.Message + "\n" + line[0] + "\n" + line[i]);
                             }
                         }
                     }
                 }
-                else
-                {
+                else{
                     Debug.LogWarning("Key: " + line[0] + " contains disallowed punctuation!");
                 }
             }
         }
 
-        private void ParseTable(TextAsset stringTable)
-        {
+        private void ParseTable(TextAsset stringTable){
             string tableContent = stringTable.text;
             int tableLength = tableContent.Length;
             // read char by char and when a , or \n, perform appropriate action
@@ -361,32 +323,25 @@ namespace Localization
             StringBuilder currentItem = new StringBuilder();
             bool inQuotes = false; // managing quotes
             char currentChar;
-            while (currentCharIndex < tableLength)
-            {
+            while (currentCharIndex < tableLength){
                 currentChar = tableContent[currentCharIndex++];
-                switch (currentChar)
-                {
+                switch (currentChar){
                     case '"':
-                        if (!inQuotes)
-                        {
+                        if (!inQuotes){
                             inQuotes = true;
                         }
-                        else
-                        {
-                            if (currentCharIndex == tableLength)
-                            {
+                        else{
+                            if (currentCharIndex == tableLength){
                                 // end of file
                                 inQuotes = false;
                                 goto case '\n';
                             }
-                            else if (tableContent[currentCharIndex] == '"')
-                            {
+                            else if (tableContent[currentCharIndex] == '"'){
                                 // double quote, save one
                                 currentItem.Append("\"");
                                 currentCharIndex++;
                             }
-                            else
-                            {
+                            else{
                                 // leaving quotes section
                                 inQuotes = false;
                             }
@@ -398,18 +353,15 @@ namespace Localization
                     case ',':
                         goto case '\n';
                     case '\n':
-                        if (inQuotes)
-                        {
+                        if (inQuotes){
                             // inside quotes, this characters must be included
                             currentItem.Append(currentChar);
                         }
-                        else
-                        {
+                        else{
                             // end of current item
                             currentLine.Add(currentItem.ToString());
                             currentItem.Length = 0;
-                            if (currentChar == '\n' || currentCharIndex == tableLength)
-                            {
+                            if (currentChar == '\n' || currentCharIndex == tableLength){
                                 // also end of line, call line reader
                                 ReadLine(currentLineCount++, currentLine);
                                 currentLine.Clear();
@@ -431,19 +383,14 @@ namespace Localization
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        private static int GetIndexOfPunctuation(string input)
-        {
-            if(REGEX_PUNCTUATION_FILTER.IsMatch(input))
-            {
+        private static int GetIndexOfPunctuation(string input){
+            if(REGEX_PUNCTUATION_FILTER.IsMatch(input)){
                 return REGEX_PUNCTUATION_FILTER.Match(input).Index;
             }
-            else
-            {
+            else{
                 return -1;
             }
         }
-
-
     }
 
     /// <summary>
@@ -451,8 +398,7 @@ namespace Localization
     /// 
     /// int value corresponds the column of the language in the source CSV file (therefore 1 indexed, as column 0 is the key list)
     /// </summary>
-    public enum SupportedLanguage : int
-    {
+    public enum SupportedLanguage : int {
         ENGLISH = 1,
         // JAPANESE = 2,
     }

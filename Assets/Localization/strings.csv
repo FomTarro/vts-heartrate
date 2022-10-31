@@ -33,7 +33,7 @@ settings_api_server_messages_received,Messages received: {0},
 ,,
 settings_api_server_approved_plugin_title,Approved Plugins,
 settings_api_server_approve_plugin_title,Approve this Plugin?,
-settings_api_server_approve_plugin_tooltip,"Do you want to approve  %settings_api_server_input_title access for the plugin named <b>{0}</b>, made by <b>{1}</b>? 
+settings_api_server_approve_plugin_tooltip,"Do you want to approve %settings_api_server_input_title access for the plugin named <b>{0}</b>, made by <b>{1}</b>? 
 
 Doing so will grant the plugin permission to write heartrate data via the <b>%input_websocket_title</b> input.",
 settings_api_server_button_approve,Approve,
@@ -284,11 +284,16 @@ error_cannot_resolve_tooltip,"Communication with the version server, <b>https://
 
 This may result in the <b>inability check for a new version</b> of this plugin, and an <b>inability to receive a new Pulsoid authentication token</b>. Existing authentication tokens should still work.
 
-Please feel free to alert Tom to this issue via one of the contact methods below.",
+Please alert Tom to this issue via one of the contact methods below.",
+error_cannot_subscribe_tooltip,"Connecting to the VTube Studio API has failed with the following error: <i>{0}: {1}</i>.
+
+Please alert Tom to this issue via one of the contact methods below.",
+,,
 ,,
 button_generic_confirm,Confirm,
 button_generic_copy,Copy,コピー
 button_generic_cancel,Cancel,キャンセル
+button_generic_retry,Retry,
 button_generic_load,Load,
 button_generic_delete,Delete,削除
 button_tab_inputs,Inputs,入力
