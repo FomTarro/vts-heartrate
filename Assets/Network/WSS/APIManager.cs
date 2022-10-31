@@ -290,7 +290,8 @@ public class APIManager : Singleton<APIManager>
             this._path = path;
             this._service = new APIService(path, onOpen, 
             (a, b) => { 
-                onMessage(a, b);                         
+                onMessage(a, b);
+                // Debug.Log(string.Format("Receiving: {0}", a));                         
                 this._messages = this._messages + 1;
             } );
         }
@@ -317,8 +318,9 @@ public class APIManager : Singleton<APIManager>
             WebSocketServiceHost host;
             if(this._server != null 
             && this._server.WebSocketServices.TryGetServiceHost(this._path, out host)){
+                // Debug.Log(string.Format("Sending to ID {0}: {1}", sessionID, message.ToString()));
                 try{
-                    host.Sessions.SendTo(sessionID, message.ToString());
+                    host.Sessions.SendTo(message.ToString(), sessionID);
                     this._messages = this._messages + 1;
                     return true;
                 }catch(System.Exception e){

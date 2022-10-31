@@ -9,7 +9,11 @@ eventWS.onmessage = (e) => {console.log(JSON.parse(e.data))}
 //Input/Auth
 const inputWS = new WebSocket('ws://localhost:8214/input');
 const reconnect = {}
+inputWS.onerror = (e) => {
+    console.error(e);
+}
 inputWS.onmessage = (e) => {
+    console.log(e);
     const parsed = JSON.parse(e.data);
     console.log(parsed)
     if(!parsed.data.authenticated && parsed.messageType == "AuthenticationResponse"){

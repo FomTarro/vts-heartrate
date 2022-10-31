@@ -52,7 +52,7 @@ public class HeartrateManager : Singleton<HeartrateManager>
                     Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
                     UIManager.Instance.ShowPopUp(
                         "settings_new_version_title",
-                        string.Format("settings_new_version_body_populated", info.version, info.date, info.url),
+                        "settings_new_version_body_populated",
                         new PopUp.PopUpOption(
                             "settings_new_version_button_download", 
                             ColorUtils.ColorPreset.GREEN, 

@@ -7,15 +7,15 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-public class HeartratePlugin : VTSPlugin
-{
+public class HeartratePlugin : VTSPlugin {
+
     #region Member Variables
     
     private int _heartRate = 70;
     public int HeartRate { get { return Math.Max(0, this._heartRate); } }
     private int _maxRate = 100;
     private int _minRate = 70;
-    private ShiftingAverage _average = new ShiftingAverage(60);
+    private ShiftingAverage _average = new ShiftingAverage(30);
 
     private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
     private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
@@ -144,68 +144,76 @@ public class HeartratePlugin : VTSPlugin
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
                 status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
                 this._connectionStatus.SetStatus(status);
-                // LoggingManager.Instance.Log("Connected to VTube Studio!");
+                Debug.Log("Connected to VTube Studio!");
                 CreateAllParameters();
-                SubscribeToLoadEvent();
-                SubscribeToConfigEvent();
+                SubscribeToEvents();
             },
             () => {
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
                 status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
                 this._connectionStatus.SetStatus(status);
-                //LoggingManager.Instance.Log("Disconnected from VTube Studio!");
+                Debug.Log("Disconnected from VTube Studio!");
             },
             () => {
                 HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
                 status.status = HttpUtils.ConnectionStatus.Status.ERROR;
                 this._connectionStatus.SetStatus(status);
-                // LoggingManager.Instance.Log("Error connecting to VTube Studio!");
+                Debug.LogError("Error connecting to VTube Studio!");
             });
             HttpUtils.ConnectionStatus connect = new HttpUtils.ConnectionStatus();
             connect.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
             this._connectionStatus.SetStatus(connect);
     }
 
-    private void SubscribeToLoadEvent(){
+    private void SubscribeToEvents(){
+        Debug.Log("Scubscribing to VTube Studio Events...");
         SubscribeToModelLoadedEvent(new VTSModelLoadedEventConfigOptions(), 
-            (d) => {
-                OnModelLoaded(new ModelData(d.data.modelName, d.data.modelID, d.data.modelLoaded)); 
+            (loadData) => {
+                GetModelData(); 
             },
-            (s) => {
+            (loadSuccess) => {
+                GetModelData();
                 Debug.Log("Subscribed to model load event.");
-                GetCurrentModel(
-                    (d) => {
-                        Debug.Log("Querying for current model...");
-                        OnModelLoaded(new ModelData(d.data.modelName, d.data.modelID, d.data.modelLoaded));
+                SubscribeToModelConfigChangedEvent(
+                    (configData) => {
+                        if(configData.data.hotkeyConfigChanged){
+                            GetHotkeyData();
+                        }
                     },
-                    (e) => {
-                        Debug.LogError(e.data.message);
-                        ProfileManager.Instance.CreateDefaultNoModelProfile();
+                    (configSuccess) => {
+                        Debug.Log("Subscribed to config change event.");
+                        GetHotkeyData();
+                    },
+                    (configError) => {
+                        OnSubscriptionError(configError);
                     }
                 );
             },
-            (e) => { 
-                Debug.LogError(e.data.message);
-                SubscribeToLoadEvent();
+            (loadError) => { 
+                OnSubscriptionError(loadError);
             }
         );
     }
 
-    private void SubscribeToConfigEvent(){
-        SubscribeToModelConfigChangedEvent(
-            (d) => {
-                if(d.data.hotkeyConfigChanged){
-                    GetHotkeyData();
-                }
-            },
-            (s) => {
-                Debug.Log("Subscribed to config change event.");
-                GetHotkeyData();
-            },
-            (e) => {
-                Debug.LogError(e.data.message);
-                SubscribeToConfigEvent();
-            }
+    private void OnSubscriptionError(VTSErrorData data){
+        Debug.LogError(string.Format("Error subscribing to VTUbe Studio Events: {0}.", data.data.message));
+        Dictionary<string, string> strings = new Dictionary<string, string>();
+        strings.Add("error_cannot_subscribe_tooltip_populated", 
+            string.Format(Localization.LocalizationManager.Instance.GetString("error_cannot_subscribe_tooltip"), 
+            data.data.errorID,
+            data.data.message));
+        Localization.LocalizationManager.Instance.AddStrings(strings, Localization.LocalizationManager.Instance.CurrentLanguage);
+        UIManager.Instance.ShowPopUp(
+            "error_generic_title",
+            "error_cannot_subscribe_tooltip_populated",
+            new PopUp.PopUpOption(
+                "settings_feedback_button_tweet", 
+                ColorUtils.ColorPreset.GREEN, 
+                () => { Application.OpenURL("https://twitter.com/intent/tweet?text=@FomTarro"); }),
+            new PopUp.PopUpOption(
+                "settings_feedback_button_email", 
+                ColorUtils.ColorPreset.GREEN, 
+                () => { Application.OpenURL("mailto:tom@skeletom.net"); })
         );
     }
 
@@ -232,21 +240,18 @@ public class HeartratePlugin : VTSPlugin
         this._average.AddValue(this._activeModule != null ? this._activeModule.GetHeartrate() : 0);
         this._heartRate = Mathf.RoundToInt(this._average.Average);
         float numerator = Math.Max(0, (float)(this._heartRate - this._minRate));
-        float demominator = Math.Max(1, (float)(this._maxRate - this._minRate));
-        float interpolation = Mathf.Clamp01(numerator/demominator);
+        float denominator = Math.Max(1, (float)(this._maxRate - this._minRate));
+        float interpolation = Mathf.Clamp01(numerator/denominator);
         // Data API message
         DataMessage dataMessage = new DataMessage(this.HeartRate);
-        // see which model is currently loaded
-        // get all expressions for currently loaded model
-        // get all hotkeys in currently loaded model
     
-        foreach(ExpressionModule module in this._expressionModules){
-            module.RefreshExpressionList();
-        }
+        // foreach(ExpressionModule module in this._expressionModules){
+        //     module.RefreshExpressionList();
+        // }
 
-        foreach(HotkeyModule module in this._hotkeyModules){
-            module.RefreshHotkeyList();
-        }
+        // foreach(HotkeyModule module in this._hotkeyModules){
+        //     module.RefreshHotkeyList();
+        // }
 
         // apply art mesh tints
         foreach(ColorInputModule module in this._colors){
@@ -330,50 +335,33 @@ public class HeartratePlugin : VTSPlugin
 
     #region Event Callbacks
 
-    private struct ModelData {
-        public string modelName;
-        public string modelID;
-        public bool modelLoaded;
-        public ModelData(string modelName, string modelID, bool modelLoaded){
-            this.modelName = modelName;
-            this.modelID = modelID;
-            this.modelLoaded = modelLoaded;
-        }
-    }
-    private void OnModelLoaded(ModelData data){
-        // Model is loaded in VTS and it's not the model we have a loaded profile for
-        if(data.modelLoaded && !data.modelID.Equals(ProfileManager.Instance.CurrentProfile.modelID)){
-            // load Default profile for the new model
-            ProfileManager.Instance.SetCurrentProfileInfo(
-                data.modelName, 
-                data.modelID);
-            FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
-            SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
-        // If no model is loaded in VTS but we do have a model profile loaded here, revert to the NO_MODEL default profile
-        }else if(!data.modelLoaded && ProfileManager.Instance.IsModelLoaded()){
-            ProfileManager.Instance.CreateDefaultNoModelProfile();
-            FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
-            SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
-        }
-        if(ProfileManager.Instance.IsModelLoaded()){
-            GetHotkeyData();
-            GetExpressionStateList(
-                (s) => {
-                    try{
-                        if(this._expressionsByModelID.ContainsKey(s.data.modelID)){
-                            this._expressionsByModelID[s.data.modelID] = new List<ExpressionData>(s.data.expressions);
-                        }else{
-                            this._expressionsByModelID.Add(s.data.modelID, new List<ExpressionData>(s.data.expressions));
-                        }
-                    }catch(System.Exception e){
-                        Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
-                    }
-                },
-                (e) => {
-                    Debug.LogError(e.data.message);
+    private void GetModelData(){
+        GetCurrentModel(
+            (modelData) => {
+                // Model is loaded in VTS and it's not the model we have a loaded profile for
+                if(modelData.data.modelLoaded && !modelData.data.modelID.Equals(ProfileManager.Instance.CurrentProfile.modelID)){
+                    // load Default profile for the new model
+                    ProfileManager.Instance.SetCurrentProfileInfo(
+                        modelData.data.modelName, 
+                        modelData.data.modelID);
+                    FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
+                    SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
+                // If no model is loaded in VTS but we do have a model profile loaded here, revent to the NO_MODEL default profile
+                }else if(!modelData.data.modelLoaded && ProfileManager.Instance.IsModelLoaded()){
+                    ProfileManager.Instance.CreateDefaultNoModelProfile();
+                    FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
+                    SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
                 }
-            );
-        }
+                if(ProfileManager.Instance.IsModelLoaded()){
+                    GetHotkeyData();
+                    GetExpressionData();
+                }
+            },
+            (modelError) => {
+                ProfileManager.Instance.CreateDefaultNoModelProfile();
+                Debug.LogError(modelError.data.message);
+            }
+        );
     }
 
     private void GetHotkeyData(){
@@ -388,16 +376,58 @@ public class HeartratePlugin : VTSPlugin
                         }else{
                             this._hotkeysByModelID.Add(s.data.modelID, new List<HotkeyData>(s.data.availableHotkeys));
                         }
+                        foreach(HotkeyModule module in this._hotkeyModules){
+                            module.RefreshHotkeyList();
+                        }
                     }catch(System.Exception e){
                         Debug.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
                     }
                 },
                 (e) => {
                     Debug.LogError(e.data.message);
+                    foreach(HotkeyModule module in this._hotkeyModules){
+                        module.RefreshHotkeyList();
+                    }
                 }
             );
         }else{
             Debug.Log("No model loaded for hotkeys...");
+            foreach(HotkeyModule module in this._hotkeyModules){
+                module.RefreshHotkeyList();
+            }
+        }
+    }
+
+    private void GetExpressionData(){
+        Debug.Log("Querying for expression data...");
+        if(ProfileManager.Instance.IsModelLoaded()){
+            GetExpressionStateList(
+                (expressionData) => {
+                    try{
+                        if(this._expressionsByModelID.ContainsKey(expressionData.data.modelID)){
+                            this._expressionsByModelID[expressionData.data.modelID] = new List<ExpressionData>(expressionData.data.expressions);
+                        }else{
+                            this._expressionsByModelID.Add(expressionData.data.modelID, new List<ExpressionData>(expressionData.data.expressions));
+                        }
+                        foreach(ExpressionModule module in this._expressionModules){
+                            module.RefreshExpressionList();
+                        }
+                    }catch(System.Exception e){
+                        Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
+                    }
+                },
+                (expressionError) => {
+                    Debug.LogError(expressionError.data.message);
+                    foreach(ExpressionModule module in this._expressionModules){
+                        module.RefreshExpressionList();
+                    }
+                }
+            );
+        }else{
+            Debug.Log("No model loaded for expressions...");
+            foreach(ExpressionModule module in this._expressionModules){
+                module.RefreshExpressionList();
+            }
         }
     }
 
