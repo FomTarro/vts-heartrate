@@ -59,9 +59,8 @@ Getting up and running is relatively straightforward. The plugin will automatica
 * Add [<b>Expression and Hotkey Trigger modules</b>](#automatic-expression-triggering) and configure them to activate model functions automatically!
 * Hook up [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), to your model for things like breathing speed!
 
-A comprehensive video tutorial has also been provided as reference.
+A comprehensive [video tutorial](https://www.youtube.com/watch?v=tV1kK0uSjFE) has also been provided as reference.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/tV1kK0uSjFE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Heartrate Input Methods
 In the interest of being widely accessible, this plugin features a wide set of possible input methods, which you may freely switch between at any time.
