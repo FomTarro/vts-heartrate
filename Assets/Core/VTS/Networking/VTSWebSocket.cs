@@ -96,11 +96,13 @@ namespace VTS.Networking {
                         UDP_RESULT.Dispose();
                         UDP_RESULT = null;
                         VTSStateBroadcastData data = this._json.FromJson<VTSStateBroadcastData>(text);
-                        if(PORTS.ContainsKey(data.data.port)){
-                            PORTS.Remove(data.data.port);
+                        if(data.data.active){
+                            if(PORTS.ContainsKey(data.data.port)){
+                                PORTS.Remove(data.data.port);
+                            }
+                            PORTS.Add(data.data.port, data);
+                            GLOBAL_PORT_DISCOVERY_EVENT.Invoke(data.data.port);
                         }
-                        PORTS.Add(data.data.port, data);
-                        GLOBAL_PORT_DISCOVERY_EVENT.Invoke(data.data.port);
                     }
                 }
                 
@@ -199,8 +201,10 @@ namespace VTS.Networking {
                     };
                     // Wait until we discover a functional port, then try to connect.
                     this._onPortDiscovered = (port) => {
-                        ClearConnectionCallbacks();
-                        ConnectImpl(port, onConnect, onDisconnect, onError);
+                        if(port != this._port){
+                            ClearConnectionCallbacks();
+                            ConnectImpl(port, onConnect, onDisconnect, onError);
+                        }
                     };
                 });
             }else{
