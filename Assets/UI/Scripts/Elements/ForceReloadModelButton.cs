@@ -8,6 +8,6 @@ public class ForceReloadModelButton : MonoBehaviour {
     // Start is called before the first frame update
     void Start(){
         this._button = GetComponent<ExtendedButton>();
-        this._button.onPointerUp.AddListener(() => { HeartrateManager.Instance.Plugin.GetModelData(); });
+        this._button.onPointerUp.AddListener(() => { HeartrateManager.Instance.Plugin.Connect(); });
     }
 }
