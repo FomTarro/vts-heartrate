@@ -253,7 +253,9 @@ output_current_profile_tooltip,"Profiles allow you to have <b>multiple output co
 
 You can even <b>copy profile configurations</b> from one profile to another, even across models. This is useful if you have multiple variations of the same base model, such as different outfits.
 
-When a model is loaded in VTube Studio, a <b>DEFAULT</b> profile is automatically loaded along with it. User-created profiles <b>must be loaded manually</b>. ",
+When a model is loaded in VTube Studio, a <b>DEFAULT</b> profile is automatically loaded along with it. User-created profiles <b>must be loaded manually</b>. 
+
+If the automatically loaded profile does not match the model you have loaded in VTube Studio, click the <b>%output_force_reload_model_button</b> button.",
 output_current_profile_display,<b>%output_current_profile_title:</b> {0},
 output_current_profile_name_paceholder,Enter profile name...,
 output_profile_file_name,File Name,
@@ -272,6 +274,8 @@ output_rename_profile_confirm_button_no,Cancel,キャンセル
 output_rename_profile_error_title,Sorry...,
 output_rename_profile_error_not_unique,A profile with this name <b>already exists</b> for the currently active model.,
 output_rename_profile_error_default_rename,The <b>DEFAULT</b> profile cannot be renamed.,
+,,
+output_force_reload_model_button,Force Model Reload,
 ,,
 output_load_profile_warning_title,Error!,
 output_load_profile_error,"Loading a profile that belongs to a model other than the currently active model is not currently supported.

@@ -245,13 +245,13 @@ public class HeartratePlugin : VTSPlugin {
         // Data API message
         DataMessage dataMessage = new DataMessage(this.HeartRate);
     
-        // foreach(ExpressionModule module in this._expressionModules){
-        //     module.RefreshExpressionList();
-        // }
+        foreach(ExpressionModule module in this._expressionModules){
+            module.RefreshExpressionList();
+        }
 
-        // foreach(HotkeyModule module in this._hotkeyModules){
-        //     module.RefreshHotkeyList();
-        // }
+        foreach(HotkeyModule module in this._hotkeyModules){
+            module.RefreshHotkeyList();
+        }
 
         // apply art mesh tints
         foreach(ColorInputModule module in this._colors){
@@ -335,7 +335,8 @@ public class HeartratePlugin : VTSPlugin {
 
     #region Event Callbacks
 
-    private void GetModelData(){
+    public void GetModelData(){
+        Debug.Log("Querying for model data...");
         GetCurrentModel(
             (modelData) => {
                 // Model is loaded in VTS and it's not the model we have a loaded profile for
@@ -376,25 +377,16 @@ public class HeartratePlugin : VTSPlugin {
                         }else{
                             this._hotkeysByModelID.Add(s.data.modelID, new List<HotkeyData>(s.data.availableHotkeys));
                         }
-                        foreach(HotkeyModule module in this._hotkeyModules){
-                            module.RefreshHotkeyList();
-                        }
                     }catch(System.Exception e){
                         Debug.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
                     }
                 },
                 (e) => {
                     Debug.LogError(e.data.message);
-                    foreach(HotkeyModule module in this._hotkeyModules){
-                        module.RefreshHotkeyList();
-                    }
                 }
             );
         }else{
             Debug.Log("No model loaded for hotkeys...");
-            foreach(HotkeyModule module in this._hotkeyModules){
-                module.RefreshHotkeyList();
-            }
         }
     }
 
@@ -409,25 +401,16 @@ public class HeartratePlugin : VTSPlugin {
                         }else{
                             this._expressionsByModelID.Add(expressionData.data.modelID, new List<ExpressionData>(expressionData.data.expressions));
                         }
-                        foreach(ExpressionModule module in this._expressionModules){
-                            module.RefreshExpressionList();
-                        }
                     }catch(System.Exception e){
                         Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
                     }
                 },
                 (expressionError) => {
                     Debug.LogError(expressionError.data.message);
-                    foreach(ExpressionModule module in this._expressionModules){
-                        module.RefreshExpressionList();
-                    }
                 }
             );
         }else{
             Debug.Log("No model loaded for expressions...");
-            foreach(ExpressionModule module in this._expressionModules){
-                module.RefreshExpressionList();
-            }
         }
     }
 
