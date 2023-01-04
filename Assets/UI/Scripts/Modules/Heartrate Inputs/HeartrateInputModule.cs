@@ -36,6 +36,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
         PULSOID_RSS = 5,
         ANT_PLUS = 6,
         HYPERATE = 7,
+        FITBIT = 9,
     }
 
     [System.Serializable]
@@ -53,6 +54,7 @@ public abstract class HeartrateInputModule : MonoBehaviour
             public float value;
             public string path;
             public string authToken;
+            public int port;
 
             public override string ToString()
             {

@@ -1,151 +1,133 @@
-﻿using UnityEngine;
-using UnityEngine.Profiling;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using System.Collections.Generic;
-using System;
+using UnityEngine;
 
-public class WebServer : MonoBehaviour
-{
+public class WebServer : MonoBehaviour {
+
+	[SerializeField]
+	private int _port = 9000;
+
+	public void SetPort(int port){
+		this._port = port;
+		StartThread();
+	}
 
 #if UNITY_STANDALONE || UNITY_EDITOR
 
-    // Use this for initialization
-    void Start ()
-    {
-        rules = GetComponents<WebServerRule>();
-        closeThreadAndContexts = false;
-        listenerThread = new Thread(ListenThread);
-        listenerThread.Start();
-        StartCoroutine(HandleRequests());
+	// Use this for initialization
+	private void Start() {
+		this._rules = GetComponents<WebServerRule>();
+		StartCoroutine(HandleRequests());
 	}
 
-    void OnDestroy()
-    {
-        closeThreadAndContexts = true;
-        if (listenerThread != null)
-        {
-            listener.Close();
-            listenerThread.Abort();
-        }
+	private void OnDestroy() {
+        AbortThread();
+	}
+
+	private void OnApplicationQuit() {
+        AbortThread();
+	}
+
+	private void StartThread(){
+		AbortThread();
+		this._closeThreadAndContexts = false;
+		this._listenerThread = new Thread(ListenThread);
+		this._listenerThread.Start();
+	}
+
+    private void AbortThread(){
+        this._closeThreadAndContexts = true;
+		if (this._listenerThread != null) {
+			this._listener.Close();
+			this._listenerThread.Abort();
+		}
     }
 
-    void OnApplicationQuit()
-    {
-        closeThreadAndContexts = true;
-        if (listenerThread != null)
-        {
-            listenerThread.Abort();
-            listener.Close();
-        }
-    }
+	private void ListenThread() {
+		try {
+			this._listener = new HttpListener();
 
-    private void ListenThread()
-    {
-        try
-        {
-            listener = new HttpListener();
+			string host = string.Format("http://*:{0}/", this._port);
+			foreach(string suffix in this._suffixes){
+				this._listener.Prefixes.Add(string.Format("{0}{1}", host, suffix));
+			}
 
-            foreach (string prefix in prefixes)
-            {
-                listener.Prefixes.Add(prefix);
-            }
+			this._listener.Start();
 
-            listener.Start();
+			while (!this._closeThreadAndContexts) {
+				HttpListenerContext context = this._listener.GetContext();
+				//Debug.LogFormat("Recieved request from {0}.", context.Request.RemoteEndPoint.ToString());
+				context.Response.StatusCode = 200;
+				lock (this._waitingContexts) {
+					this._waitingContexts.AddLast(context);
+				}
+			}
+		}
+		catch (Exception e) {
+			if (typeof(ThreadAbortException) == e.GetType()) {
+				Debug.Log(string.Format(this.name, "{0} is aborting listener thread."));
+			}
+			else {
+				Debug.LogError(string.Format("Web server error at {0}.", e.StackTrace));
+				Debug.LogError(e.Message, this);
+				Debug.LogError(this._listenerThread.ThreadState);
+			}
+		}
+	}
 
-            while (!closeThreadAndContexts)
-            {
-                HttpListenerContext context = listener.GetContext();
+	private IEnumerator HandleRequests() {
+		while (true) {
+			HttpListenerContext nextContext = null;
+			lock (this._waitingContexts) {
+				if (this._waitingContexts.Count > 0) {
+					nextContext = this._waitingContexts.First.Value;
+					this._waitingContexts.RemoveFirst();
+				}
+			}
 
-                //Debug.LogFormat("Recieved request from {0}.", context.Request.RemoteEndPoint.ToString());
-
-                context.Response.StatusCode = 200;
-                lock (waitingContexts)
-                {
-                    waitingContexts.AddLast(context);
-                }
-            }
-        }
-        catch(Exception e)
-        {
-            if (typeof(ThreadAbortException) == e.GetType())
-            {
-                Debug.Log("[<b>Web Server</b>] Aborting listener thread.");
-            }
-            else
-            {
-                Debug.LogErrorFormat("Web server error at {0}.", e.StackTrace);
-                Debug.LogError(e.Message, this);
-                Debug.LogError(listenerThread.ThreadState);
-            }
-        }
-    }
-
-    private IEnumerator HandleRequests()
-    {
-        while (true)
-        {
-            HttpListenerContext nextContext = null;
-            lock(waitingContexts)
-            {
-                if(waitingContexts.Count > 0)
-                {
-                    nextContext = waitingContexts.First.Value;
-                    waitingContexts.RemoveFirst();
-                }
-            }
-
-            if (nextContext != null)
-            {
-                //Debug.LogFormat("Processing request for {0}.", nextContext.Request.RemoteEndPoint.ToString());
-                foreach(WebServerRule rule in rules)
-                {
-                    bool isMatch = false;
-                    IEnumerator e = rule.ProcessRequest(nextContext, x => isMatch = x);
-                    do
-                    {
-                        yield return null;
+			if (nextContext != null) {
+				//Debug.LogFormat("Processing request for {0}.", nextContext.Request.RemoteEndPoint.ToString());
+				foreach (WebServerRule rule in _rules) {
+					bool isMatch = false;
+					IEnumerator e = rule.ProcessRequest(nextContext, x => isMatch = x);
+					do {
+						yield return null;
+					}
+					while (e.MoveNext());
+					if (isMatch && rule.BlockOnMatch){
+						break;
                     }
-                    while (e.MoveNext());
+				}
 
-                    if (isMatch && rule.BlockOnMatch)
-                        break;
-                }
+				Thread thread = new Thread(new ParameterizedThreadStart(FinishRequest));
+				thread.Start(nextContext);
+			}
+			else
+				yield return null;
+		}
+	}
 
-                Thread thread = new Thread(new ParameterizedThreadStart(FinishRequest));
-                thread.Start(nextContext);
-            }
-            else
-                yield return null;
-        }
-    }
-
-    private void FinishRequest(object arg)
-    {
-        /*
+	private void FinishRequest(object arg) {
+		/*
         HttpListenerContext context = (HttpListenerContext)arg;
         Debug.LogFormat("Request for {0} finished.", context.Request.RemoteEndPoint.ToString());
 
         // TODO: Commented out for now, as we have rules dictate their own closures
         context.Response.Close();
         */
-    }
+	}
 
 #endif
 
-    [SerializeField]
-    private string[] prefixes = new string[] { "http://*:8080/QuickServer/" };
-
-    private long workerThreadIdGenerator;
-
-    private HttpListener listener;
-
-    private LinkedList<HttpListenerContext> waitingContexts = new LinkedList<HttpListenerContext>();
-
-    private Thread listenerThread;
-
-    private WebServerRule[] rules;
-
-    private bool closeThreadAndContexts = false;
+	[SerializeField]
+	private string[] _suffixes = new string[] { "QuickServer" };
+	private long _workerThreadIdGenerator;
+	private HttpListener _listener;
+	private LinkedList<HttpListenerContext> _waitingContexts = new LinkedList<HttpListenerContext>();
+	private Thread _listenerThread;
+	private WebServerRule[] _rules;
+	private bool _closeThreadAndContexts = false;
 }

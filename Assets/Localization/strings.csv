@@ -158,6 +158,19 @@ input_hyperate_button_visit,Visit hyperate.io,
 input_hyperate_id,HypeRate User ID,
 input_hyperate_id_placeholder,Enter your %input_hyperate_id,
 ,,
+input_fitbit_title,FitBit,
+inpit_fitbit_tooltip,TODO,
+input_fitbit_ip,Your Local IP,
+input_fitbit_port,Your Local Port,
+input_fitbit_model,Your FitBit Model,
+input_fitbit_button_download,Download the Companion App,
+fitbit_versa_3,Versa 3,Versa 3
+fitbit_sense,Sense,Sense
+fitbit_ionic,Ionic,Ionic
+fitbit_versa_2,Versa 2,Versa 2
+fitbit_versa_lite,Versa Lite,Versa Lite
+fitbit_versa,Versa,Versa
+,,
 output_create_title,Create New Output Module,
 output_create_tooltip,Which type of output module do you want to create?,
 ,,
