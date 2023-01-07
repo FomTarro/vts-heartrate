@@ -1,15 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class FitbitInputModule : HeartrateInputModule {
 
     [SerializeField]
     private StatusIndicator _statusIndicator = null;
-
-    private string _appGalleryUrl = "https://www.skeletom.net";
-
     private HttpUtils.ConnectionStatus _status = new HttpUtils.ConnectionStatus();
+
+    [SerializeField]
+    private TMP_InputField _localIPField = null;
 
     private void Update(){
         if(FitbitManager.Instance.IsConnected){
@@ -18,6 +19,7 @@ public class FitbitInputModule : HeartrateInputModule {
             this._status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
         }
         this._statusIndicator.SetStatus(this._status);
+        this._localIPField.text = FitbitManager.Instance.LocalIP;
     }
 
 	public override int GetHeartrate() {

@@ -158,12 +158,19 @@ input_hyperate_button_visit,Visit hyperate.io,
 input_hyperate_id,HypeRate User ID,
 input_hyperate_id_placeholder,Enter your %input_hyperate_id,
 ,,
-input_fitbit_title,FitBit,
-inpit_fitbit_tooltip,TODO,
+input_fitbit_title,Fitbit,
+input_fitbit_tooltip,"<b>Fitbit</b> is wearable fitness device brand, with an app for Android/iOS.
+
+In order to use your Fitbit with vts-heartrate, you will need to download a companion app onto your watch itself. 
+
+To do this, select your watch model from the dropdown. Then click the <b>'%input_fitbit_button_download' button</b>, which will take you to the Fitbit App Gallery listing for the companion app version that is compatible with your model. 
+
+Once you download the companion app onto the watch, the Fitbit app on your phone will prompt you for <b>%input_fitbit_ip</b>. Upon entering that information, your Fitbit watch should begin sending heartrate data to vts-heartrate. This requires that your phone is on the same network as the PC running vts-heartrate.",
 input_fitbit_ip,Your Local IP,
 input_fitbit_port,Your Local Port,
-input_fitbit_model,Your FitBit Model,
+input_fitbit_model,Your Fitbit Model,
 input_fitbit_button_download,Download the Companion App,
+input_fitbit_button_visit,Visit fitbit.com,fitbit.com にアクセス
 fitbit_versa_3,Versa 3,Versa 3
 fitbit_sense,Sense,Sense
 fitbit_ionic,Ionic,Ionic

@@ -9,6 +9,9 @@ public class WebServer : MonoBehaviour {
 
 	[SerializeField]
 	private int _port = 9000;
+	public int Port { get { return this._port; } }
+	
+	private string _name = "";
 
 	public void SetPort(int port){
 		this._port = port;
@@ -19,6 +22,7 @@ public class WebServer : MonoBehaviour {
 
 	// Use this for initialization
 	private void Start() {
+		this._name = this.name;
 		this._rules = GetComponents<WebServerRule>();
 		StartCoroutine(HandleRequests());
 	}
@@ -68,7 +72,7 @@ public class WebServer : MonoBehaviour {
 		}
 		catch (Exception e) {
 			if (typeof(ThreadAbortException) == e.GetType()) {
-				Debug.Log(string.Format(this.name, "{0} is aborting listener thread."));
+				Debug.Log(string.Format(this._name, "{0} is aborting listener thread."));
 			}
 			else {
 				Debug.LogError(string.Format("Web server error at {0}.", e.StackTrace));

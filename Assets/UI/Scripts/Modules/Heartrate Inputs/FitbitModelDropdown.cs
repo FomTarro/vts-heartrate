@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class FitbitModelDropdown : RefreshableDropdown {
 
-	private Dictionary<string, FitbitManager.FitBitModelSDKMap> _models = new Dictionary<string, FitbitManager.FitBitModelSDKMap>();
+	private Dictionary<string, FitbitManager.FitbitModelSDKMap> _models = new Dictionary<string, FitbitManager.FitbitModelSDKMap>();
 
 	public override void Refresh() {
 		this._models.Clear();
-		foreach (FitbitManager.FitBitModelSDKMap model in FitbitManager.Instance.ModelsToSDKMap) {
+		foreach (FitbitManager.FitbitModelSDKMap model in FitbitManager.Instance.ModelsToSDKMap) {
 			this._models.Add(model.key, model);
 		}
 		RefreshValues(this._models.Keys);
