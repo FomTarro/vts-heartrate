@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 9161763597454674828}
   - component: {fileID: 9161763597454674825}
-  - component: {fileID: 9161763597454674831}
-  - component: {fileID: 9161763597454674830}
+  - component: {fileID: 6357173295383080994}
+  - component: {fileID: 581534164520525831}
   m_Layer: 0
   m_Name: Fitbit Manager
   m_TagString: Untagged
@@ -46,8 +46,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _initializationOrder: 100
-  _server: {fileID: 9161763597454674831}
---- !u!114 &9161763597454674831
+  _server: {fileID: 6357173295383080994}
+  _modelsToSDK: []
+--- !u!114 &6357173295383080994
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -56,13 +57,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 9161763597454674824}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b691e81c00851548974305dfcd5dae8, type: 3}
+  m_Script: {fileID: 11500000, guid: 43e174cf9e4fcd14891774c890c73d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _port: 9000
-  _suffixes:
-  - fitbit/
---- !u!114 &9161763597454674830
+--- !u!114 &581534164520525831
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -74,9 +72,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b149329aba92064aaf165e3eb10437f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  urlRegexList:
-  - ^*
-  blockOnMatch: 0
   callback:
     m_PersistentCalls:
       m_Calls:
@@ -91,3 +86,4 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  _path: /fitbit/ping
