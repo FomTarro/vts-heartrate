@@ -8,7 +8,9 @@ public class FitbitManager : Singleton<FitbitManager> {
 
 	[SerializeField]
 	private HttpServer _server = null;
-	public int Port { get { return this._server.Port; } }
+	private const int DEFAULT_PORT = 8215;
+	public int Port { get { return this._server ?  this._server.Port : DEFAULT_PORT; } }
+	public string LocalIP { get { return string.Format("{0}:{1}", HttpUtils.GetLocalIPAddress(), this._server.Port); } }
 
 	[SerializeField]
 	private List<FitbitModelSDKMap> _modelsToSDK = new List<FitbitModelSDKMap>();
@@ -24,21 +26,30 @@ public class FitbitManager : Singleton<FitbitManager> {
 	private static QRCodeGenerator QR_GENERATOR = new QRCodeGenerator();
 
 	float _timeout = 2f;
-	public bool IsConnected { get { return this._timeout > 0f; } }
-	public string LocalIP { get { return string.Format("{0}:{1}", HttpUtils.GetLocalIPAddress(), this._server.Port); } }
+
+	private System.Action<HttpUtils.ConnectionStatus> _onStatus = null;
 
 	public override void Initialize() {
 
 	}
 
-	public void SetPort(int port) {
+	public void StartOnPort(int port, System.Action<HttpUtils.ConnectionStatus> onStatus) {
 		try {
+			port = HttpUtils.ValidatePortValue(port, DEFAULT_PORT);
+			this._onStatus = onStatus;
 			this._server.SetPort(port);
 			this._server.StartServer();
+			HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+			status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
+			this._onStatus.Invoke(status);
 			Debug.LogFormat("Fitbit Server started on port {0}.", port);
 		}
 		catch (System.Exception e) {
-			// TODO: let the user know if the server couldn't be started.
+			this._timeout = -1f;
+			HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+			status.status = HttpUtils.ConnectionStatus.Status.ERROR;
+			status.message = e.Message;
+			this._onStatus.Invoke(status);
 		}
 	}
 
@@ -66,10 +77,20 @@ public class FitbitManager : Singleton<FitbitManager> {
 		FitbitResult result = JsonUtility.FromJson<FitbitResult>(body);
 		this._heartrate = result.value;
 		this._timeout = 2f;
+		HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+		status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
+		this._onStatus.Invoke(status);
 	}
 
 	private void Update() {
+		if(this._timeout > 0){
 		this._timeout = this._timeout - Time.deltaTime;
+			if(this._timeout <= 0){
+				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+				status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
+				this._onStatus.Invoke(status);
+			}
+		}
 	}
 
 	/// <summary>

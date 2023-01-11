@@ -781,7 +781,6 @@ MonoBehaviour:
   _statusIndicator: {fileID: 1197470015345013227}
   _localIPField: {fileID: 18615401592627366}
   _localPortField: {fileID: 306336963837586530}
-  _modelDropdown: {fileID: 0}
 --- !u!1 &8499487978608718971
 GameObject:
   m_ObjectHideFlags: 0
@@ -2085,6 +2084,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8726572599618870292, guid: bec5eb789b903ae4ba1ca4bf36a72ae7,
+        type: 3}
+      propertyPath: m_ReadOnly
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9114357805372444609, guid: bec5eb789b903ae4ba1ca4bf36a72ae7,
         type: 3}

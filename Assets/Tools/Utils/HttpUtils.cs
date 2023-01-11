@@ -44,14 +44,16 @@ public static class HttpUtils {
 			IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
 			return endPoint.Address;
 		}
-		// IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-		// foreach (IPAddress ip in host.AddressList) {
-		// 	if (ip.AddressFamily == AddressFamily.InterNetwork) {
-		// 		return ip;
-		// 	}
-		// }
 		throw new Exception("No network adapters with an IPv4 address in the system!");
 	}
+
+	public static int ValidatePortValue(int value, int defaultPort){
+        int port = value;
+        if (port <= 0 || port > 65535){
+            port = default;
+        }
+        return port;
+    }
 
 	public class HttpError {
 		public long statusCode;
