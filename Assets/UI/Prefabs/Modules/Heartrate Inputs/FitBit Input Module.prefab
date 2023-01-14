@@ -1808,6 +1808,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 194875257600871790}
     m_Modifications:
+    - target: {fileID: 2084742113531066107, guid: cbfe466e4f60f8941b50fbe3a88b057d,
+        type: 3}
+      propertyPath: key
+      value: input_fitbit_port_placeholder
+      objectReference: {fileID: 0}
     - target: {fileID: 4327237421642145336, guid: cbfe466e4f60f8941b50fbe3a88b057d,
         type: 3}
       propertyPath: m_Name
@@ -1931,7 +1936,7 @@ PrefabInstance:
     - target: {fileID: 7293749904123018995, guid: cbfe466e4f60f8941b50fbe3a88b057d,
         type: 3}
       propertyPath: m_CharacterLimit
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7293749904123018995, guid: cbfe466e4f60f8941b50fbe3a88b057d,
         type: 3}

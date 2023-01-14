@@ -50,7 +50,7 @@ public static class HttpUtils {
 	public static int ValidatePortValue(int value, int defaultPort){
         int port = value;
         if (port <= 0 || port > 65535){
-            port = default;
+            port = defaultPort;
         }
         return port;
     }

@@ -12,5 +12,5 @@ public interface IRequestArgs {
 
 public interface IResponseArgs {
     string Body { get; }
-    long Status { get; }
+    int Status { get; }
 }

@@ -9,12 +9,22 @@ public class ShowPasswordButton : MonoBehaviour
     [SerializeField]
     private TMP_InputField _input = null;
 
+    private bool _toggle = false;
+
     // Start is called before the first frame update
     void Start()
     {
         this._button = GetComponent<ExtendedButton>();
-        this._button.onPointerDown.AddListener(ShowPassword);
-        this._button.onPointerUp.AddListener(HidePassword);
+        this._button.onPointerDown.AddListener(Toggle);
+    }
+
+    private void Toggle(){
+        if(this._toggle){
+            HidePassword();
+        }else{
+            ShowPassword();
+        }
+        this._toggle = !this._toggle;
     }
 
     private void ShowPassword(){

@@ -8,6 +8,8 @@ const hrmData = document.getElementById("hrm-data");
 const errorDisplay = document.getElementById("error-display");
 const sensors = [];
 
+errorDisplay.text = "Awaiting connection to Phone Bridge..."
+
 peerSocket.onmessage = evt => {
     const jsonObject = JSON.parse(evt.data);
     const message = jsonObject.message
@@ -19,6 +21,10 @@ peerSocket.onmessage = evt => {
             console.log("Unknown message type: " + message)
             break;
     }
+}
+
+peerSocket.onopen = evt => {
+  errorDisplay.text = "Phone Bridge OPEN!"
 }
 
 function post(val){
@@ -45,7 +51,7 @@ if (HeartRateSensor) {
   hrmData.style.display = "none";
 }
 
-display.addEventListener("change", () => {
-  // Automatically stop all sensors when the screen is off to conserve battery
-  display.on ? sensors.map(sensor => sensor.start()) : sensors.map(sensor => sensor.stop());
-});
+// display.addEventListener("change", () => {
+//   // Automatically stop all sensors when the screen is off to conserve battery
+//   display.on ? sensors.map(sensor => sensor.start()) : sensors.map(sensor => sensor.stop());
+// });

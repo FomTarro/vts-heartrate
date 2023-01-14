@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9161763597454674828}
   - component: {fileID: 9161763597454674825}
-  - component: {fileID: 6357173295383080994}
+  - component: {fileID: 8031345447202276611}
   - component: {fileID: 581534164520525831}
   m_Layer: 0
   m_Name: Fitbit Manager
@@ -45,10 +45,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6293e4355908a974e9da1caee17f9c77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _initializationOrder: 100
-  _server: {fileID: 6357173295383080994}
+  _initializationOrder: 0
   _modelsToSDK: []
---- !u!114 &6357173295383080994
+--- !u!114 &8031345447202276611
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -57,9 +56,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 9161763597454674824}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43e174cf9e4fcd14891774c890c73d7d, type: 3}
+  m_Script: {fileID: 11500000, guid: 51844415b46ea5b4980080c38de183f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _suffixes:
+  - fitbit
 --- !u!114 &581534164520525831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86,4 +87,4 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  _path: /fitbit/ping
+  _path: /ping

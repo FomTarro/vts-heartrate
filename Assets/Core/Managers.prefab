@@ -787,6 +787,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
         type: 3}
+      propertyPath: _initializationOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
       propertyPath: _modelsToSDK.Array.size
       value: 6
       objectReference: {fileID: 0}

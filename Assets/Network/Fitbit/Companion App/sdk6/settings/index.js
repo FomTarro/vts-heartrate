@@ -2,14 +2,10 @@ function MainSettings(props) {
   return (
     <Page>
       <Section
-        title={<Text bold align="center">WebSocket Settings</Text>}>
-        <TextInput
-          settingsKey="passcode"
-          label="Your Passcode"
-        />
+        title={<Text bold align="center">Connection Settings</Text>}>
         <TextInput
           settingsKey="servercode"
-          label="Server Code"
+          label="Your Local IP"
         />
       </Section>
     </Page>

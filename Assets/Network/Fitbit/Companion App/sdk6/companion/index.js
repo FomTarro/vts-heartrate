@@ -15,30 +15,43 @@ peerSocket.onmessage = evt => {
     }
 }
 
+const headers = new Headers();
+headers.append('Content-Type', 'application/json');
+
 function post(val) {
-  const xhr = new XMLHttpRequest();
-  const servercode = JSON.parse(settingsStorage.getItem("servercode")).name;
-  // const passcode = JSON.parse(settingsStorage.getItem("passcode")).name;
-  // console.log("POSTing:" + val);
-  // console.log("POSTing:" + val + " to " + servercode);
-  const address = 'http://'+servercode+'/fitbit/ping';
-  xhr.open("POST", address, true);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.onerror = function(){
-    console.error("Unable to POST heart rate data to address: " + address);
-    peerSocket.send(JSON.stringify({
-      message: 'error',
-      value: "Unable to POST to provided address."
-    }));
+  const servercode = JSON.parse(settingsStorage.getItem("servercode"));
+  if(servercode !== undefined && servercode !== null && servercode.name.length > 0){
+    
+    const address = 'http://'+servercode.name+'/fitbit/ping';
+    const options = {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        value: val
+      })
+    };
+    
+    fetch(address, options)
+      .then(function(response){
+        return response.json();
+      }) //Extract JSON from the response
+      .then(function(data) {             
+        returnError("POST successful.")
+        console.log("Got response from server:", JSON.stringify(data));
+      })
+      .catch(function(error) {
+        returnError("Unable to POST heartrate data to the provided Local IP: " + error);
+        console.log(error);
+      });
+  }else{
+    returnError("Please enter 'Your Local IP' under 'Settings'.")
   }
-  xhr.onload = function(){
-    peerSocket.send(JSON.stringify({
-      message: 'error',
-      value: "POST successful."
-    }));
-  }
-  xhr.send(JSON.stringify({
-      value: val
+}
+
+function returnError(message) {
+  peerSocket.send(JSON.stringify({
+    message: 'error',
+    value: message
   }));
 }
 

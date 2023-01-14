@@ -18,6 +18,16 @@
   y: $;
 }
 
+.error-label {
+  font-family: System-Regular;
+  fill: white;
+  text-anchor: middle;
+  text-length: 256;
+  font-size: 20;
+  x: 50%;
+  y: $+5;
+}
+
 #logo {
   width: 128;
   height: 128;

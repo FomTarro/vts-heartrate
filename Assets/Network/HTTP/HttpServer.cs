@@ -19,6 +19,7 @@ public class HttpServer : MonoBehaviour, IServer {
 
 	public void StartServer() {
 		StopServer();
+		Debug.Log(string.Format("Starting HTTP server on port {0}...", this._port));
 		this._server = new WebSocketSharp.Server.HttpServer(this._port);
 		this._endpoints = GetComponents<IEndpoint>();
 		this._server.OnGet += (a, b) => {

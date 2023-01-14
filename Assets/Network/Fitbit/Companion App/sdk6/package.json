@@ -10,10 +10,12 @@
     "wipeColor": "#607d8b",
     "requestedPermissions": [
       "access_heart_rate",
-      "run_background"
+      "run_background",
+      "access_internet"
     ],
     "buildTargets": [
-      "atlas"
+      "atlas",
+      "vulcan"
     ],
     "i18n": {
       "en-US": {

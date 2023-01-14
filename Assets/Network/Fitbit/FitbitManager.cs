@@ -7,9 +7,9 @@ public class FitbitManager : Singleton<FitbitManager> {
 	public int Heartrate { get { return this._heartrate; } }
 
 	[SerializeField]
-	private HttpServer _server = null;
+	private IServer _server = null;
 	private const int DEFAULT_PORT = 8215;
-	public int Port { get { return this._server ?  this._server.Port : DEFAULT_PORT; } }
+	public int Port { get { return this._server != null ?  this._server.Port : DEFAULT_PORT; } }
 	public string LocalIP { get { return string.Format("{0}:{1}", HttpUtils.GetLocalIPAddress(), this._server.Port); } }
 
 	[SerializeField]
@@ -21,21 +21,24 @@ public class FitbitManager : Singleton<FitbitManager> {
 
 	private const string GALLERY_URL = "https://gallery.fitbit.com/details/{0}";
 	private const string GALLERY_SDK6_1_UUID = "e9a96623-7520-4f74-8aa4-9bae38702d54";
-	private const string GALLERY_SDK4_3_UUID = "e9a96623-7520-4f74-8aa4-9bae38702d54";
+	private const string GALLERY_SDK4_3_UUID = "4af523f1-4ae1-43b9-93ac-8278bcdf98b2";
 	private const int QR_PIXELS_PER_MODULE = 20;
 	private static QRCodeGenerator QR_GENERATOR = new QRCodeGenerator();
 
-	float _timeout = 2f;
+	private float _timeout = -1f;
 
 	private System.Action<HttpUtils.ConnectionStatus> _onStatus = null;
 
 	public override void Initialize() {
-
+		this._server = GetComponent<IServer>();
+		this._server.SetPort(DEFAULT_PORT);
 	}
 
 	public void StartOnPort(int port, System.Action<HttpUtils.ConnectionStatus> onStatus) {
 		try {
+			this._timeout = 2f;
 			port = HttpUtils.ValidatePortValue(port, DEFAULT_PORT);
+			Debug.Log("PORT " + port);
 			this._onStatus = onStatus;
 			this._server.SetPort(port);
 			this._server.StartServer();
