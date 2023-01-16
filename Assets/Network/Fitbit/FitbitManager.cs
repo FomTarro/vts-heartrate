@@ -108,7 +108,9 @@ public class FitbitManager : Singleton<FitbitManager> {
 		if (this._timeout > 0) {
 			this._timeout = this._timeout - Time.deltaTime;
 			if (this._timeout <= 0) {
-				Debug.Log(string.Format("Fitbit device connection has been lost. (App ID: {0} / Build ID: {1})", this._appID, this._buildID));
+				if(this._appID != null){
+					Debug.Log(string.Format("Fitbit device connection has been lost. (App ID: {0} / Build ID: {1})", this._appID, this._buildID));
+				}
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 				status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
 				this._onStatus.Invoke(status);

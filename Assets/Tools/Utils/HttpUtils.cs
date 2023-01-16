@@ -47,13 +47,13 @@ public static class HttpUtils {
 		throw new Exception("No network adapters with an IPv4 address in the system!");
 	}
 
-	public static int ValidatePortValue(int value, int defaultPort){
-        int port = value;
-        if (port <= 0 || port > 65535){
-            port = defaultPort;
-        }
-        return port;
-    }
+	public static int ValidatePortValue(int value, int defaultPort) {
+		int port = value;
+		if (port <= 0 || port > 65535) {
+			port = defaultPort;
+		}
+		return port;
+	}
 
 	public class HttpError {
 		public long statusCode;

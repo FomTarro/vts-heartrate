@@ -163,13 +163,13 @@ input_fitbit_tooltip,"<b>Fitbit</b> is wearable fitness device brand, with an ap
 
 In order to use your Fitbit with vts-heartrate, you will need to download a special companion app onto the Fitbit device itself. 
 
-To do this, select your watch model from the dropdown. Then scan the <b>'%input_fitbit_qr_download' QR code</b> with your phone, which will take you to the Fitbit App Gallery listing for the companion app version that is compatible with your model. Follow the prompts on your phone to then install this companion app via the Fitbit phone app.
+To do this, select your watch model from the dropdown. Then scan the <b>'%input_fitbit_qr_download' QR code</b> with your phone, which will take you to the Fitbit App Gallery listing for the companion app version that is compatible with your model. Follow the prompts on your phone to install this companion app via the Fitbit phone app.
 
 On the phone app, beneath the <b>'Install' button</b>, there will be sections labelled as <b>'Permissions'</b> and <b>'Settings'</b>. Make sure to grant all requested permissions. Then navigate to <b>'Settings'</b>, where you will be prompted for <b>%input_fitbit_ip</b>, which is provided to you by the vts-heartrate PC app. Upon entering that information, your Fitbit watch should finally begin sending heartrate data to vts-heartrate after a short delay. 
 
 If you ever need to return to the <b>'Settings'</b> menu again, in order to update <b>%input_fitbit_ip</b>, simply scan the <b>'%input_fitbit_qr_download' QR code</b> again.
 
-This setup also requires that your phone is on the same network as the PC running vts-heartrate, as your phone is actually the device relaying information between the Fitbit and the PC.",
+This setup also requires that your phone is on the same network as the PC running vts-heartrate, because your phone is actually the device relaying information between the Fitbit and the PC.",
 input_fitbit_ip,Your Local IP,
 input_fitbit_port,Your Local Port,
 input_fitbit_port_placeholder,Enter a port value (1 to 65535)...,

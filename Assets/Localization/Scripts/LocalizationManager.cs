@@ -230,7 +230,9 @@ namespace Localization {
                 value = RecursiveReplace(value, 0, language, 0);
             }
             else{
-                Debug.LogWarning("String not found in table for key: " + key);
+                if(key != null && key.Length > 0){
+                    Debug.LogWarning("String not found in table for key: " + key);
+                }
             }
             if(IsRightToLeft()){
                 // here, you can insert your own method of doing RTL text cleanup.
