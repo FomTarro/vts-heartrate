@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Net.NetworkInformation;
 
 using UnityEngine;
 using VTS.Models;
@@ -31,11 +32,12 @@ namespace VTS.Networking {
         private const int UDP_DEFAULT_PORT = 47779;
         private static UdpClient UDP_CLIENT = null;
         private static Task<UdpReceiveResult> UDP_RESULT = null;
-        private static readonly Dictionary<int, VTSStateBroadcastData> PORTS = new Dictionary<int, VTSStateBroadcastData>();
+        private static readonly Dictionary<IPAddress, Dictionary<int, VTSStateBroadcastData>> PORTS_BY_IP = new Dictionary<IPAddress, Dictionary<int, VTSStateBroadcastData>>();
+        // private static readonly Dictionary<int, VTSStateBroadcastData> PORTS = new Dictionary<int, VTSStateBroadcastData>();
 
-        private static event Action<int> GLOBAL_PORT_DISCOVERY_EVENT;
+        private static event Action<IPAddress, int> GLOBAL_PORT_DISCOVERY_EVENT;
 
-        private Action<int> _onPortDiscovered = null;
+        private Action<int> _onLocalPortDiscovered = null;
         private const float DEFAULT_PORT_DISCOVERY_TIMEOUT = 3f;
         private float _portDiscoveryTimer = 0;
         private Action _onPortDiscoveryTimeout = null;
@@ -67,15 +69,7 @@ namespace VTS.Networking {
         private void Update(float timeDelta){
             ProcessResponses();
             CheckPorts();
-            if(this._portDiscoveryTimer > 0f){
-                this._portDiscoveryTimer -= timeDelta;
-                if(this._portDiscoveryTimer <= 0f){
-                    if(this._onPortDiscoveryTimeout != null){
-                        this._onPortDiscoveryTimeout.Invoke();
-                    }
-                    this._portDiscoveryTimer = 0f;
-                }
-            }
+            UpdatePortDiscoveryTimeout(timeDelta);
         }
 
         #endregion
@@ -84,7 +78,10 @@ namespace VTS.Networking {
 
         private void CheckPorts(){
             StartUDP();
+            // Port Discovery is global, so any plugin instance with capacity can pick up this task.
+            // If another plugin isn't already servicing this task...
             if(UDP_CLIENT != null && this._json != null){
+                // If we have a result...
                 if(UDP_RESULT != null){
                     if(UDP_RESULT.IsCanceled || UDP_RESULT.IsFaulted){
                         // If the task faults, try again
@@ -93,19 +90,37 @@ namespace VTS.Networking {
                     }else if(UDP_RESULT.IsCompleted){
                         // Otherwise, collect the result
                         string text = Encoding.UTF8.GetString(UDP_RESULT.Result.Buffer);
+                        IPAddress address = MapAddress(UDP_RESULT.Result.RemoteEndPoint.Address);
                         UDP_RESULT.Dispose();
                         UDP_RESULT = null;
                         VTSStateBroadcastData data = this._json.FromJson<VTSStateBroadcastData>(text);
-                        if(data.data.active){
-                            if(PORTS.ContainsKey(data.data.port)){
-                                PORTS.Remove(data.data.port);
+                        // Debug.Log(string.Format("{0} - {1}", address, text));
+
+                        // New IP addresses get new records made
+                        if(!PORTS_BY_IP.ContainsKey(address)){
+                            PORTS_BY_IP.Add(address, new Dictionary<int, VTSStateBroadcastData>());
+                        }
+                        // If this IP already knows about this port...
+                        if(PORTS_BY_IP[address].ContainsKey(data.data.port)){
+                            if(data.data.active){
+                                // Update record if active
+                                PORTS_BY_IP[address][data.data.port] = data;
+                            }else{
+                                // Remove record if inactive
+                                PORTS_BY_IP[address].Remove(data.data.port);
                             }
-                            PORTS.Add(data.data.port, data);
-                            GLOBAL_PORT_DISCOVERY_EVENT.Invoke(data.data.port);
+                        }else{
+                            if(data.data.active){
+                                PORTS_BY_IP[address].Add(data.data.port, data);
+                            }
+                        }
+                        
+                        if(data.data.active){
+                            GLOBAL_PORT_DISCOVERY_EVENT.Invoke(address, data.data.port);
                         }
                     }
                 }
-                
+                // If our result has been collected and disposed of, start again
                 if(UDP_RESULT == null){
                     UDP_RESULT = UDP_CLIENT.ReceiveAsync();
                 }
@@ -126,15 +141,35 @@ namespace VTS.Networking {
             }
         }
 
-        private void OnPortDiscovered(int port){
-            if(this._onPortDiscovered != null){
-                Debug.Log(string.Format("Available VTube Studio port discovered: {0}!", port));
-                this._onPortDiscovered.Invoke(port);
+        private void OnPortDiscovered(IPAddress address, int port){
+            if(MapAddress(address).Equals(MapAddress(this._ip))){
+                if(this._onLocalPortDiscovered != null){
+                    Debug.Log(string.Format("Available VTube Studio port discovered: {0}!", port));
+                    this._onLocalPortDiscovered.Invoke(port);
+                }
+            }
+        }
+
+        private void UpdatePortDiscoveryTimeout(float timeDelta){
+            if(this._portDiscoveryTimer > 0f){
+                this._portDiscoveryTimer -= timeDelta;
+                if(this._portDiscoveryTimer <= 0f){
+                    if(this._onPortDiscoveryTimeout != null){
+                        this._onPortDiscoveryTimeout.Invoke();
+                    }
+                    this._portDiscoveryTimer = 0f;
+                }
             }
         }
         
+        /// <summary>
+        /// Returns a map of ports available to the current IP Address. Indexed by port number.
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<int, VTSStateBroadcastData> GetPorts(){
-            return new Dictionary<int, VTSStateBroadcastData>(PORTS);
+            return PORTS_BY_IP.ContainsKey(this._ip) 
+                ? new Dictionary<int, VTSStateBroadcastData>(PORTS_BY_IP[this._ip]) 
+                : new Dictionary<int, VTSStateBroadcastData>();
         }
 
         /// <summary>
@@ -146,7 +181,7 @@ namespace VTS.Networking {
         public bool SetPort(int port){
             Debug.Log(string.Format("Setting port: {0}...", port));
             this._port = port;
-            if(PORTS.ContainsKey(port)){
+            if(PORTS_BY_IP.ContainsKey(this._ip) && PORTS_BY_IP[this._ip].ContainsKey(port)){
                 Debug.Log(string.Format("Port {0} is a known VTube Studio Port.", port));
                 return true;
             }
@@ -164,12 +199,29 @@ namespace VTS.Networking {
             IPAddress address;
             Debug.Log(string.Format("Setting IP address: {0}...", ipString));
             if(IPAddress.TryParse(ipString, out address)){
-                this._ip = address;
+                this._ip = MapAddress(address);
                 Debug.Log(string.Format("IP address {0} is valid IPv4 format.", ipString));
                 return true;
             }
             Debug.LogWarning(string.Format("IP address {0} is not valid IPv4 format! Unable to set.", ipString));
             return false;
+        }
+
+        /// <summary>
+        /// Maps all forms of loopback IP to 127.0.0.1. Non-loopback addresses are returned as-is.
+        /// </summary>
+        /// <returns>The mapped IP Address.</returns>
+        private static IPAddress MapAddress(IPAddress address){
+            foreach(NetworkInterface ip in NetworkInterface.GetAllNetworkInterfaces()){
+                foreach(UnicastIPAddressInformation unicast in ip.GetIPProperties().UnicastAddresses){
+                    if(address.Equals(unicast.Address) && unicast.Address.AddressFamily == AddressFamily.InterNetwork){
+                        // If the provided address is one of the local machine's addresses,
+                        // Then it is effectively loopback, so let's always use loopback for simplicity.
+                        return IPAddress.Loopback;
+                    }
+                }
+            }
+            return address;
         }
 
         #endregion
@@ -187,7 +239,7 @@ namespace VTS.Networking {
         /// <param name="onError">The Callback executed upon failed initialization.</param>
         public void Connect(Action onConnect, Action onDisconnect, Action onError){
             // If the port we're trying to connect to isn't a known port...
-            if(!PORTS.ContainsKey(this._port)){
+            if(!(PORTS_BY_IP.ContainsKey(this._ip) && PORTS_BY_IP[this._ip].ContainsKey(this._port))){
                 // First try to connect to the port we proclaim...
                 ConnectImpl(this._port, onConnect, onDisconnect, () => {
                     // If that fails, let's try the first port we can find on UDP!
@@ -200,7 +252,7 @@ namespace VTS.Networking {
                         ConnectImpl(DEFAULT_PORT, onConnect, onDisconnect, onError);
                     };
                     // Wait until we discover a functional port, then try to connect.
-                    this._onPortDiscovered = (port) => {
+                    this._onLocalPortDiscovered = (port) => {
                         if(port != this._port){
                             ClearConnectionCallbacks();
                             ConnectImpl(port, onConnect, onDisconnect, onError);
@@ -234,7 +286,7 @@ namespace VTS.Networking {
 
         private void ClearConnectionCallbacks(){
             // Wipe the callbacks so we don't keep re-firing them after a successful connection or disconnect.
-            this._onPortDiscovered = null;
+            this._onLocalPortDiscovered = null;
             this._onPortDiscoveryTimeout = null;
             this._portDiscoveryTimer = 0f;
         }

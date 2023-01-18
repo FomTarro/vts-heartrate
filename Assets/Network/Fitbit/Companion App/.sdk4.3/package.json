@@ -1,0 +1,29 @@
+{
+  "devDependencies": {
+    "@fitbit/sdk": "~4.3.0"
+  },
+  "fitbit": {
+    "appUUID": "4af523f1-4ae1-43b9-93ac-8278bcdf98b2",
+    "appType": "app",
+    "appDisplayName": "vts-heartrate",
+    "iconFile": "resources/icon.png",
+    "wipeColor": "#607d8b",
+    "requestedPermissions": [
+      "access_heart_rate",
+      "run_background",
+      "access_internet"
+    ],
+    "buildTargets": [
+      "mira",
+      "gemini",
+      "meson",
+      "higgs"
+    ],
+    "i18n": {
+      "en-US": {
+        "name": "vts-heartrate"
+      }
+    },
+    "defaultLanguage": "en-US"
+  }
+}

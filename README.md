@@ -29,6 +29,7 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
         * [Pulsoid](#pulsoid)
         * [ANT+](#ant)
         * [HypeRate](#hyperate)
+        * [Fitbit](#fitbit)
     * [Outputs](#outputs)
         * [Art Mesh Tinting](#art-mesh-tinting)
         * [Automatic Expression Triggering](#automatic-expression-triggering)
@@ -96,6 +97,19 @@ Please note that this plugin is not an officially licensed or certified affiliat
 [<b>HypeRate</b>](https://www.hyperate.io/) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. 
 
 Once you have a HypeRate account, you can use this input method to collect heartrate data from the service.
+
+### Fitbit
+[<b>Fitbit</b>](https://www.fitbit.com) is wearable fitness device brand, with an app for Android/iOS.
+
+In order to use your Fitbit with vts-heartrate, you will need to download a special companion app onto the Fitbit device itself. 
+
+To do this, select your watch model from the dropdown. Then scan the <b>'Download the Companion App' QR code</b> with your phone, which will take you to the Fitbit App Gallery listing for the companion app version that is compatible with your model. Follow the prompts on your phone to install this companion app via the Fitbit phone app.
+
+On the phone app, beneath the <b>'Install' button</b>, there will be sections labelled as <b>'Permissions'</b> and <b>'Settings'</b>. Make sure to grant all requested permissions. Then navigate to <b>'Settings'</b>, where you will be prompted for <b>Your Local IP</b>, which is provided to you by the vts-heartrate PC app. Upon entering that information, your Fitbit watch should finally begin sending heartrate data to vts-heartrate after a short delay. 
+
+If you ever need to return to the <b>'Settings'</b> menu again, in order to update <b>Your Local IP</b>, simply scan the <b>'Download the Companion App' QR code</b> again.
+
+This setup also requires that your phone is on the same network as the PC running vts-heartrate, because your phone is actually the device relaying information between the Fitbit and the PC.
 
 ## Outputs
  
@@ -376,5 +390,5 @@ SERVER_ERROR = 500,
  
 Planned features include the following:
 * Localization into additional languages
-* More robust system logging
+* More device integrations (I take requests!)
 

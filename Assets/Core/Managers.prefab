@@ -38,6 +38,7 @@ Transform:
   - {fileID: 1806069215065070624}
   - {fileID: 7940789952493189888}
   - {fileID: 943974117152240712}
+  - {fileID: 1168434495270331384}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -48,6 +49,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1168434495382978284}
     m_Modifications:
+    - target: {fileID: 511753508725867110, guid: 7951643150dd6724f91862104e3b5c06,
+        type: 3}
+      propertyPath: _initializationOrder
+      value: -100
+      objectReference: {fileID: 0}
     - target: {fileID: 554069957939498263, guid: 7951643150dd6724f91862104e3b5c06,
         type: 3}
       propertyPath: m_RootOrder
@@ -196,12 +202,17 @@ PrefabInstance:
     - target: {fileID: 7311080656055107048, guid: 44ebefc6a7d9b884fadf5f995457cd70,
         type: 3}
       propertyPath: _tabs.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7311080656055107048, guid: 44ebefc6a7d9b884fadf5f995457cd70,
         type: 3}
       propertyPath: _tabs.Array.data[2].tab
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7311080656055107048, guid: 44ebefc6a7d9b884fadf5f995457cd70,
+        type: 3}
+      propertyPath: _tabs.Array.data[3].tab
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7311080656055107048, guid: 44ebefc6a7d9b884fadf5f995457cd70,
         type: 3}
@@ -722,7 +733,7 @@ PrefabInstance:
     - target: {fileID: 8987925111482354571, guid: 84aa038bec48fc147a502ce8220001bb,
         type: 3}
       propertyPath: _heartrateInputs.Array.size
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8987925111482354571, guid: 84aa038bec48fc147a502ce8220001bb,
         type: 3}
@@ -761,6 +772,171 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8987925111482354569, guid: 84aa038bec48fc147a502ce8220001bb,
     type: 3}
   m_PrefabInstance: {fileID: 7821796799738033137}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8003463374727981172
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1168434495382978284}
+    m_Modifications:
+    - target: {fileID: 9161763597454674824, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_Name
+      value: Fitbit Manager
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _initializationOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[0].key
+      value: fitbit_versa_3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[1].key
+      value: fitbit_sense
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[2].key
+      value: fitbit_ionic
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[2].sdk
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[3].key
+      value: fitbit_versa_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[3].sdk
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[4].key
+      value: fitbit_versa_lite
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[4].sdk
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[5].key
+      value: fitbit_versa
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[5].sdk
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[1].model
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[2].model
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[3].model
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[4].model
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674825, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: _modelsToSDK.Array.data[5].model
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9161763597454674830, guid: fc733a399b016084782d7f3e9683da75,
+        type: 3}
+      propertyPath: urlRegexList.Array.data[0]
+      value: ^*/ping
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fc733a399b016084782d7f3e9683da75, type: 3}
+--- !u!4 &1168434495270331384 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9161763597454674828, guid: fc733a399b016084782d7f3e9683da75,
+    type: 3}
+  m_PrefabInstance: {fileID: 8003463374727981172}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8021378000207987910
 PrefabInstance:

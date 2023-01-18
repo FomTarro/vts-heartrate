@@ -85,6 +85,16 @@ public class TooltipButton : MonoBehaviour
                         () => { Application.OpenURL("https://www.hyperate.io"); })
                 );
                 break;
+            case Tooltips.HEARTRATE_FITBIT:
+                UIManager.Instance.ShowPopUp(
+                    "input_fitbit_title",
+                    "input_fitbit_tooltip",
+                    new PopUp.PopUpOption(
+                        "input_fitbit_button_visit",
+                        ColorUtils.ColorPreset.BLUE,
+                        () => { Application.OpenURL("https://www.fitbit.com/"); })
+                );
+                break;
             case Tooltips.OUTPUT_COLOR:
                 UIManager.Instance.ShowPopUp(
                     "output_artmesh_title",
@@ -149,6 +159,7 @@ public class TooltipButton : MonoBehaviour
         HEARTRATE_ANT_PLUS = 107,
         HEARTRATE_HYPERATE = 108,
         HEARTRATE_WEBSOCKET = 109,
+        HEARTRATE_FITBIT = 110,
  
         OUTPUT_PARAMS = 201,
         OUTPUT_COLOR = 202,

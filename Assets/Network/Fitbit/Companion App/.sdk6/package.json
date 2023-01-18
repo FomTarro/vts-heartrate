@@ -1,0 +1,27 @@
+{
+  "devDependencies": {
+    "@fitbit/sdk": "~6.1.0"
+  },
+  "fitbit": {
+    "appUUID": "e9a96623-7520-4f74-8aa4-9bae38702d54",
+    "appType": "app",
+    "appDisplayName": "vts-heartrate",
+    "iconFile": "resources/icon.png",
+    "wipeColor": "#607d8b",
+    "requestedPermissions": [
+      "access_heart_rate",
+      "run_background",
+      "access_internet"
+    ],
+    "buildTargets": [
+      "atlas",
+      "vulcan"
+    ],
+    "i18n": {
+      "en-US": {
+        "name": "vts-heartrate"
+      }
+    },
+    "defaultLanguage": "en-US"
+  }
+}

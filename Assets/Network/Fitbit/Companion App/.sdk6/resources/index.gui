@@ -1,0 +1,7 @@
+<svg>
+  <rect width="90%" height="20" x="0" y="0" />
+  <image id="logo" href="logo_128.png" />
+  <text id="hrm-label" class="sensor-label">vts-heartrate</text>
+  <text id="hrm-data" class="sensor-data">{ ... }</text>
+  <textarea id="error-display" class="error-label" fill="white" x="0" width="100%" />
+</svg>
