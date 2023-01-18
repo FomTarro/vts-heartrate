@@ -18,9 +18,6 @@ public class WebServer : MonoBehaviour, IServer {
     private string[] _suffixes = new string[] { "QuickServer" };
 	private ConcurrentQueue<DataWrapper> _requests = new ConcurrentQueue<DataWrapper>();
 
-	[SerializeField]
-	// private string[] _prefixes = new string[] { "http://*:8080/QuickServer/" };
-
 	private HttpListener _listener;
 
 	private LinkedList<HttpListenerContext> _waitingContexts = new LinkedList<HttpListenerContext>();
@@ -80,12 +77,11 @@ public class WebServer : MonoBehaviour, IServer {
 		}
 		catch (Exception e) {
 			if (typeof(ThreadAbortException) == e.GetType()) {
-				Debug.Log("HTTP Server: aborting listener thread.");
+				Debug.Log("HTTP Server is aborting listener thread...");
 			}
 			else {
-				Debug.LogErrorFormat("HTTP Server error at {0}.", e.StackTrace);
+				Debug.LogError(string.Format("HTTP Server error at {0}.", e.StackTrace));
 				Debug.LogError(e.Message, this);
-				// Debug.LogError(this._listenerThread.ThreadState);
 			}
 		}
 	}
@@ -102,7 +98,6 @@ public class WebServer : MonoBehaviour, IServer {
 
 			if (nextContext != null) {
 				bool match = false;
-				//Debug.LogFormat("Processing request for {0}.", nextContext.Request.RemoteEndPoint.ToString());
 				foreach (IEndpoint endpoint in this._endpoints) {
 
 					if (nextContext.Request.Url.ToString().EndsWith(endpoint.Path)) {
