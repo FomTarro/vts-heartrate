@@ -77,7 +77,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 9161763597454674825}
-        m_MethodName: ReceiveData
+        m_MethodName: OnData
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -88,3 +88,4 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   _path: /ping
+  _audience: 1

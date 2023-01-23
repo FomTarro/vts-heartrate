@@ -10,14 +10,16 @@ public class UnityEventRule : MonoBehaviour, IEndpoint {
 	[SerializeField]
 	private string _path;
 	public string Path => this._path;
+	[SerializeField]
+	private ResponseAudience _audience = ResponseAudience.REQUESTOR;
 
 	public IResponseArgs ProcessRequest(IRequestArgs request) {
 		string body = request.Body;
 		try{
 			callback.Invoke(body);
-			return new UnityEventResponse(200, JsonUtility.ToJson(new ResponseMessage()));
+			return new UnityEventResponse(200, JsonUtility.ToJson(new ResponseMessage()), this._audience);
 		}catch(System.Exception e){
-			return new UnityEventResponse(500, e.Message);
+			return new UnityEventResponse(500, e.Message, this._audience);
 		}
 	}
 
@@ -31,12 +33,16 @@ public class UnityEventRule : MonoBehaviour, IEndpoint {
 		private string _body = "";
 		public string Body => this._body;
 
-		public int _status = 200;
+		private int _status = 200;
 		public int Status => this._status;
 
-		public UnityEventResponse (int status, string body){
+		private ResponseAudience _audience;
+		public ResponseAudience Audience => this._audience;
+
+		public UnityEventResponse (int status, string body, ResponseAudience audience){
 			this._status = status;
 			this._body = body;
+			this._audience = audience;
 		}
 	}
 }

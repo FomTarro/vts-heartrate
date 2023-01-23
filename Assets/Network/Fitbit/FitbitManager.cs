@@ -54,6 +54,7 @@ public class FitbitManager : Singleton<FitbitManager> {
 		}
 	}
 
+	// TODO: can probably consolidate these two methods by having a n Action<Texture2D> get passed in as a callback
 	public void SetSelectedModel(FitbitModel model) {
 		this._selectedModel = model;
 	}
@@ -74,7 +75,7 @@ public class FitbitManager : Singleton<FitbitManager> {
 			Color.white);
 	}
 
-	public void ReceiveData(string body) {
+	public void OnData(string body) {
 		try {
 			FitbitResult result = JsonUtility.FromJson<FitbitResult>(body);
 			this._heartrate = result.value;

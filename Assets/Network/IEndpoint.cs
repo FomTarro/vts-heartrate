@@ -13,4 +13,11 @@ public interface IRequestArgs {
 public interface IResponseArgs {
     string Body { get; }
     int Status { get; }
+	ResponseAudience Audience { get; }
+}
+
+public enum ResponseAudience {
+	NONE,
+	REQUESTOR,
+	ALL,
 }

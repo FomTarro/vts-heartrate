@@ -9,6 +9,7 @@ using UnityEngine;
 
 public class WebServer : MonoBehaviour, IServer {
 
+	[SerializeField]
 	private int _port = 9000;
 	public int Port => this._port;
 
@@ -19,11 +20,8 @@ public class WebServer : MonoBehaviour, IServer {
 	private ConcurrentQueue<DataWrapper> _requests = new ConcurrentQueue<DataWrapper>();
 
 	private HttpListener _listener;
-
 	private LinkedList<HttpListenerContext> _waitingContexts = new LinkedList<HttpListenerContext>();
-
 	private Thread _listenerThread;
-
 	private bool _closeThreadAndContexts = false;
 
 
@@ -34,11 +32,13 @@ public class WebServer : MonoBehaviour, IServer {
 
 	public void StartServer() {
         StopServer();
+		Debug.Log(string.Format("HTTP Server starting on port: {0}...", this._port));
 		this._endpoints = GetComponents<IEndpoint>();
 		this._closeThreadAndContexts = false;
 		this._listenerThread = new Thread(ListenThread);
 		this._listenerThread.Start();
 		StartCoroutine(HandleRequests());
+		Debug.Log(string.Format("HTTP Server started on port: {0}!", this._port));
 	}
 
 	public void StopServer() {
@@ -46,6 +46,7 @@ public class WebServer : MonoBehaviour, IServer {
 		if (this._listenerThread != null) {
 			this._listener.Close();
 			this._listenerThread.Abort();
+			Debug.Log(string.Format("HTTP Server stopped on port: {0}", this._port));
 		}
 	}
 
