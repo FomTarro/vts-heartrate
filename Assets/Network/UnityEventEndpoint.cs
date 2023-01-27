@@ -1,19 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 
-public class UnityEventRule : MonoBehaviour, IEndpoint {
+public class UnityEventEndpoint : BaseUnityEndpoint {
+	
 	[System.Serializable]
 	public class WebServerPostEvent : UnityEvent<string> { }
 	[SerializeField]
 	public WebServerPostEvent callback;
 
 	[SerializeField]
-	private string _path;
-	public string Path => this._path;
-	[SerializeField]
 	private ResponseAudience _audience = ResponseAudience.REQUESTOR;
 
-	public IResponseArgs ProcessRequest(IRequestArgs request) {
+	public override IResponseArgs ProcessRequest(IRequestArgs request) {
 		string body = request.Body;
 		try{
 			callback.Invoke(body);

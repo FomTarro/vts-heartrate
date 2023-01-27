@@ -1,31 +1,27 @@
 ﻿using UnityEngine;
 
-public class WebSocketInput : HeartrateInputModule
-{
-    [SerializeField]
-    private APIEndpointStatisticsDisplay _inputStats = null;
-
-    private void Update(){
-        this._inputStats.SetStatistics(APIManager.Instance.InputEndpoint.Stats);
-    }
+public class WebSocketInput : HeartrateInputModule {
     
-    public override int GetHeartrate()
-    {
-       return APIManager.Instance.Heartrate;
-    }
+	[SerializeField]
+	private APIEndpointStatisticsDisplay _inputStats = null;
 
-    protected override void FromValues(SaveData.Values values)
-    {
+	private void Update() {
+		// this._inputStats.SetStatistics(APIManager.Instance.InputEndpoint.Stats);
+	}
 
-    }
+	public override int GetHeartrate() {
+		return APIManager.Instance.Heartrate;
+	}
 
-    protected override void OnStatusChange(bool isActive)
-    {
+	protected override void FromValues(SaveData.Values values) {
 
-    }
+	}
 
-    protected override SaveData.Values ToValues()
-    {
-        return new SaveData.Values();
-    }
+	protected override void OnStatusChange(bool isActive) {
+
+	}
+
+	protected override SaveData.Values ToValues() {
+		return new SaveData.Values();
+	}
 }

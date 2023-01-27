@@ -52,9 +52,9 @@ public class APIServerSettings : MonoBehaviour
             }
         }
         int port = APIManager.Instance.Port;
-        this._dataStats.SetStatistics(APIManager.Instance.DataEndpoint.Stats);
-        this._eventStats.SetStatistics(APIManager.Instance.EventsEndpoint.Stats);
-        this._inputStats.SetStatistics(APIManager.Instance.InputEndpoint.Stats);
+        // this._dataStats.SetStatistics(APIManager.Instance.DataEndpoint.Stats);
+        // this._eventStats.SetStatistics(APIManager.Instance.EventsEndpoint.Stats);
+        // this._inputStats.SetStatistics(APIManager.Instance.InputEndpoint.Stats);
     }
 
     public int ValidatePortValue(string value){

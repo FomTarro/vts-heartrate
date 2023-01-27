@@ -10,6 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 5806722320210425693}
   - component: {fileID: 2810808747004891415}
+  - component: {fileID: 601746650936104132}
+  - component: {fileID: 7232523566357320191}
+  - component: {fileID: 3438051494537722868}
+  - component: {fileID: 677958537750303471}
   m_Layer: 0
   m_Name: API Manager
   m_TagString: Untagged
@@ -44,3 +48,67 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _initializationOrder: 9
+  _server: {fileID: 601746650936104132}
+  _dataService: {fileID: 7232523566357320191}
+  _eventsService: {fileID: 3438051494537722868}
+  _inputService: {fileID: 677958537750303471}
+--- !u!114 &601746650936104132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5806722320210425694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 907f223c646acf2479d729b7fbca6f0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _port: 8214
+--- !u!114 &7232523566357320191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5806722320210425694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b149329aba92064aaf165e3eb10437f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _path: /data
+  callback:
+    m_PersistentCalls:
+      m_Calls: []
+  _audience: 0
+--- !u!114 &3438051494537722868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5806722320210425694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b149329aba92064aaf165e3eb10437f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _path: /events
+  callback:
+    m_PersistentCalls:
+      m_Calls: []
+  _audience: 0
+--- !u!114 &677958537750303471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5806722320210425694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e80c8b63d77223c43b713b59e2a1004b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _path: /input

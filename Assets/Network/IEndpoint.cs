@@ -8,6 +8,7 @@ public interface IEndpoint {
 public interface IRequestArgs {
 	Uri Url { get; }
 	string Body { get; }
+	string ClientID { get; }
 }
 
 public interface IResponseArgs {

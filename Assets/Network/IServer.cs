@@ -7,6 +7,8 @@ public interface IServer {
     void SetPort(int port);
     int Port { get; }
 
+    List<string> Paths { get; }
+
     void StartServer();
     void StopServer();
 }

@@ -13,11 +13,21 @@ public class WebServer : MonoBehaviour, IServer {
 	private int _port = 9000;
 	public int Port => this._port;
 
-	private WebSocketSharp.Server.HttpServer _server = null;
 	private IEndpoint[] _endpoints = new IEndpoint[0];
     [SerializeField]
     private string[] _suffixes = new string[] { "QuickServer" };
 	private ConcurrentQueue<DataWrapper> _requests = new ConcurrentQueue<DataWrapper>();
+	public List<string> Paths => GetPaths();
+
+	private List<string> GetPaths(){
+		List<string> paths = new List<string>();
+		foreach(string suffix in this._suffixes){
+			foreach(IEndpoint endpoint in this._endpoints){
+				paths.Add(string.Format("{0}{1}", suffix, endpoint.Path));
+			}
+		}
+		return paths;
+	} 
 
 	private HttpListener _listener;
 	private LinkedList<HttpListenerContext> _waitingContexts = new LinkedList<HttpListenerContext>();
@@ -107,7 +117,7 @@ public class WebServer : MonoBehaviour, IServer {
 						using (var reader = new StreamReader(nextContext.Request.InputStream, nextContext.Request.ContentEncoding)) {
 							body = reader.ReadToEnd();
 						}
-						HttpRequestArgs args = new HttpRequestArgs(nextContext.Request.Url, body);
+						HttpRequestArgs args = new HttpRequestArgs(nextContext.Request.Url, body, nextContext.User.Identity.Name);
 						DataWrapper wrapper = new DataWrapper(args, nextContext, endpoint);
 						this._requests.Enqueue(wrapper);
 					}
@@ -172,10 +182,13 @@ public class WebServer : MonoBehaviour, IServer {
 		public Uri Url => this._url;
 		private string _body;
 		public string Body => this._body;
+		private string _id;
+		public string ClientID => this._id;
 
-		public HttpRequestArgs(Uri url, string body) {
+		public HttpRequestArgs(Uri url, string body, string id) {
 			this._url = url;
 			this._body = body;
+			this._id = id;
 		}
 	}
 }
