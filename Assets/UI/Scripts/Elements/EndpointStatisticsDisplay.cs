@@ -1,7 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 
-public class APIEndpointStatisticsDisplay : MonoBehaviour {
+public class EndpointStatisticsDisplay : MonoBehaviour {
 
 	[SerializeField]
 	private TMP_Text _connections = null;

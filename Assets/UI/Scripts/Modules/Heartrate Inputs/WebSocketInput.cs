@@ -3,7 +3,7 @@
 public class WebSocketInput : HeartrateInputModule {
     
 	[SerializeField]
-	private APIEndpointStatisticsDisplay _inputStats = null;
+	private EndpointStatisticsDisplay _inputStats = null;
 
 	private void Update() {
 		this._inputStats.SetStatistics(APIManager.Instance.GetInputStatistics());

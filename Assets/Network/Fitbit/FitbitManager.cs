@@ -54,6 +54,19 @@ public class FitbitManager : Singleton<FitbitManager> {
 		}
 	}
 
+	public void Stop(){
+		if(this._server != null){
+			this._server.StopServer();
+			this._timeout = -1f;
+			if(this._onStatus != null){
+				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
+				status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
+				this._onStatus.Invoke(status);
+			}
+			Debug.LogFormat("Fitbit Server stopped on port {0}.", this._server.Port);
+		}
+	}
+
 	// TODO: can probably consolidate these two methods by having a n Action<Texture2D> get passed in as a callback
 	public void SetSelectedModel(FitbitModel model) {
 		this._selectedModel = model;

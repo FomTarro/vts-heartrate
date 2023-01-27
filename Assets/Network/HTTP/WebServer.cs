@@ -33,7 +33,7 @@ public class WebServer : MonoBehaviour, IServer {
 	private LinkedList<HttpListenerContext> _waitingContexts = new LinkedList<HttpListenerContext>();
 	private Thread _listenerThread;
 	private bool _closeThreadAndContexts = false;
-
+	private Coroutine _handleResponses = null;
 
 	public void SetPort(int port) {
 		this._port = port;
@@ -44,19 +44,27 @@ public class WebServer : MonoBehaviour, IServer {
         StopServer();
 		Debug.Log(string.Format("HTTP Server starting on port: {0}...", this._port));
 		this._endpoints = GetComponents<IEndpoint>();
+		this._requests = new ConcurrentQueue<DataWrapper>();
 		this._closeThreadAndContexts = false;
 		this._listenerThread = new Thread(ListenThread);
 		this._listenerThread.Start();
-		StartCoroutine(HandleRequests());
+		if(this._handleResponses != null){
+			StopCoroutine(this._handleResponses);
+		}
+		this._handleResponses = StartCoroutine(HandleRequests());
 		Debug.Log(string.Format("HTTP Server started on port: {0}!", this._port));
 	}
 
 	public void StopServer() {
 		this._closeThreadAndContexts = true;
+		this._waitingContexts.Clear();
 		if (this._listenerThread != null) {
 			this._listener.Close();
 			this._listenerThread.Abort();
 			Debug.Log(string.Format("HTTP Server stopped on port: {0}", this._port));
+		}
+		if(this._handleResponses != null){
+			StopCoroutine(this._handleResponses);
 		}
 	}
 
@@ -99,38 +107,41 @@ public class WebServer : MonoBehaviour, IServer {
 
 	private IEnumerator HandleRequests() {
 		while (true) {
-			HttpListenerContext nextContext = null;
-			lock (this._waitingContexts) {
-				if (this._waitingContexts.Count > 0) {
-					nextContext = this._waitingContexts.First.Value;
-					this._waitingContexts.RemoveFirst();
-				}
-			}
-
-			if (nextContext != null) {
-				bool match = false;
-				foreach (IEndpoint endpoint in this._endpoints) {
-					if (nextContext.Request.Url.ToString().EndsWith(endpoint.Path)) {
-						match = true;
-						string body = "";
-						using (var reader = new StreamReader(nextContext.Request.InputStream, nextContext.Request.ContentEncoding)) {
-							body = reader.ReadToEnd();
-						}
-						HttpRequestArgs args = new HttpRequestArgs(endpoint, body, nextContext.User.Identity.Name);
-						DataWrapper wrapper = new DataWrapper(args, nextContext, endpoint);
-						this._requests.Enqueue(wrapper);
+			try{
+				HttpListenerContext nextContext = null;
+				lock (this._waitingContexts) {
+					if (this._waitingContexts.Count > 0) {
+						nextContext = this._waitingContexts.First.Value;
+						this._waitingContexts.RemoveFirst();
 					}
 				}
-				if (!match) {
-					nextContext.Response.StatusCode = 404;
-					nextContext.Response.Close();
-				}
 
-				// Thread thread = new Thread(new ParameterizedThreadStart(FinishRequest));
-				// thread.Start(nextContext);
+				if (nextContext != null) {
+					bool match = false;
+					foreach (IEndpoint endpoint in this._endpoints) {
+						if (nextContext.Request.Url.ToString().EndsWith(endpoint.Path)) {
+							match = true;
+							string body = "";
+							using (var reader = new StreamReader(nextContext.Request.InputStream, nextContext.Request.ContentEncoding)) {
+								body = reader.ReadToEnd();
+							}
+							HttpRequestArgs args = new HttpRequestArgs(endpoint, body, nextContext.Request.UserHostName);
+							DataWrapper wrapper = new DataWrapper(args, nextContext, endpoint);
+							this._requests.Enqueue(wrapper);
+						}
+					}
+					if (!match) {
+						nextContext.Response.StatusCode = 404;
+						nextContext.Response.Close();
+					}
+
+					// Thread thread = new Thread(new ParameterizedThreadStart(FinishRequest));
+					// thread.Start(nextContext);
+				}
+			}catch(Exception e){
+				Debug.LogError(string.Format("HTTP Server error: {0}", e));
 			}
-			else
-				yield return null;
+			yield return null;
 		}
 	}
 

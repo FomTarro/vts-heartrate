@@ -21,9 +21,12 @@ The <b>Input API</b> is a read and write endpoint. Your WebSocket will be able t
 
 For more information on how to use the API, please consult the <b>API Documentation</b> in the README.",
 settings_api_server_button_open_readme,%settings_system_data_open_readme,%settings_system_data_open_readme
+settings_api_port_label,API Server Port,
 settings_api_port_input,Enter a port number...,
 settings_api_server_button_start,Start API Server,
 settings_api_server_button_stop,Stop API Server,
+settings_api_server_started,server online,
+settings_api_server_stopped,server stopped,
 settings_api_server_connection_count,Connected clients: {0},
 settings_api_server_data_title,Data API,
 settings_api_server_event_title,Event API,

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using VTS.Networking.Impl;
 
 public class APIManager : Singleton<APIManager> {
 
@@ -39,6 +38,7 @@ public class APIManager : Singleton<APIManager> {
 			this._server.StopServer();
 			HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 			status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
+			status.message = Localization.LocalizationManager.Instance.GetString("settings_api_server_stopped");
 			onStatus.Invoke(status);
 			Debug.Log("API Server stopped.");
 		}
@@ -50,6 +50,7 @@ public class APIManager : Singleton<APIManager> {
 			this._server.StartServer();
 			HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 			status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
+			status.message = Localization.LocalizationManager.Instance.GetString("settings_api_server_started");
 			onStatus.Invoke(status);
 			Debug.LogFormat("API Server started on port {0}.", port);
 		}

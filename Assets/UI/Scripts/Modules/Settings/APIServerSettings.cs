@@ -11,11 +11,11 @@ public class APIServerSettings : MonoBehaviour
     private TMP_InputField _portInput = null;
 
     [SerializeField]
-    private APIEndpointStatisticsDisplay _dataStats = null;
+    private EndpointStatisticsDisplay _dataStats = null;
     [SerializeField]
-    private APIEndpointStatisticsDisplay _eventStats = null;
+    private EndpointStatisticsDisplay _eventStats = null;
     [SerializeField]
-    private APIEndpointStatisticsDisplay _inputStats = null;
+    private EndpointStatisticsDisplay _inputStats = null;
 
     [SerializeField]
     private RectTransform _authList = null;
