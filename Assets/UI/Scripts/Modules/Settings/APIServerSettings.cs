@@ -11,11 +11,11 @@ public class APIServerSettings : MonoBehaviour
     private TMP_InputField _portInput = null;
 
     [SerializeField]
-    private APIEndpointStatisticsDisplay _dataStats = null;
+    private EndpointStatisticsDisplay _dataStats = null;
     [SerializeField]
-    private APIEndpointStatisticsDisplay _eventStats = null;
+    private EndpointStatisticsDisplay _eventStats = null;
     [SerializeField]
-    private APIEndpointStatisticsDisplay _inputStats = null;
+    private EndpointStatisticsDisplay _inputStats = null;
 
     [SerializeField]
     private RectTransform _authList = null;
@@ -52,9 +52,9 @@ public class APIServerSettings : MonoBehaviour
             }
         }
         int port = APIManager.Instance.Port;
-        this._dataStats.SetStatistics(APIManager.Instance.DataEndpoint.Stats);
-        this._eventStats.SetStatistics(APIManager.Instance.EventsEndpoint.Stats);
-        this._inputStats.SetStatistics(APIManager.Instance.InputEndpoint.Stats);
+        this._dataStats.SetStatistics(APIManager.Instance.GetDataStatistics());
+        this._eventStats.SetStatistics(APIManager.Instance.GetEventStatistics());
+        this._inputStats.SetStatistics(APIManager.Instance.GetInputStatistics());
     }
 
     public int ValidatePortValue(string value){

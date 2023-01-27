@@ -1,32 +1,25 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using VTS.Networking.Impl;
-using WebSocketSharp;
-using WebSocketSharp.Server;
 
 public class APIManager : Singleton<APIManager> {
-	private WebSocketServer _server = null;
 
-	// data api
-	private APIEndpoint _dataService = new APIEndpoint("/data", () => { }, (a, b) => { });
-	public APIEndpoint DataEndpoint { get { return this._dataService; } }
-	// event api
-	private APIEndpoint _eventsService = new APIEndpoint("/events", () => { }, (a, b) => { });
-	public APIEndpoint EventsEndpoint { get { return this._eventsService; } }
-	// input api
-	private APIEndpoint _inputService = new APIEndpoint("/input", () => { }, (a, b) => {
-		APIManager.Instance.ProcessInput(APIManager.Instance._inputService, a, b);
-	});
-	public APIEndpoint InputEndpoint { get { return this._inputService; } }
+	[SerializeField]
+	private WebSocketServer _server = null;
 
 	private int _heartrate = 0;
 	public int Heartrate { get { return this._heartrate; } }
 
-	private int _port;
-	public int Port { get { return this._port; } }
+	public int Port { get { return this._server ? this._server.Port : 8214; } }
 
 	private Dictionary<string, PluginSaveData> _tokenToSessionMap = new Dictionary<string, PluginSaveData>();
 	public List<PluginSaveData> ApprovedPlugins { get { return new List<PluginSaveData>(this._tokenToSessionMap.Values); } }
+
+	[SerializeField]
+	private BaseUnityEndpoint _dataService = null;
+	[SerializeField]
+	private BaseUnityEndpoint _eventsService = null;
+	[SerializeField]
+	private BaseUnityEndpoint _inputService = null;
 
 	public override void Initialize() {
 		FromTokenSaveData(SaveDataManager.Instance.ReadTokenSaveData());
@@ -37,14 +30,15 @@ public class APIManager : Singleton<APIManager> {
 	}
 
 	public void SetPort(int port) {
-		this._port = port;
+		this._server.SetPort(port);
 	}
 
 	public void Stop(System.Action<HttpUtils.ConnectionStatus> onStatus) {
 		if (this._server != null) {
-			this._server.Stop();
+			this._server.StopServer();
 			HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 			status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
+			status.message = Localization.LocalizationManager.Instance.GetString("settings_api_server_stopped");
 			onStatus.Invoke(status);
 			Debug.Log("API Server stopped.");
 		}
@@ -53,13 +47,10 @@ public class APIManager : Singleton<APIManager> {
 	public void StartOnPort(int port, System.Action<HttpUtils.ConnectionStatus> onStatus) {
 		Stop(onStatus);
 		try {
-			this._server = new WebSocketServer(port, false);
-			this._dataService.Start(this._server);
-			this._eventsService.Start(this._server);
-			this._inputService.Start(this._server);
-			this._server.Start();
+			this._server.StartServer();
 			HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 			status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
+			status.message = Localization.LocalizationManager.Instance.GetString("settings_api_server_started");
 			onStatus.Invoke(status);
 			Debug.LogFormat("API Server started on port {0}.", port);
 		}
@@ -71,32 +62,51 @@ public class APIManager : Singleton<APIManager> {
 			onStatus.Invoke(status);
 		}
 	}
+	
+	#region Statistics
+	
+	public WebSocketServer.EndpointStatistics GetDataStatistics(){
+		return this._server.Statistics[this._dataService];
+	}
+
+	public WebSocketServer.EndpointStatistics GetEventStatistics(){
+		return this._server.Statistics[this._eventsService];
+	}
+
+	public WebSocketServer.EndpointStatistics GetInputStatistics(){
+		return this._server.Statistics[this._inputService];
+	}
+
+	#endregion
+
+	#region Sending
+
 	public void SendData(DataMessage dataMessage) {
-		this._dataService.SendToAll(dataMessage);
+		this._server.SendToAll(JsonUtility.ToJson(dataMessage), this._dataService);
 	}
 
-	public void SendEvent(EventMessage message) {
-		this._eventsService.SendToAll(message);
+	public void SendEvent(EventMessage eventMessage) {
+		this._server.SendToAll(JsonUtility.ToJson(eventMessage), this._eventsService);
 	}
 
-	protected void ProcessInput(APIEndpoint endpoint, string message, string sessionID) {
+	public void ProcessInput(string message, string clientID) {
 		try {
 			APIMessage apiMessage = JsonUtility.FromJson<APIMessage>(message);
-			PluginSaveData authenticatedClient = APIManager.Instance.PluginDataFromSessionID(sessionID);
+			PluginSaveData authenticatedClient = APIManager.Instance.PluginDataFromSessionID(clientID);
 			if ("InputRequest".Equals(apiMessage.messageType)) {
 				InputMessage inputRequest = JsonUtility.FromJson<InputMessage>(message);
 				if (authenticatedClient != null && authenticatedClient.authenticated == true) {
 					APIManager.Instance._heartrate = inputRequest.data.heartrate;
 					// echo the request back as confirmation
 					inputRequest.messageType = "InputResponse";
-					endpoint.SendToID(inputRequest, sessionID);
+					this._server.SendToClient(JsonUtility.ToJson(inputRequest), this._inputService, clientID);
 				}
 				else {
 					ErrorMessage errorResponse = new ErrorMessage(
 						ErrorMessage.StatusCode.FORBIDDEN,
-						string.Format("Client is not authenticated.", apiMessage.messageType)
+						"Client is not authenticated."
 					);
-					endpoint.SendToID(errorResponse, sessionID);
+					this._server.SendToClient(JsonUtility.ToJson(errorResponse), this._inputService, clientID);
 				}
 			}
 			else if ("AuthenticationRequest".Equals(apiMessage.messageType)) {
@@ -108,13 +118,13 @@ public class APIManager : Singleton<APIManager> {
 					APIManager.Instance._tokenToSessionMap.Remove(authRequest.data.token);
 					PluginSaveData pluginData = new PluginSaveData(
 						authRequest.data.token,
-						sessionID,
+						clientID,
 						authRequest.data.pluginName != null ? authRequest.data.pluginName : existingPluginData.pluginName,
 						authRequest.data.pluginAuthor != null ? authRequest.data.pluginAuthor : existingPluginData.pluginAuthor,
 						authRequest.data.pluginAbout != null ? authRequest.data.pluginAbout : existingPluginData.pluginAbout,
 						true); // flag this plugin as authenticated = true
 					APIManager.Instance._tokenToSessionMap.Add(authRequest.data.token, pluginData);
-					Debug.LogFormat("Authenticating session ID {0}", sessionID);
+					Debug.LogFormat("Authenticating session ID: {0}", clientID);
 
 					AuthenticationMessage authResponse = new AuthenticationMessage(
 						authRequest.data.pluginName,
@@ -123,7 +133,7 @@ public class APIManager : Singleton<APIManager> {
 						authRequest.data.token,
 						true);
 
-					endpoint.SendToID(authResponse, sessionID);
+					this._server.SendToClient(JsonUtility.ToJson(authResponse), this._inputService, clientID);
 					SaveDataManager.Instance.WriteTokenSaveData(APIManager.Instance.ToTokenSaveData());
 				}
 				else if (authRequest.data.pluginAuthor != null && authRequest.data.pluginName != null) {
@@ -152,13 +162,13 @@ public class APIManager : Singleton<APIManager> {
 
 								// Store this token and relevant metadata
 								PluginSaveData data = new PluginSaveData(authResponse.data.token,
-									sessionID,
+									clientID,
 									authResponse.data.pluginName,
 									authResponse.data.pluginAuthor,
 									authRequest.data.pluginAbout,
 									false);
 								APIManager.Instance._tokenToSessionMap.Add(authResponse.data.token, data);
-								endpoint.SendToID(authResponse, sessionID);
+								this._server.SendToClient(JsonUtility.ToJson(authResponse), this._inputService, clientID);
 								SaveDataManager.Instance.WriteTokenSaveData(APIManager.Instance.ToTokenSaveData());
 								UIManager.Instance.HidePopUp();
 							}),
@@ -170,7 +180,7 @@ public class APIManager : Singleton<APIManager> {
 									ErrorMessage.StatusCode.FORBIDDEN,
 									"User had denied this authentication request."
 								);
-								endpoint.SendToID(errorResponse, sessionID);
+								this._server.SendToClient(JsonUtility.ToJson(errorResponse), this._inputService, clientID);
 								UIManager.Instance.HidePopUp();
 							})
 					);
@@ -181,23 +191,25 @@ public class APIManager : Singleton<APIManager> {
 						ErrorMessage.StatusCode.BAD_REQUEST,
 						"Message data must contain pluginName and pluginAuthor."
 					);
-					endpoint.SendToID(errorResponse, sessionID);
+					this._server.SendToClient(JsonUtility.ToJson(errorResponse), this._inputService, clientID);
 				}
 			}
 			else {
 				// Unknown Message Type
-				ErrorMessage errorMessage = new ErrorMessage(
+				ErrorMessage errorResponse = new ErrorMessage(
 					ErrorMessage.StatusCode.BAD_REQUEST,
 					string.Format("Message type of {0} is not recognized.", apiMessage.messageType)
 				);
-				endpoint.SendToID(errorMessage, sessionID);
+				this._server.SendToClient(JsonUtility.ToJson(errorResponse), this._inputService, clientID);
 			}
 		}
 		catch (System.Exception ex) {
 			Debug.LogErrorFormat("Error parsing incoming socket message on path {0}: {1}, {2}",
-			endpoint.Path, message, ex);
+			this._inputService.Path, message, ex);
 		}
 	}
+
+	#endregion
 
 	#region Data Serialization
 
@@ -265,120 +277,5 @@ public class APIManager : Singleton<APIManager> {
 
 	#endregion
 
-	#region Endpoints
-
-	public class APIEndpoint {
-		protected string _path = "/input";
-		public string Path { get { return this._path; } }
-		public int ClientCount {
-			get {
-				WebSocketServiceHost host;
-				if (this._server != null
-				&& this._server.WebSocketServices.TryGetServiceHost(this._path, out host)) {
-					return host.Sessions.Count;
-				}
-				return 0;
-			}
-		}
-		protected long _messages = 0;
-		public long MessageCount { get { return this._messages; } }
-
-		private WebSocketServer _server = null;
-		private APIService _service = null;
-
-		public Statistics Stats {
-			get {
-				return new Statistics(
-					this.ClientCount,
-					this.MessageCount,
-					this._server != null ? "ws://localhost:" + this._server.Port + this._path : "Unavailable");
-			}
-		}
-
-		public APIEndpoint(string path, System.Action onOpen, System.Action<string, string> onMessage) {
-
-			this._path = path;
-			this._service = new APIService(path, onOpen,
-			(a, b) => {
-				onMessage(a, b);
-				// Debug.Log(string.Format("Receiving: {0}", a));                         
-				this._messages = this._messages + 1;
-			});
-		}
-
-		public void Start(WebSocketServer server) {
-			this._server = server;
-			this._server.RemoveWebSocketService(this._path);
-			this._server.AddWebSocketService<APIService>(this._path, () => { return this._service; });
-			this._messages = 0;
-		}
-
-		public bool SendToAll(APIMessage message) {
-			WebSocketServiceHost host;
-			if (this._server != null
-			&& this._server.WebSocketServices.TryGetServiceHost(this._path, out host)) {
-				host.Sessions.Broadcast(message.ToString());
-				this._messages = this._messages + host.Sessions.Count;
-				return true;
-			}
-			return false;
-		}
-
-		public bool SendToID(APIMessage message, string sessionID) {
-			WebSocketServiceHost host;
-			if (this._server != null
-			&& this._server.WebSocketServices.TryGetServiceHost(this._path, out host)) {
-				// Debug.Log(string.Format("Sending to ID {0}: {1}", sessionID, message.ToString()));
-				try {
-					host.Sessions.SendTo(message.ToString(), sessionID);
-					this._messages = this._messages + 1;
-					return true;
-				}
-				catch (System.Exception e) {
-					Debug.LogErrorFormat("Error sending message to session ID: {0}, {1}", sessionID, e);
-				}
-			}
-			return false;
-		}
-
-		public struct Statistics {
-			public int clients;
-			public long messages;
-			public string url;
-
-			public Statistics(int clients, long messages, string url) {
-				this.clients = clients;
-				this.messages = messages;
-				this.url = url;
-			}
-		}
-	}
-
-	public class APIService : WebSocketBehavior {
-
-		private string _path;
-		private System.Action _onOpen;
-		private System.Action<string, string> _onMessage;
-
-		public APIService(string path, System.Action onOpen, System.Action<string, string> onMessage) {
-			this._path = path;
-			this._onOpen = onOpen;
-			this._onMessage = onMessage;
-		}
-
-		protected override void OnOpen() {
-			Debug.LogFormat("Connection established to {0} API...", this._path);
-			MainThreadUtil.Run(() => { this._onOpen(); });
-		}
-		protected override void OnMessage(MessageEventArgs e) {
-			MainThreadUtil.Run(() => { this._onMessage(e.Data, this.ID); });
-		}
-
-		protected override void OnClose(CloseEventArgs e) {
-			Debug.LogFormat("Closing {0} API...", this._path);
-		}
-	}
-
-	#endregion
 }
 

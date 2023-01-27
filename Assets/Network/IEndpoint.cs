@@ -1,16 +1,16 @@
-﻿using System;
-
-public interface IEndpoint {
+﻿public interface IEndpoint {
 	string Path { get; }
 	IResponseArgs ProcessRequest(IRequestArgs request);
 }
 
 public interface IRequestArgs {
-	Uri Url { get; }
+	IEndpoint Endpoint { get; }
 	string Body { get; }
+	string ClientID { get; }
 }
 
 public interface IResponseArgs {
-    string Body { get; }
-    int Status { get; }
+	string Body { get; }
+	int Status { get; }
 }
+

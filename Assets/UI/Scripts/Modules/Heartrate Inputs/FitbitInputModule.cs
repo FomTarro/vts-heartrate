@@ -43,6 +43,8 @@ public class FitbitInputModule : HeartrateInputModule {
 	protected override void OnStatusChange(bool isActive) {
 		if (isActive) {
 			SetPort(FitbitManager.Instance.Port);
+		}else{
+			FitbitManager.Instance.Stop();
 		}
 	}
 
