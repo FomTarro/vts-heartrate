@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class APIEndpointStatisticsDisplay : MonoBehaviour {
@@ -10,17 +8,20 @@ public class APIEndpointStatisticsDisplay : MonoBehaviour {
 	[SerializeField]
 	private TMP_Text _url = null;
 	[SerializeField]
-	private TMP_Text _messages = null;
+	private TMP_Text _messagesIn = null;
 	[SerializeField]
-	private string _messageKey = "settings_api_server_messages_sent";
+	private TMP_Text _messagesOut = null;
 
-	// public void SetStatistics(APIManager.APIEndpoint.Statistics stats){
-	//     this._connections.text = string.Format(
-	//         Localization.LocalizationManager.Instance.GetString("settings_api_server_connection_count"),
-	//         stats.clients);
-	//     this._url.text = stats.url;
-	//     this._messages.text = string.Format(
-	//         Localization.LocalizationManager.Instance.GetString(this._messageKey),
-	//         stats.messages);
-	// }
+	public void SetStatistics(WebSocketServer.EndpointStatistics stats){
+	    this._connections.text = string.Format(
+	        Localization.LocalizationManager.Instance.GetString("settings_api_server_connection_count"),
+	        stats.ActiveConnections);
+	    this._url.text = string.Format("ws://localhost:{0}{1}", APIManager.Instance.Port, stats.Endpoint.Path);
+		this._messagesIn.text = string.Format(
+	        Localization.LocalizationManager.Instance.GetString("settings_api_server_messages_received"),
+	        stats.MessagesIn);
+	    this._messagesOut.text = string.Format(
+	        Localization.LocalizationManager.Instance.GetString("settings_api_server_messages_sent"),
+	        stats.MessagesOut);
+	}
 }

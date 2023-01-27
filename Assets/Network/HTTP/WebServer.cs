@@ -110,14 +110,13 @@ public class WebServer : MonoBehaviour, IServer {
 			if (nextContext != null) {
 				bool match = false;
 				foreach (IEndpoint endpoint in this._endpoints) {
-
 					if (nextContext.Request.Url.ToString().EndsWith(endpoint.Path)) {
 						match = true;
 						string body = "";
 						using (var reader = new StreamReader(nextContext.Request.InputStream, nextContext.Request.ContentEncoding)) {
 							body = reader.ReadToEnd();
 						}
-						HttpRequestArgs args = new HttpRequestArgs(nextContext.Request.Url, body, nextContext.User.Identity.Name);
+						HttpRequestArgs args = new HttpRequestArgs(endpoint, body, nextContext.User.Identity.Name);
 						DataWrapper wrapper = new DataWrapper(args, nextContext, endpoint);
 						this._requests.Enqueue(wrapper);
 					}
@@ -145,7 +144,6 @@ public class WebServer : MonoBehaviour, IServer {
 					byte[] bytes = request.context.Request.ContentEncoding.GetBytes(response.Body);
 					request.context.Response.OutputStream.Write(bytes, 0, bytes.Length);
 					request.context.Response.Close();
-
 				}
 				catch (System.Exception e) {
 					Debug.LogError(string.Format("HTTP Server error: {0}", e));
@@ -178,15 +176,15 @@ public class WebServer : MonoBehaviour, IServer {
 	}
 
 	private class HttpRequestArgs : IRequestArgs {
-		private Uri _url;
-		public Uri Url => this._url;
+		private IEndpoint _endpoint;
+		public IEndpoint Endpoint => this._endpoint;
 		private string _body;
 		public string Body => this._body;
 		private string _id;
 		public string ClientID => this._id;
 
-		public HttpRequestArgs(Uri url, string body, string id) {
-			this._url = url;
+		public HttpRequestArgs(IEndpoint endpoint, string body, string id) {
+			this._endpoint = endpoint;
 			this._body = body;
 			this._id = id;
 		}

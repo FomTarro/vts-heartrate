@@ -6,7 +6,7 @@ public class WebSocketInput : HeartrateInputModule {
 	private APIEndpointStatisticsDisplay _inputStats = null;
 
 	private void Update() {
-		// this._inputStats.SetStatistics(APIManager.Instance.InputEndpoint.Stats);
+		this._inputStats.SetStatistics(APIManager.Instance.GetInputStatistics());
 	}
 
 	public override int GetHeartrate() {

@@ -61,9 +61,27 @@ public class APIManager : Singleton<APIManager> {
 			onStatus.Invoke(status);
 		}
 	}
+	
+	#region Statistics
+	
+	public WebSocketServer.EndpointStatistics GetDataStatistics(){
+		return this._server.Statistics[this._dataService];
+	}
+
+	public WebSocketServer.EndpointStatistics GetEventStatistics(){
+		return this._server.Statistics[this._eventsService];
+	}
+
+	public WebSocketServer.EndpointStatistics GetInputStatistics(){
+		return this._server.Statistics[this._inputService];
+	}
+
+	#endregion
+
+	#region Sending
+
 	public void SendData(DataMessage dataMessage) {
 		this._server.SendToAll(JsonUtility.ToJson(dataMessage), this._dataService);
-		// this._dataService.SendToAll(JsonUtility.ToJson(dataMessage));
 	}
 
 	public void SendEvent(EventMessage eventMessage) {
@@ -189,6 +207,8 @@ public class APIManager : Singleton<APIManager> {
 			this._inputService.Path, message, ex);
 		}
 	}
+
+	#endregion
 
 	#region Data Serialization
 

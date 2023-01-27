@@ -2,7 +2,7 @@
 
 	public override IResponseArgs ProcessRequest(IRequestArgs request) {
 		APIManager.Instance.ProcessInput(request.Body, request.ClientID);
-        return new InputResponse(200, "", ResponseAudience.NONE);
+        return new InputResponse(200, "");
 	}
 
     [System.Serializable]
@@ -13,13 +13,9 @@
 		private int _status = 200;
 		public int Status => this._status;
 
-		private ResponseAudience _audience;
-		public ResponseAudience Audience => this._audience;
-
-		public InputResponse (int status, string body, ResponseAudience audience){
+		public InputResponse (int status, string body){
 			this._status = status;
 			this._body = body;
-			this._audience = audience;
 		}
 	}
 }

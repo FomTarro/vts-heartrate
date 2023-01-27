@@ -15,6 +15,9 @@ public class WebSocketServer : MonoBehaviour, IServer {
 	protected ConcurrentQueue<DataWrapper> _requests = new ConcurrentQueue<DataWrapper>();
 	public List<string> Paths => new List<string>(this._server.WebSocketServices.Paths);
 
+	private Dictionary<IEndpoint, EndpointStatistics> _statistics = new Dictionary<IEndpoint, EndpointStatistics>();
+	public Dictionary<IEndpoint, EndpointStatistics> Statistics => new Dictionary<IEndpoint, EndpointStatistics>(this._statistics);
+
 	public void SetPort(int port) {
 		this._port = port;
 	}
@@ -28,8 +31,11 @@ public class WebSocketServer : MonoBehaviour, IServer {
 		Debug.Log(string.Format("Websocket Server starting on port: {0}...", this._port));
 		this._server = new WebSocketSharp.Server.WebSocketServer(this._port);
 		this._endpoints = GetComponents<IEndpoint>();
+		this._statistics = new Dictionary<IEndpoint, EndpointStatistics>();
 		foreach (IEndpoint endpoint in this._endpoints) {
-			this._server.AddWebSocketService<EndpointService>(endpoint.Path, () => { return new EndpointService(endpoint, this); });
+			EndpointStatistics stats = new EndpointStatistics(endpoint);
+			this._server.AddWebSocketService<EndpointService>(endpoint.Path, () => { return new EndpointService(endpoint, this, stats); });
+			this._statistics.Add(endpoint, stats);
 			Debug.Log(string.Format("Websocket Server registering endpoint: {0}", endpoint.Path));
 		}
 		this._server.Start();
@@ -50,11 +56,11 @@ public class WebSocketServer : MonoBehaviour, IServer {
 			if (this._requests.TryDequeue(out request)) {
 				try {
 					var response = request.endpoint.ProcessRequest(request.request);
-					if (response.Audience == ResponseAudience.ALL) {
-						request.endpoint.SendToAll(response.Body);
-					} else if (response.Audience == ResponseAudience.REQUESTOR) {
-						request.endpoint.SendToClient(response.Body);
-					}
+					// if (response.Audience == ResponseAudience.ALL) {
+					// 	request.endpoint.SendToAll(response.Body);
+					// } else if (response.Audience == ResponseAudience.REQUESTOR) {
+					// 	request.endpoint.SendToClient(response.Body);
+					// }
 				}
 				catch (System.Exception e) {
 					Debug.LogError(string.Format("Websocket Server error: {0}", e));
@@ -68,6 +74,7 @@ public class WebSocketServer : MonoBehaviour, IServer {
 			WebSocketSharp.Server.WebSocketServiceHost host;
 			if(this._server.WebSocketServices.TryGetServiceHost(endpoint.Path, out host)){
 				host.Sessions.SendTo(body, sessionID);
+				this._statistics[endpoint].IncrementMessagesOut(1);
 				return true;
 			}
 		}catch(Exception e){
@@ -81,6 +88,7 @@ public class WebSocketServer : MonoBehaviour, IServer {
 			WebSocketSharp.Server.WebSocketServiceHost host;
 			if(this._server.WebSocketServices.TryGetServiceHost(endpoint.Path, out host)){
 				host.Sessions.Broadcast(body);
+				this._statistics[endpoint].IncrementMessagesOut(host.Sessions.Count);
 				return true;
 			}
 		}catch(Exception e){
@@ -93,58 +101,83 @@ public class WebSocketServer : MonoBehaviour, IServer {
 		public string Path => this._endpoint.Path;
 		private IEndpoint _endpoint;
 		private WebSocketServer _server;
-		private long _messagesIn = 0;
-		public long MessagesIn => this._messagesIn;
-		private long _messagesOut = 0;
-		public long MessagesOut => this._messagesOut;
+		private EndpointStatistics _stats;
 
-		public EndpointService(IEndpoint endpoint, WebSocketServer server) {
+		public EndpointService(IEndpoint endpoint, WebSocketServer server, EndpointStatistics stats) {
 			this._endpoint = endpoint;
 			this._server = server;
+			this._stats = stats;
 		}
 
 		protected override void OnOpen() {
 			Debug.Log(string.Format("Connection established to Websocket Service: {0}", this._endpoint.Path));
+			this._stats.IncrementActiveConnections(1);
 		}
 
 		protected override void OnMessage(MessageEventArgs e) {
-			// TODO: do we need URI here? I don't think so actually;
-			WebsocketRequestArgs args = new WebsocketRequestArgs(null, e.Data, this.ID);
+			WebsocketRequestArgs args = new WebsocketRequestArgs(this._endpoint, e.Data, this.ID);
 			DataWrapper wrapper = new DataWrapper(args, this);
-			this._messagesIn = this._messagesIn + 1;
 			this._server._requests.Enqueue(wrapper);
+			this._stats.IncrementMessagesIn(1);
 		}
 
 		protected override void OnClose(CloseEventArgs e) {
 			Debug.Log(string.Format("Disconnecting from Websocket Service {0}...", this._endpoint.Path));
+			this._stats.IncrementActiveConnections(-1);
 		}
 
 		public IResponseArgs ProcessRequest(IRequestArgs request) {
 			return this._endpoint.ProcessRequest(request);
 		}
 
-		public bool SendToAll(string body) {
-			try {
-				this.Sessions.Broadcast(body);
-				this._messagesOut = this._messagesOut + this.Sessions.Count;
-				return true;
-			}
-			catch (System.Exception e) {
-				Debug.LogError(string.Format("Websocket Server send error: {0}", e));
-			}
-			return false;
+		// public bool SendToAll(string body) {
+		// 	try {
+		// 		this.Sessions.Broadcast(body);
+		// 		return true;
+		// 	}
+		// 	catch (System.Exception e) {
+		// 		Debug.LogError(string.Format("Websocket Server send error: {0}", e));
+		// 	}
+		// 	return false;
+		// }
+
+		// public bool SendToClient(string body) {
+		// 	try {
+		// 		this.SendAsync(body, (success) => { });
+		// 		return true;
+		// 	}
+		// 	catch (System.Exception e) {
+		// 		Debug.LogError(string.Format("Websocket Server send error: {0}", e));
+		// 	}
+		// 	return false;
+		// }
+	}
+
+	public class EndpointStatistics {
+		private IEndpoint _endpoint;
+		public IEndpoint Endpoint => this._endpoint;
+		private long _messagesIn = 0;
+		public long MessagesIn => this._messagesIn;
+		private long _messagesOut = 0;
+		public long MessagesOut => this._messagesOut;
+
+		private long _activeConnections = 0;
+		public long ActiveConnections => this._activeConnections;
+
+		public void IncrementMessagesIn(int value){
+			this._messagesIn += value;
 		}
 
-		public bool SendToClient(string body) {
-			try {
-				this.SendAsync(body, (success) => { });
-				this._messagesOut = this._messagesOut + 1;
-				return true;
-			}
-			catch (System.Exception e) {
-				Debug.LogError(string.Format("Websocket Server send error: {0}", e));
-			}
-			return false;
+		public void IncrementMessagesOut(int value){
+			this._messagesOut += value;
+		}
+
+		public void IncrementActiveConnections(int value){
+			this._activeConnections += value;
+		}
+
+		public EndpointStatistics(IEndpoint endpoint){
+			this._endpoint = endpoint;
 		}
 	}
 
@@ -158,15 +191,15 @@ public class WebSocketServer : MonoBehaviour, IServer {
 	}
 
 	protected class WebsocketRequestArgs : IRequestArgs {
-		private Uri _url;
-		public Uri Url => this._url;
+		private IEndpoint _endpoint;
+		public IEndpoint Endpoint => this._endpoint;
 		private string _body;
 		public string Body => this._body;
 		private string _id;
 		public string ClientID => this._id;
 
-		public WebsocketRequestArgs(Uri url, string body, string id) {
-			this._url = url;
+		public WebsocketRequestArgs(IEndpoint endpoint, string body, string id) {
+			this._endpoint = endpoint;
 			this._body = body;
 			this._id = id;
 		}
