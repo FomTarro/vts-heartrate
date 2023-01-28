@@ -227,7 +227,7 @@ public class HeartratePlugin : VTSPlugin {
 	public void SetActiveHeartrateInput(HeartrateInputModule module) {
 		Debug.Log("Activating Input module: " + module);
 		foreach (HeartrateInputModule m in this._heartrateInputs) {
-			if(m.Type != module.Type){
+			if (m.Type != module.Type) {
 				m.gameObject.SetActive(false);
 				m.Deactivate();
 			}
@@ -363,13 +363,14 @@ public class HeartratePlugin : VTSPlugin {
 			},
 			(modelError) => {
 				ProfileManager.Instance.CreateDefaultNoModelProfile();
-				Debug.LogError(modelError.data.message);
+				Debug.LogError(string.Format("Error while querying Model Data from VTube Studio: {0} - {1}",
+					modelError.data.errorID, modelError.data.message));
 			}
 		);
 	}
 
 	private void GetHotkeyData() {
-		Debug.Log("Querying for hotkey data...");
+		Debug.Log("Querying for Hotkey Data...");
 		if (ProfileManager.Instance.IsModelLoaded()) {
 			GetHotkeysInCurrentModel(
 				ProfileManager.Instance.CurrentProfile.modelID,
@@ -387,7 +388,8 @@ public class HeartratePlugin : VTSPlugin {
 					}
 				},
 				(e) => {
-					Debug.LogError(e.data.message);
+					Debug.LogError(string.Format("Error while querying Hotkey Data from VTube Studio: {0} - {1}",
+						e.data.errorID, e.data.message));
 				}
 			);
 		}
@@ -414,7 +416,8 @@ public class HeartratePlugin : VTSPlugin {
 					}
 				},
 				(expressionError) => {
-					Debug.LogError(expressionError.data.message);
+					Debug.LogError(string.Format("Error while querying Expression Data from VTube Studio: {0} - {1}",
+						expressionError.data.errorID, expressionError.data.message));
 				}
 			);
 		}
@@ -466,7 +469,8 @@ public class HeartratePlugin : VTSPlugin {
 					Debug.Log(string.Format("Successfully created parameter in VTube Studio: {0}", paramName));
 				},
 				(e) => {
-					Debug.LogError(e.ToString());
+					Debug.LogError(string.Format("Error while injecting Parameter Data {0} into VTube Studio: {1} - {2}",
+						paramName, e.data.errorID, e.data.message));
 				});
 		}
 	}
@@ -481,6 +485,7 @@ public class HeartratePlugin : VTSPlugin {
 	#endregion
 
 	#region Module Creation
+
 	public void CreateColorTintModule(ColorInputModule.SaveData module) {
 		ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._outputModulesParent);
 		int index = GetModuleNewChildIndex();
