@@ -69,6 +69,7 @@ public class PulsoidManager : Singleton<PulsoidManager> {
 					onStatus.Invoke(status);
 				},
 				(s) => {
+					// Debug.Log(s);
 					PulsoidAppResult result = JsonUtility.FromJson<PulsoidAppResult>(s);
 					this._appHeartrate = result.data.heart_rate;
 					HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();

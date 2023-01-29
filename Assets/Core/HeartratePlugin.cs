@@ -275,8 +275,9 @@ public class HeartratePlugin : VTSPlugin {
 
 		// calculate tracking parameters
 		float beatsPerSecond = ((float)this._heartRate) / 60f;
-		float normalizedBeatsPerSecond = ((float)this._heartRate - this._minRate) / 60f;
-
+		// float normalizedBeatsPerSecond = ((float)this._heartRate - this._minRate) / 60f;
+		float normalizedBeatsPerSecond = MathUtils.Normalize((float)this._heartRate, this._minRate, this._maxRate, 0, 1);
+		// Debug.Log(normalizedBeatsPerSecond);
 		this._linear.value = interpolation;
 
 		this._bpm.value = this._heartRate;
@@ -286,7 +287,8 @@ public class HeartratePlugin : VTSPlugin {
 
 		float breathingFrequency = Mathf.Clamp(normalizedBeatsPerSecond, 0.35f, PARAMETER_MAX_VALUE);
 		this._breath.value = _oscillatingBreath.GetValue(breathingFrequency);
-		this._pulse.value = _oscillatingPulse.GetValue(Mathf.Clamp(beatsPerSecond, 0f, PARAMETER_MAX_VALUE));
+		float pulseFrequency = Mathf.Clamp(beatsPerSecond, 0f, PARAMETER_MAX_VALUE);
+		this._pulse.value = _oscillatingPulse.GetValue(pulseFrequency);
 
 		this._repeat1.value = this._saw1.GetValue(beatsPerSecond);
 		this._repeat5.value = this._saw5.GetValue(beatsPerSecond);
