@@ -28,4 +28,17 @@ public static class MathUtils {
 			return 0;
 		}
 	}
+
+	/// <summary>
+	/// Normalizes a value from one range to another.
+	/// </summary>
+	/// <param name="val">The input value</param>
+	/// <param name="valmin">The minimum of the input range</param>
+	/// <param name="valmax">The maximum of the input range</param>
+	/// <param name="min">The minimum of the output range</param>
+	/// <param name="max">The maximum of the output range</param>
+	/// <returns></returns>
+	public static float Normalize(float val, float valmin, float valmax, float min, float max) {
+		return (((val - valmin) / (valmax - valmin)) * (max - min)) + min;
+	}
 }

@@ -9,13 +9,15 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
  
 # Features
 
-💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](https://www.pulsoid.net), [hyperate.io](https://www.hyperate.io/) and [ANT+](https://www.thisisant.com/consumer/ant-101/what-is-ant)!  
+💓 Support for <b>many heart rate monitors</b> with [pulsoid.net](#pulsoid), [hyperate.io](#hyperate), [ANT+](#ant) and even [Fitbit](#fitbit)!  
 
 💓 Configurable <b>model tinting</b> that scales with pulse!
 
 💓 Automatic <b>expression and hotkey triggering</b> at desired heartrate thresholds!
 
 💓 Custom <b>tracking parameters</b> for pulse and breath!
+
+💓 Support for <b>Live2D Items</b>!
 
 💓 NEW! <b>Plugin API</b> so that you can build your own apps that consume or write heartrate data!
 
@@ -35,6 +37,7 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
         * [Automatic Expression Triggering](#automatic-expression-triggering)
         * [Automatic Hotkey Triggering](#automatic-hotkey-triggering)
         * [Custom Tracking Parameters](#custom-tracking-parameters)
+        * [Live2D Items](#live2d-items)
     * [Profiles](#profiles)
 * [API](#api)
     * [Data API](#data-api)
@@ -105,7 +108,7 @@ In order to use your Fitbit with vts-heartrate, you will need to download a spec
 
 To do this, select your watch model from the dropdown. Then scan the <b>'Download the Companion App' QR code</b> with your phone, which will take you to the Fitbit App Gallery listing for the companion app version that is compatible with your model. Follow the prompts on your phone to install this companion app via the Fitbit phone app.
 
-On the phone app, beneath the <b>'Install' button</b>, there will be sections labelled as <b>'Permissions'</b> and <b>'Settings'</b>. Make sure to grant all requested permissions. Then navigate to <b>'Settings'</b>, where you will be prompted for <b>Your Local IP</b>, which is provided to you by the vts-heartrate PC app. Upon entering that information, your Fitbit watch should finally begin sending heartrate data to vts-heartrate after a short delay. 
+On the phone app, beneath the <b>'Install' button</b>, there will be sections labelled as <b>'Permissions'</b> and <b>'Settings'</b>. Make sure to grant all requested permissions. Then navigate to <b>'Settings'</b>, where you will be prompted for <b>Your Local IP</b>, which is provided to you by the vts-heartrate PC app. Upon entering that information, your Fitbit watch should finally begin sending heartrate data to vts-heartrate after a short delay.
 
 If you ever need to return to the <b>'Settings'</b> menu again, in order to update <b>Your Local IP</b>, simply scan the <b>'Download the Companion App' QR code</b> again.
 
@@ -121,6 +124,8 @@ Text to match must be <b>comma separated</b> and should <b>not contain spaces</b
  
 If you are unsure of what your Art Meshes are named, a great web-tool was developed by <b>Hawkbar</b> called [<b>VTubeStudioTagger</b>](https://hawk.bar/VTubeStudioTagger/), which offers an intuitive way to discover the names of your model's Art Meshes.
  
+Additionally, as of version 1.3.0, you can select specific Art Meshes by clicking the <b>'Select Art Meshes in VTube Studio' button</b>, which will open a prompt in VTube Studio.
+
 ![Working Example](img/color_setup_2.png)
 
 ### Automatic Expression Triggering
@@ -164,6 +169,17 @@ For more information on how to integrate these tracking parameters into your mod
  
 ![Custom Parameter setup](img/parameter_setup.png)
 
+### Live2D Items
+There are several <b>Live2D Item assets</b> available which are <b>already configured</b> to take advantage of the above custom parameters. You can find them at the [7M|C Shop](https://7mcproductions.com/asset-shop/). These assets packs are:
+
+* [Scared Emote Kit](https://7mcproductions.com/product/scared-emotion-toggle-kit/)
+* [Exercise Emote Kit](https://7mcproductions.com/product/exercise-emotions-toggle-kit/)
+* [Excited Emote Kit](https://7mcproductions.com/product/excited-emotions-toggle-kit/)
+* [Heart Rate Starter Kit](https://7mcproductions.com/product/heart-rate-starter-kit/)
+
+These packs include things such as sweat drips, EKG monitors, steamy breath puffs and more.
+
+Of course, if you're up the the task, you can also <b>make your own Live2D Items</b> using these custom parameters, as well. You can find the complete guide to making Live2D Items in the [VTube Studio Manual](https://github.com/DenchiSoft/VTubeStudio/wiki/Live2D-Items).
 
 ## Profiles
 As of version 1.2.0, vts-heartrate supports <b>profiles</b>.

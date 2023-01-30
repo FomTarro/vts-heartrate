@@ -197,7 +197,9 @@ output_artmesh_tooltip,"This output will gradually tint the matched <b>Art Meshe
 
 Text to match must be <b>comma separated</b> and should <b>not contain spaces</b>.
 
-If you are unsure of what your Art Meshes are named, a great web-tool was developed by <b>Hawkbar</b> called <b>VTubeStudioTagger</b>, which offers an intuitive way to discover the names of your model's Art Meshes.","この出力は、現在の心拍数に基づいて、徐々にマッチされる<b>アートメッシュ</b>に所望の色を薄く付けます。
+If you are unsure of what your Art Meshes are named, a great web-tool was developed by <b>Hawkbar</b> called <b>VTubeStudioTagger</b>, which offers an intuitive way to discover the names of your model's Art Meshes.
+
+Additionally, you can select specific Art Meshes by clicking the <b>'%output_artmesh_selection_button' button</b>, which will open a prompt in VTube Studio.","この出力は、現在の心拍数に基づいて、徐々にマッチされる<b>アートメッシュ</b>に所望の色を薄く付けます。
 
 <b>アートメッシュ</b>は、その名前またはタグのテキストが、入力した検索対象リストのいずれかとマッチすればマッチされます。例えば、「<b>鼻,頬,唇</b>」を入力すると、「<b>鼻</b>」、「<b>右頬1</b>」、「<b>上唇</b>」などの名前が付いているアートメッシュがマッチされます。
 
@@ -206,6 +208,11 @@ If you are unsure of what your Art Meshes are named, a great web-tool was develo
 output_artmesh_label_mesh,Meshes,メッシュ
 output_artmesh_label_meshes_placeholder,Enter mesh names (comma separated),メッシュ名を入力（カンマ区切り）
 output_artmesh_hex_placeholder,Enter hex code...,
+output_artmesh_selection_button,Select Art Meshes in VTube Studio,
+output_artmesh_selection_title,Select Art Meshes to Tint,
+output_artmesh_selection_tooltip,"The Art Meshes selected by this prompt will have a tint gradually applied to them as a function of your heartrate.
+
+Meshes that match the naming criteria already entered in the text box are already selected.",
 output_artmesh_button,Visit VTubeStudioTagger,VTubeStudioTagger にアクセス
 ,,
 output_expressions_title,Expression Trigger,表情の切り替え

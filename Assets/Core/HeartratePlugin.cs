@@ -227,7 +227,7 @@ public class HeartratePlugin : VTSPlugin {
 	public void SetActiveHeartrateInput(HeartrateInputModule module) {
 		Debug.Log("Activating Input module: " + module);
 		foreach (HeartrateInputModule m in this._heartrateInputs) {
-			if(m.Type != module.Type){
+			if (m.Type != module.Type) {
 				m.gameObject.SetActive(false);
 				m.Deactivate();
 			}
@@ -275,8 +275,9 @@ public class HeartratePlugin : VTSPlugin {
 
 		// calculate tracking parameters
 		float beatsPerSecond = ((float)this._heartRate) / 60f;
-		float normalizedBeatsPerSecond = ((float)this._heartRate - this._minRate) / 60f;
-
+		// float normalizedBeatsPerSecond = ((float)this._heartRate - this._minRate) / 60f;
+		float normalizedBeatsPerSecond = MathUtils.Normalize((float)this._heartRate, this._minRate, this._maxRate, 0, 1);
+		// Debug.Log(normalizedBeatsPerSecond);
 		this._linear.value = interpolation;
 
 		this._bpm.value = this._heartRate;
@@ -286,7 +287,8 @@ public class HeartratePlugin : VTSPlugin {
 
 		float breathingFrequency = Mathf.Clamp(normalizedBeatsPerSecond, 0.35f, PARAMETER_MAX_VALUE);
 		this._breath.value = _oscillatingBreath.GetValue(breathingFrequency);
-		this._pulse.value = _oscillatingPulse.GetValue(Mathf.Clamp(beatsPerSecond, 0f, PARAMETER_MAX_VALUE));
+		float pulseFrequency = Mathf.Clamp(beatsPerSecond, 0f, PARAMETER_MAX_VALUE);
+		this._pulse.value = _oscillatingPulse.GetValue(pulseFrequency);
 
 		this._repeat1.value = this._saw1.GetValue(beatsPerSecond);
 		this._repeat5.value = this._saw5.GetValue(beatsPerSecond);
@@ -363,13 +365,14 @@ public class HeartratePlugin : VTSPlugin {
 			},
 			(modelError) => {
 				ProfileManager.Instance.CreateDefaultNoModelProfile();
-				Debug.LogError(modelError.data.message);
+				Debug.LogError(string.Format("Error while querying Model Data from VTube Studio: {0} - {1}",
+					modelError.data.errorID, modelError.data.message));
 			}
 		);
 	}
 
 	private void GetHotkeyData() {
-		Debug.Log("Querying for hotkey data...");
+		Debug.Log("Querying for Hotkey Data...");
 		if (ProfileManager.Instance.IsModelLoaded()) {
 			GetHotkeysInCurrentModel(
 				ProfileManager.Instance.CurrentProfile.modelID,
@@ -387,7 +390,8 @@ public class HeartratePlugin : VTSPlugin {
 					}
 				},
 				(e) => {
-					Debug.LogError(e.data.message);
+					Debug.LogError(string.Format("Error while querying Hotkey Data from VTube Studio: {0} - {1}",
+						e.data.errorID, e.data.message));
 				}
 			);
 		}
@@ -414,7 +418,8 @@ public class HeartratePlugin : VTSPlugin {
 					}
 				},
 				(expressionError) => {
-					Debug.LogError(expressionError.data.message);
+					Debug.LogError(string.Format("Error while querying Expression Data from VTube Studio: {0} - {1}",
+						expressionError.data.errorID, expressionError.data.message));
 				}
 			);
 		}
@@ -466,7 +471,8 @@ public class HeartratePlugin : VTSPlugin {
 					Debug.Log(string.Format("Successfully created parameter in VTube Studio: {0}", paramName));
 				},
 				(e) => {
-					Debug.LogError(e.ToString());
+					Debug.LogError(string.Format("Error while injecting Parameter Data {0} into VTube Studio: {1} - {2}",
+						paramName, e.data.errorID, e.data.message));
 				});
 		}
 	}
@@ -481,6 +487,7 @@ public class HeartratePlugin : VTSPlugin {
 	#endregion
 
 	#region Module Creation
+
 	public void CreateColorTintModule(ColorInputModule.SaveData module) {
 		ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._outputModulesParent);
 		int index = GetModuleNewChildIndex();

@@ -6,6 +6,7 @@ public class HypeRateManager : Singleton<HypeRateManager> {
 
 	private IWebSocket _socket = new WebSocketSharpImpl();
 	private const string HYPERATE_SOCKET_URL = @"ws://app.hyperate.io/socket/websocket?token={0}";
+	// "internal-testing" can be used to get random spoof data/test the pipes.
 	private string _hyperateID = null;
 	public string HypeRateID { get { return this._hyperateID; } }
 	private string KEEP_ALIVE_MESSAGE;
@@ -91,6 +92,7 @@ public class HypeRateManager : Singleton<HypeRateManager> {
 		if (this._socket.IsConnectionOpen()) {
 			string response = this._socket.GetNextResponse();
 			HypeRateMessage message = JsonUtility.FromJson<HypeRateMessage>(response);
+			// Debug.Log(response);
 			if (message != null) {
 				if (message.@event.Equals("hr_update")) {
 					this._timeout = TIMEOUT_MAX;
@@ -158,6 +160,10 @@ public class HypeRateManager : Singleton<HypeRateManager> {
 			public int hr;
 			public string response;
 			public string status;
+		}
+
+		public override string ToString() {
+			return JsonUtility.ToJson(this);
 		}
 	}
 

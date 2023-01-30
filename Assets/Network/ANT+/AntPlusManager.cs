@@ -43,7 +43,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 			this._backgroundScanChannel.onReceiveData += OnReceivedBackgroundScanData;
 		}
 		catch (Exception e) {
-			Debug.LogError(e);
+			Debug.LogError(string.Format("Error scanning for ANT+ Devices: {0}", e));
 			HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
 			if (e.GetType() == typeof(ANT_Exception)) {
 				errorStatus.message = "Unable to initialize USB:0";
