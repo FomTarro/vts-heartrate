@@ -46,6 +46,8 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
         * [Authenticating Your Plugin](#authenticating-your-plugin)
         * [Writing Heartrate Data](#writing-heartrate-data)
     * [Errors](#errors)
+* [FAQ](#faq)
+    * ["What devices are supported?"](#q-what-devices-are-supported)
 * [Roadmap](#roadmap)
 
 
@@ -58,7 +60,7 @@ If you're more of an email-oriented person, you can contact his support email: [
 Getting up and running is relatively straightforward. The plugin will automatically connect to VTube Studio on launch. From there, do the following steps:
 
 * Input an estimated <b>minimum</b> and <b>maximum</b> heartrate.
-* Select a desired heartrate <b>input method</b>. You can connect over bluetooth using your phone and [pulsoid.net](https://www.pulsoid.net) or [hyperate.io](https://www.hyperate.io/), or connect directly to your PC with an [ANT+](https://www.thisisant.com/consumer/ant-101/what-is-ant) USB dongle.
+* Select a desired heartrate <b>input method</b>. You can connect over bluetooth using your phone and [pulsoid.net](https://www.pulsoid.net) or [hyperate.io](https://www.hyperate.io/), connect directly to your PC with an [ANT+](https://www.thisisant.com/consumer/ant-101/what-is-ant) USB dongle, or even use your [Fitbit](#fitbit) with a special companion app.
 * Add [<b>Art Mesh Tint modules</b>](#art-mesh-tinting) and configure them to parts of your model!
 * Add [<b>Expression and Hotkey Trigger modules</b>](#automatic-expression-triggering) and configure them to activate model functions automatically!
 * Hook up [<b>Custom Tracking Parameters</b>](#custom-tracking-parameters), to your model for things like breathing speed!
@@ -113,6 +115,8 @@ On the phone app, beneath the <b>'Install' button</b>, there will be sections la
 If you ever need to return to the <b>'Settings'</b> menu again, in order to update <b>Your Local IP</b>, simply scan the <b>'Download the Companion App' QR code</b> again.
 
 This setup also requires that your phone is on the same network as the PC running vts-heartrate, because your phone is actually the device relaying information between the Fitbit and the PC.
+
+A list of [compatible Fitbit models can be found in the FAQ at the bottom of this README](#q-what-devices-are-supported).
 
 ## Outputs
  
@@ -400,7 +404,22 @@ FORBIDDEN = 403,
 SERVER_ERROR = 500,
 ```
 
+# FAQ
+## Q: "What devices are supported?"
+A: This plugin supports any device that is supported by 
 
+* [Pulsoid (compatibility list)](https://www.blog.pulsoid.net/monitors?from=faq)
+* [HypeRate (compatibility list)](https://www.hyperate.io/supported-devices)
+* [ANT+ with a USB Receiver](https://www.thisisant.com/directory/)
+* The following Fitbit devices:
+    * Versa 3
+    * Sense
+    * Ionic
+    * Versa 2
+    * Versa Lite
+    * Versa
+
+Unfortunately, Fitbit has not provided a way to develop or install third-party apps on their latest models (Versa 4 and later), so the latest devices cannot be supported at this time.
 
 # Roadmap
  
