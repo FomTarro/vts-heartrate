@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
-using VTS.Networking;
-using VTS.Networking.Impl;
+using VTS;
+using VTS.Unity;
 
 public class HypeRateManager : Singleton<HypeRateManager> {
 
-	private IWebSocket _socket = new WebSocketSharpImpl();
+	private IWebSocket _socket = new WebSocketSharpImpl(new UnityVTSLoggerImpl());
 	private const string HYPERATE_SOCKET_URL = @"ws://app.hyperate.io/socket/websocket?token={0}";
 	// "internal-testing" can be used to get random spoof data/test the pipes.
 	private string _hyperateID = null;
@@ -56,7 +56,7 @@ public class HypeRateManager : Singleton<HypeRateManager> {
 			onStatus.Invoke(connectedStatus);
 		};
 
-		this._socket = new WebSocketSharpImpl();
+		this._socket = new WebSocketSharpImpl(new UnityVTSLoggerImpl());
 		this._socket.Start(string.Format(HYPERATE_SOCKET_URL, HypeRateCredentials.API_KEY),
 		() => {
 			Debug.Log("Connected to HypeRate socket");
@@ -75,7 +75,7 @@ public class HypeRateManager : Singleton<HypeRateManager> {
 			disconnectedStatus.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
 			onStatus.Invoke(disconnectedStatus);
 		},
-		() => { this._onError.Invoke("error"); });
+		(ex) => { this._onError.Invoke(ex.ToString()); });
 	}
 
 	public void Disconnect(System.Action<HttpUtils.ConnectionStatus> onStatus) {

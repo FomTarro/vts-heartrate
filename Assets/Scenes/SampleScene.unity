@@ -1495,7 +1495,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4175,7 +4175,8 @@ PrefabInstance:
       propertyPath: _tabs.Array.data[3].others.Array.data[0]
       value: 
       objectReference: {fileID: 890679700}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1168434495776635003, guid: a0c275cd5ba400544a7565823d9ea40c, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: a0c275cd5ba400544a7565823d9ea40c, type: 3}
 --- !u!1001 &1759960459691844309
 PrefabInstance:

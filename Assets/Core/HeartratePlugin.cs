@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VTS;
-using VTS.Models;
-using VTS.Models.Impl;
-using VTS.Networking.Impl;
+using VTS.Unity;
 
 public class HeartratePlugin : VTSPlugin {
 
@@ -136,9 +134,9 @@ public class HeartratePlugin : VTSPlugin {
 
 	public void Connect() {
 		Initialize(
-			new WebSocketSharpImpl(),
-			new JsonUtilityImpl(),
-			new TokenStorageImpl(),
+			new WebSocketSharpImpl(this.Logger),
+			new NewtonsoftJsonUtilityImpl(),
+			new TokenStorageImpl(Application.persistentDataPath),
 			() => {
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 				status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
@@ -153,7 +151,7 @@ public class HeartratePlugin : VTSPlugin {
 				this._connectionStatus.SetStatus(status);
 				Debug.Log("Disconnected from VTube Studio!");
 			},
-			() => {
+			(ex) => {
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 				status.status = HttpUtils.ConnectionStatus.Status.ERROR;
 				this._connectionStatus.SetStatus(status);
@@ -690,7 +688,7 @@ public class HeartratePlugin : VTSPlugin {
 		public int apiServerPort;
 
 		public override string ToString() {
-			return JsonUtility.ToJson(this, true);
+			return new NewtonsoftJsonUtilityImpl().ToJson(this);
 		}
 	}
 
@@ -706,7 +704,7 @@ public class HeartratePlugin : VTSPlugin {
 		public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();
 
 		public override string ToString() {
-			return JsonUtility.ToJson(this, true);
+			return new NewtonsoftJsonUtilityImpl().ToJson(this);
 		}
 	}
 
