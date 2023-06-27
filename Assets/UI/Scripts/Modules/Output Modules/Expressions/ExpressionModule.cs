@@ -31,7 +31,7 @@ public class ExpressionModule : MonoBehaviour {
 	[SerializeField]
 	private TMP_Text _minimizedSummary = null;
 
-	private List<VTS.Models.ExpressionData> _expressions = new List<VTS.Models.ExpressionData>();
+	private List<VTS.ExpressionData> _expressions = new List<VTS.ExpressionData>();
 
 	public void Clone() {
 		HeartrateManager.Instance.Plugin.CreateExpressionModule(this.ToSaveData());
@@ -158,7 +158,7 @@ public class ExpressionModule : MonoBehaviour {
 		this._dropdown.ClearOptions();
 		this._expressions = HeartrateManager.Instance.Plugin.GetExpressionsForModelID(ProfileManager.Instance.CurrentProfile.modelID);
 		List<string> expressionNames = new List<string>();
-		foreach (VTS.Models.ExpressionData data in this._expressions) {
+		foreach (VTS.ExpressionData data in this._expressions) {
 			expressionNames.Add(data.file);
 		}
 		this._dropdown.AddOptions(expressionNames);

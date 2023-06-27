@@ -31,7 +31,7 @@ public class HotkeyModule : MonoBehaviour {
 	[SerializeField]
 	private TMP_Text _minimizedSummary = null;
 
-	private List<VTS.Models.HotkeyData> _hotkeys = new List<VTS.Models.HotkeyData>();
+	private List<VTS.HotkeyData> _hotkeys = new List<VTS.HotkeyData>();
 
 	public void Clone() {
 		HeartrateManager.Instance.Plugin.CreateHotkeyModule(this.ToSaveData());
@@ -138,7 +138,7 @@ public class HotkeyModule : MonoBehaviour {
 		this._dropdown.ClearOptions();
 		this._hotkeys = HeartrateManager.Instance.Plugin.GetHotkeysForModelID(ProfileManager.Instance.CurrentProfile.modelID);
 		List<string> hotkeyNames = new List<string>();
-		foreach (VTS.Models.HotkeyData data in this._hotkeys) {
+		foreach (VTS.HotkeyData data in this._hotkeys) {
 			hotkeyNames.Add(string.Format("[{0}] <size=0>{1}</size>{2}", data.type, data.hotkeyID, data.name));
 		}
 		this._dropdown.AddOptions(hotkeyNames);

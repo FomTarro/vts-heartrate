@@ -82,6 +82,7 @@ public class APIManager : Singleton<APIManager> {
 	#region Sending
 
 	public void SendData(DataMessage dataMessage) {
+		Debug.Log(this._server);
 		this._server.SendToAll(JsonUtility.ToJson(dataMessage), this._dataService);
 	}
 

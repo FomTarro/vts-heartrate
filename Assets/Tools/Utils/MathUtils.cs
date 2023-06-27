@@ -39,6 +39,8 @@ public static class MathUtils {
 	/// <param name="max">The maximum of the output range</param>
 	/// <returns></returns>
 	public static float Normalize(float val, float valmin, float valmax, float min, float max) {
-		return (((val - valmin) / (valmax - valmin)) * (max - min)) + min;
+		float numerator = ((val - valmin) / (valmax - valmin));
+		numerator = Double.IsNaN(numerator) ? 0f : numerator;
+		return numerator == 0f? 0f : (numerator * (max - min)) + min;
 	}
 }
