@@ -41,6 +41,6 @@ public static class MathUtils {
 	public static float Normalize(float val, float valmin, float valmax, float min, float max) {
 		float numerator = ((val - valmin) / (valmax - valmin));
 		numerator = Double.IsNaN(numerator) ? 0f : numerator;
-		return (numerator * (max - min)) + min;
+		return numerator == 0f? 0f : (numerator * (max - min)) + min;
 	}
 }
