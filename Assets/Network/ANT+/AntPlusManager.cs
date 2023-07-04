@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using ANT_Managed_Library;
 using UnityEngine;
@@ -36,9 +36,9 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 			Debug.Log("Looking for ANT + HeartRate sensor");
 			AntManager.Instance.Init();
 			this._scanResult = new List<AntDevice>();
-			if (this._connectedDevice.device != null) {
-				this._scanResult.Add(this._connectedDevice.device);
-			}
+			// if (this._connectedDevice.device != null) {
+			// 	this._scanResult.Add(this._connectedDevice.device);
+			// }
 			this._backgroundScanChannel = AntManager.Instance.OpenBackgroundScanChannel(0);
 			this._backgroundScanChannel.onReceiveData += OnReceivedBackgroundScanData;
 		}
@@ -58,27 +58,31 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 
 	//If the device is found 
 	void OnReceivedBackgroundScanData(Byte[] data) {
-		byte deviceType = (data[12]); // extended info Device Type byte
+		try{
+			byte deviceType = (data[12]); // extended info Device Type byte
 
-		if (deviceType == AntplusDeviceType.HeartRate) {
-			int deviceNumber = (data[10]) | data[11] << 8;
-			byte transType = data[13];
-			foreach (AntDevice d in _scanResult) {
-				if (d.deviceNumber == deviceNumber && d.transType == transType) //device already found
-					return;
+			if (deviceType == AntplusDeviceType.HeartRate) {
+				int deviceNumber = (data[10]) | data[11] << 8;
+				byte transType = data[13];
+				foreach (AntDevice d in _scanResult) {
+					if (d.deviceNumber == deviceNumber && d.transType == transType) //device already found
+						return;
+				}
+
+				Debug.Log("New heart rate sensor found " + deviceNumber);
+
+				AntDevice foundDevice = new AntDevice();
+				foundDevice.deviceType = deviceType;
+				foundDevice.deviceNumber = deviceNumber;
+				foundDevice.transType = transType;
+				foundDevice.period = 8070;
+				foundDevice.radiofreq = 57;
+				foundDevice.name = "HRM (" + foundDevice.deviceNumber + ")";
+				this._scanResult.Add(foundDevice);
+				this._scanResult.Sort();
 			}
-
-			Debug.Log("Heart rate sensor found " + deviceNumber);
-
-			AntDevice foundDevice = new AntDevice();
-			foundDevice.deviceType = deviceType;
-			foundDevice.deviceNumber = deviceNumber;
-			foundDevice.transType = transType;
-			foundDevice.period = 8070;
-			foundDevice.radiofreq = 57;
-			foundDevice.name = "HRM (" + foundDevice.deviceNumber + ")";
-			this._scanResult.Add(foundDevice);
-			this._scanResult.Sort();
+		}catch(Exception e){
+			Debug.LogError("Error parsing ANT+ Background Scan Data: " + System.Text.Encoding.UTF8.GetString(data, 1, data.Length - 1) + " -> " + e);
 		}
 
 	}
@@ -87,9 +91,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 		if (device != null) {
 			try {
 				AntManager.Instance.CloseBackgroundScanChannel();
-				if (this._connectedDevice.device != null && device.name != this._connectedDevice.device.name) {
-					DisconnectFromDevice(onStatus);
-				}
+				DisconnectFromDevice(onStatus);
 				byte channelID = AntManager.Instance.GetFreeChannelID();
 				AntChannel deviceChannel = AntManager.Instance.OpenChannel(
 					0x00, channelID,
@@ -114,6 +116,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 				this._timeout = TIMEOUT_SECONDS;
 			}
 			catch (Exception e) {
+				Debug.LogError("Error conencting to ANT+ device: " + e);
 				HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
 				errorStatus.message = e.Message;
 				errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
@@ -132,6 +135,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 		HttpUtils.ConnectionStatus disconnectStatus = new HttpUtils.ConnectionStatus();
 		this._timeout = 0;
 		if (!isTimeout) {
+			Debug.LogWarning("Connection to device " + this._connectedDevice + " was lost");
 			if (this._connectedDevice.channel != null) {
 				this._connectedDevice.channel.Close();
 			}
@@ -140,10 +144,10 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 			disconnectStatus.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
 		}
 		else {
+			// In case of timeout...
 			Debug.LogWarning("Connection to device " + this._connectedDevice + " was lost");
-			// keep the channels to attempt a reconnect (should the device come back in to range),
+			// keep the channel alive to attempt a reconnect (should the device come back in to range),
 			// but clear the device so that it no longer appears on a refreshed dropdown (if the device isn't truly unplugged, it will show up in the next scan anyway)
-			this._connectedDevice = new ConnectionData(null, this._connectedDevice.channel, this._connectedDevice.onTimeout);
 			disconnectStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
 			disconnectStatus.message = "Connection to device was lost";
 		}
@@ -153,6 +157,9 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 	//Deal with the received Data
 	public void OnData(Byte[] data) {
 		// refresh timeout window
+		if(this._timeout <= 0){
+			Debug.Log("Connection to device " + this._connectedDevice + " was re-established");
+		}
 		this._timeout = TIMEOUT_SECONDS;
 		this._heartRate = (data[7]);
 	}
@@ -167,6 +174,11 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 					: (s) => { },
 				true);
 			}
+		}else{
+			// if(this._connectedDevice.device != null){
+			// 	Debug.Log("Attempting to reconnect to HRM device...");
+			// 	ConnectToDevice(this._connectedDevice.device, this._connectedDevice.onTimeout);
+			// }
 		}
 	}
 

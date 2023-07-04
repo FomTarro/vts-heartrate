@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using VTS;
 
 public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveDataManager.SaveDataEventType> {
     
@@ -11,6 +12,8 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 	private string PLUGINS_SAVE_DIRECTORY = "";
 	private string PLUGINS_SAVE_FILE_PATH = "";
 	public string SaveDirectory { get { return this.GLOBAL_SAVE_DIRECTORY; } }
+
+	private NewtonsoftJsonUtilityImpl _json = new NewtonsoftJsonUtilityImpl();
 
 	private Dictionary<EventCallbackRegistration, Action> _onFileRead = new Dictionary<EventCallbackRegistration, Action>();
 	private Dictionary<EventCallbackRegistration, Action> _onFileWrite = new Dictionary<EventCallbackRegistration, Action>();
@@ -39,7 +42,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		HeartratePlugin.GlobalSaveData data = new HeartratePlugin.GlobalSaveData();
 		if (File.Exists(this.GLOBAL_SAVE_FILE_PATH)) {
 			string content = File.ReadAllText(this.GLOBAL_SAVE_FILE_PATH);
-			data = JsonUtility.FromJson<HeartratePlugin.GlobalSaveData>(content);
+			data = this._json.FromJson<HeartratePlugin.GlobalSaveData>(content);
 			data = ModernizeLegacyGlobalSaveData(data, content);
 		}
 		return data;
@@ -53,7 +56,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 	private HeartratePlugin.GlobalSaveData ModernizeLegacyGlobalSaveData(HeartratePlugin.GlobalSaveData data, string content) {
 		string version = data.version;
 		if (VersionUtils.IsOlderThan(version, "1.0.0")) {
-			LegacyGlobalSaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
+			LegacyGlobalSaveData_v0_1_0 legacyData = this._json.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
 			return Modernize_v1_0_0_to_v1_1_0(Modernize_v0_1_0_to_v1_0_0(legacyData));
 		}
 		else if (VersionUtils.IsOlderThan(version, "1.1.0")) {
@@ -105,7 +108,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		if (File.Exists(filePath)) {
 			Debug.Log(string.Format("Reading from path: {0}", profile.FileName));
 			string text = File.ReadAllText(filePath);
-			data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
+			data = this._json.FromJson<HeartratePlugin.ModelSaveData>(text);
 			data = ModernizeLegacyModelSaveData(data, text);
 		}
 		ExecuteReadCallbacks();
@@ -132,11 +135,11 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 	private HeartratePlugin.ModelSaveData ModernizeLegacyModelSaveData(HeartratePlugin.ModelSaveData data, string content) {
 		string version = data.version;
 		if (VersionUtils.IsOlderThan(version, "1.1.0")) {
-			LegacyModelSaveData_v1_0_0 legacyData = JsonUtility.FromJson<LegacyModelSaveData_v1_0_0>(content);
+			LegacyModelSaveData_v1_0_0 legacyData = this._json.FromJson<LegacyModelSaveData_v1_0_0>(content);
 			return Modernize_v1_1_0_to_v_1_2_0(Modernize_v1_0_0_to_v_1_1_0(legacyData));
 		}
 		else if (VersionUtils.IsOlderThan(version, "1.2.0")) {
-			LegacyModelSaveData_v1_1_0 legacyData_v1_1_0 = JsonUtility.FromJson<LegacyModelSaveData_v1_1_0>(content);
+			LegacyModelSaveData_v1_1_0 legacyData_v1_1_0 = this._json.FromJson<LegacyModelSaveData_v1_1_0>(content);
 			return Modernize_v1_1_0_to_v_1_2_0(legacyData_v1_1_0);
 		}
 		else {
@@ -188,7 +191,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		List<ProfileManager.ProfileData> list = new List<ProfileManager.ProfileData>();
 		foreach (string s in Directory.GetFiles(this.MODEL_SAVE_DIRECTORY)) {
 			string text = File.ReadAllText(s);
-			HeartratePlugin.ModelSaveData data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
+			HeartratePlugin.ModelSaveData data = this._json.FromJson<HeartratePlugin.ModelSaveData>(text);
 			data = ModernizeLegacyModelSaveData(data, text);
 			ProfileManager.ProfileData info = new ProfileManager.ProfileData(data.modelName, data.modelID, data.profileName, data.profileID);
 			// string key = string.Format("{0}<size=0>{1}</size> ({2})", info.modelName, info.profileID, info.profileName);
@@ -205,7 +208,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		APIManager.TokenSaveData data = new APIManager.TokenSaveData();
 		if (File.Exists(this.PLUGINS_SAVE_FILE_PATH)) {
 			string text = File.ReadAllText(this.PLUGINS_SAVE_FILE_PATH);
-			data = JsonUtility.FromJson<APIManager.TokenSaveData>(text);
+			data = this._json.FromJson<APIManager.TokenSaveData>(text);
 		}
 		return data;
 	}

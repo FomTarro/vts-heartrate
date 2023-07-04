@@ -92,7 +92,7 @@ public class WebSocketServer : MonoBehaviour, IServer {
 				return true;
 			}
 		}catch(Exception e){
-			Debug.LogError(string.Format("Error sending data to all Websocket lients with exception: {0}", e));
+			Debug.LogError(string.Format("Error sending data to all Websocket clients with exception: {0}", e));
 		}
 		return false;
 	}
