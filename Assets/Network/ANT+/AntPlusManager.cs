@@ -33,7 +33,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 	//Start a background Scan to find the device
 	public void StartScan(Action<HttpUtils.ConnectionStatus> onStatus) {
 		try {
-			Debug.Log("Looking for ANT + HeartRate sensor");
+			Debug.Log("Looking for ANT + HeartRate sensors...");
 			AntManager.Instance.Init();
 			this._scanResult = new List<AntDevice>();
 			// if (this._connectedDevice.device != null) {
@@ -161,7 +161,11 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 			Debug.Log("Connection to device " + this._connectedDevice + " was re-established");
 		}
 		this._timeout = TIMEOUT_SECONDS;
-		this._heartRate = (data[7]);
+		try{
+			this._heartRate = (data[7]);
+		}catch(Exception e){
+			Debug.LogError("Error parsing ANT+ Device Data: " + System.Text.Encoding.UTF8.GetString(data, 1, data.Length - 1) + " -> " + e);
+		}
 	}
 
 	private void Update() {

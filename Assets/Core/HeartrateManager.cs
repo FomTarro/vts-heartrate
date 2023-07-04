@@ -38,7 +38,7 @@ public class HeartrateManager : Singleton<HeartrateManager> {
 				);
 			},
 			(s) => {
-				VersionUtils.VersionInfo info = JsonUtility.FromJson<VersionUtils.VersionInfo>(s);
+				VersionUtils.VersionInfo info = this.Plugin.JsonUtility.FromJson<VersionUtils.VersionInfo>(s);
 				Debug.Log(VersionUtils.CompareVersion(info) ? "Newer version needed: " + info.url : "Up to date.");
 				if (VersionUtils.CompareVersion(info)) {
 					Dictionary<string, string> strings = new Dictionary<string, string>();
