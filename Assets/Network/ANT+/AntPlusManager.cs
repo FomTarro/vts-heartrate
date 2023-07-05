@@ -33,14 +33,14 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 	//Start a background Scan to find the device
 	public void StartScan(Action<HttpUtils.ConnectionStatus> onStatus) {
 		try {
-			Debug.Log("Looking for ANT + HeartRate sensors...");
-			AntManager.Instance.Init();
+			Debug.Log("Looking for ANT+ HeartRate sensors...");
 			this._scanResult = new List<AntDevice>();
-			// if (this._connectedDevice.device != null) {
-			// 	this._scanResult.Add(this._connectedDevice.device);
-			// }
-			this._backgroundScanChannel = AntManager.Instance.OpenBackgroundScanChannel(0);
-			this._backgroundScanChannel.onReceiveData += OnReceivedBackgroundScanData;
+			if(this._backgroundScanChannel != null){
+				this._backgroundScanChannel.ReOpen();
+			}
+			if (this._connectedDevice.device != null) {
+				this._scanResult.Add(this._connectedDevice.device);
+			}
 		}
 		catch (Exception e) {
 			Debug.LogError(string.Format("Error scanning for ANT+ Devices: {0}", e));
@@ -69,7 +69,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 						return;
 				}
 
-				Debug.Log("New heart rate sensor found " + deviceNumber);
+				Debug.Log("New ANT+ heart rate sensor found: " + deviceNumber);
 
 				AntDevice foundDevice = new AntDevice();
 				foundDevice.deviceType = deviceType;
@@ -90,8 +90,8 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 	public void ConnectToDevice(AntDevice device, Action<HttpUtils.ConnectionStatus> onStatus) {
 		if (device != null) {
 			try {
-				AntManager.Instance.CloseBackgroundScanChannel();
 				DisconnectFromDevice(onStatus);
+				Debug.Log("Connecting to ANT+ device: " + device.name + "...");
 				byte channelID = AntManager.Instance.GetFreeChannelID();
 				AntChannel deviceChannel = AntManager.Instance.OpenChannel(
 					0x00, channelID,
@@ -135,8 +135,9 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 		HttpUtils.ConnectionStatus disconnectStatus = new HttpUtils.ConnectionStatus();
 		this._timeout = 0;
 		if (!isTimeout) {
-			Debug.LogWarning("Connection to device " + this._connectedDevice + " was lost");
+			Debug.Log("Manually disconnecting from ANT+ device: " + this._connectedDevice +"...");
 			if (this._connectedDevice.channel != null) {
+				Debug.Log("Closing ANT+ channel...");
 				this._connectedDevice.channel.Close();
 			}
 			// no connected device, wipe all connection data
@@ -145,7 +146,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 		}
 		else {
 			// In case of timeout...
-			Debug.LogWarning("Connection to device " + this._connectedDevice + " was lost");
+			Debug.LogWarning("Connection to ANT+ device " + this._connectedDevice + " was lost!");
 			// keep the channel alive to attempt a reconnect (should the device come back in to range),
 			// but clear the device so that it no longer appears on a refreshed dropdown (if the device isn't truly unplugged, it will show up in the next scan anyway)
 			disconnectStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
@@ -158,7 +159,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 	public void OnData(Byte[] data) {
 		// refresh timeout window
 		if(this._timeout <= 0){
-			Debug.Log("Connection to device " + this._connectedDevice + " was re-established");
+			Debug.Log("Connection to ANT+ device " + this._connectedDevice + " was re-established");
 		}
 		this._timeout = TIMEOUT_SECONDS;
 		try{
@@ -173,8 +174,8 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 			this._timeout = this._timeout - Time.deltaTime;
 			if (this._timeout <= 0) {
 				DisconnectFromDevice(
-					this._connectedDevice.onTimeout != null
-					? this._connectedDevice.onTimeout
+					this._connectedDevice.onStatusChange != null
+					? this._connectedDevice.onStatusChange
 					: (s) => { },
 				true);
 			}
@@ -191,13 +192,20 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 	}
 
 	public override void Initialize() {
-		AntManager.Instance.onSerialError += OnSerialError;
+		try{
+			AntManager.Instance.Init();
+			AntManager.Instance.onSerialError += OnSerialError;
+			this._backgroundScanChannel = AntManager.Instance.OpenBackgroundScanChannel(0);
+			this._backgroundScanChannel.onReceiveData += OnReceivedBackgroundScanData;
+		}catch(Exception e){
+			Debug.LogError("Critical ANT+ error: " + e);
+		}
 	}
 
 	private void OnSerialError(SerialError error) {
-		Debug.LogError(error.error);
-		if (this._connectedDevice.onTimeout != null) {
-			Action<HttpUtils.ConnectionStatus> onError = this._connectedDevice.onTimeout;
+		Debug.LogError("ANT+ serial error: " + error.error);
+		if (this._connectedDevice.onStatusChange != null) {
+			Action<HttpUtils.ConnectionStatus> onError = this._connectedDevice.onStatusChange;
 			DisconnectFromDevice(onError);
 			HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
 			errorStatus.message = "Serial error: " + error.error;
@@ -209,11 +217,11 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 	private struct ConnectionData {
 		public AntDevice device;
 		public AntChannel channel;
-		public Action<HttpUtils.ConnectionStatus> onTimeout;
-		public ConnectionData(AntDevice device, AntChannel channel, Action<HttpUtils.ConnectionStatus> onTimeout) {
+		public Action<HttpUtils.ConnectionStatus> onStatusChange;
+		public ConnectionData(AntDevice device, AntChannel channel, Action<HttpUtils.ConnectionStatus> onStatusChange) {
 			this.device = device;
 			this.channel = channel;
-			this.onTimeout = onTimeout;
+			this.onStatusChange = onStatusChange;
 		}
 
 		public override string ToString() {
