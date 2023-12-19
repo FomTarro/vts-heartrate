@@ -2,6 +2,8 @@
 
 # VTS-Heartrate
 A VTube Studio plugin that allows for connectivity between heart rate monitors (HRM) and VTube Studio!
+
+![Pulsoid Verified Badge](https://pulsoid.net/s/github-badge)
  
 [Download the latest version here!](https://skeletom-ch.itch.io/vts-heartrate) Or, in the [release section](https://github.com/FomTarro/vts-heartrate/releases) of this repo.
 
@@ -82,6 +84,8 @@ The file must simply contain the <b>numeric heartrate value</b> in <b>plain text
 This input method allows you to read heartrate data from the <b>Input API</b>. For more information about the API, consult the [API Documentation](#API).
 
 ### Pulsoid
+![Pulsoid Verified Badge](https://pulsoid.net/s/github-badge)
+
 [<b>Pulsoid</b>](https://www.pulsoid.net) is a free third-party app for Android/iOS which allows for easy, reliable connectivity to a wide set of heartrate monitors via the Bluetooth of your mobile device. 
 
 Once you have a Pulsoid account, you can use this input method to collect heartrate data from the service.
