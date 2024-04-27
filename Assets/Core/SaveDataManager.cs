@@ -47,7 +47,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		HeartratePlugin.GlobalSaveData data = new HeartratePlugin.GlobalSaveData();
 		if (File.Exists(this.GLOBAL_SAVE_FILE_PATH))
 		{
-			Debug.Log(string.Format("Reading from path: {0}", this.GLOBAL_SAVE_FILE_PATH));
+			Debug.Log("Reading global save data...");
 			string content = File.ReadAllText(this.GLOBAL_SAVE_FILE_PATH);
 			data = this.jsonUtility.FromJson<HeartratePlugin.GlobalSaveData>(content);
 			data = ModernizeLegacyGlobalSaveData(data, content);
@@ -58,7 +58,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 	public void WriteGlobalSaveData(HeartratePlugin.GlobalSaveData data)
 	{
 		data.version = Application.version;
-		Debug.Log(string.Format("Writing to path: {0}", this.GLOBAL_SAVE_FILE_PATH));
+		Debug.Log("Writing global save data...");
 		File.WriteAllText(this.GLOBAL_SAVE_FILE_PATH, data.ToString());
 	}
 

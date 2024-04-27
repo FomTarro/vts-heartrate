@@ -64,7 +64,6 @@ public class HypeRateManager : Singleton<HypeRateManager>
 		};
 
 		this._socket = new WebSocketSharpImpl(new UnityVTSLoggerImpl());
-		Debug.Log(string.Format(HYPERATE_SOCKET_URL, HypeRateCredentials.API_KEY));
 		this._socket.Start(string.Format(HYPERATE_SOCKET_URL, HypeRateCredentials.API_KEY),
 		() =>
 		{
@@ -103,13 +102,13 @@ public class HypeRateManager : Singleton<HypeRateManager>
 
 	private void FixedUpdate()
 	{
+		this._socket.Tick(Time.deltaTime);
 		if (this._socket.IsConnectionOpen())
 		{
 			string response = this._socket.GetNextResponse();
 			HypeRateMessage message = JsonUtility.FromJson<HypeRateMessage>(response);
 			if (message != null)
 			{
-				Debug.Log(message);
 				if (message.@event.Equals("hr_update"))
 				{
 					this._timeout = TIMEOUT_MAX;

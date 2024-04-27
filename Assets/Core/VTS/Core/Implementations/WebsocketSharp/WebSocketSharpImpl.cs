@@ -163,7 +163,7 @@ namespace VTS.Core
 		{
 			do
 			{
-				System.Action action = null;
+				Action action = null;
 				if (this._responseQueue.Count > 0 && _responseQueue.TryDequeue(out action))
 				{
 					try
