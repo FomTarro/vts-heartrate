@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VTS;
+using VTS.Core;
 using VTS.Unity;
 
-public class HeartratePlugin : VTSPlugin {
+public class HeartratePlugin : UnityVTSPlugin
+{
 
 	#region Member Variables
 
@@ -114,11 +115,13 @@ public class HeartratePlugin : VTSPlugin {
 
 	#region Lifecycle
 
-	private void OnValidate() {
+	private void OnValidate()
+	{
 
 	}
 
-	public void OnLaunch() {
+	public void OnLaunch()
+	{
 		this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
 		this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
 		FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
@@ -127,17 +130,20 @@ public class HeartratePlugin : VTSPlugin {
 		Connect();
 	}
 
-	private void OnApplicationQuit() {
+	private void OnApplicationQuit()
+	{
 		SaveDataManager.Instance.WriteGlobalSaveData(ToGlobalSaveData());
 		SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
 	}
 
-	public void Connect() {
+	public void Connect()
+	{
 		Initialize(
 			new WebSocketSharpImpl(this.Logger),
 			new NewtonsoftJsonUtilityImpl(),
 			new TokenStorageImpl(Application.persistentDataPath),
-			() => {
+			() =>
+			{
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 				status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
 				this._connectionStatus.SetStatus(status);
@@ -145,13 +151,15 @@ public class HeartratePlugin : VTSPlugin {
 				CreateAllParameters();
 				SubscribeToEvents();
 			},
-			() => {
+			() =>
+			{
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 				status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
 				this._connectionStatus.SetStatus(status);
 				Debug.Log("Disconnected from VTube Studio!");
 			},
-			(ex) => {
+			(ex) =>
+			{
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 				status.status = HttpUtils.ConnectionStatus.Status.ERROR;
 				this._connectionStatus.SetStatus(status);
@@ -162,37 +170,46 @@ public class HeartratePlugin : VTSPlugin {
 		this._connectionStatus.SetStatus(connect);
 	}
 
-	private void SubscribeToEvents() {
+	private void SubscribeToEvents()
+	{
 		Debug.Log("Scubscribing to VTube Studio Events...");
 		SubscribeToModelLoadedEvent(new VTSModelLoadedEventConfigOptions(),
-			(loadData) => {
+			(loadData) =>
+			{
 				GetModelData();
 			},
-			(loadSuccess) => {
+			(loadSuccess) =>
+			{
 				GetModelData();
 				Debug.Log("Subscribed to model load event.");
 				SubscribeToModelConfigChangedEvent(
-					(configData) => {
-						if (configData.data.hotkeyConfigChanged) {
+					(configData) =>
+					{
+						if (configData.data.hotkeyConfigChanged)
+						{
 							GetHotkeyData();
 						}
 					},
-					(configSuccess) => {
+					(configSuccess) =>
+					{
 						Debug.Log("Subscribed to config change event.");
 						GetHotkeyData();
 					},
-					(configError) => {
+					(configError) =>
+					{
 						OnSubscriptionError(configError);
 					}
 				);
 			},
-			(loadError) => {
+			(loadError) =>
+			{
 				OnSubscriptionError(loadError);
 			}
 		);
 	}
 
-	private void OnSubscriptionError(VTSErrorData data) {
+	private void OnSubscriptionError(VTSErrorData data)
+	{
 		Debug.LogError(string.Format("Error subscribing to VTUbe Studio Events: {0}.", data.data.message));
 		Dictionary<string, string> strings = new Dictionary<string, string>();
 		strings.Add("error_cannot_subscribe_tooltip_populated",
@@ -214,18 +231,23 @@ public class HeartratePlugin : VTSPlugin {
 		);
 	}
 
-	public void SetMinRate(int rate) {
+	public void SetMinRate(int rate)
+	{
 		this._minRate = Mathf.Clamp(0, rate, 255);
 	}
 
-	public void SetMaxRate(int rate) {
+	public void SetMaxRate(int rate)
+	{
 		this._maxRate = Mathf.Clamp(0, rate, 255);
 	}
 
-	public void SetActiveHeartrateInput(HeartrateInputModule module) {
+	public void SetActiveHeartrateInput(HeartrateInputModule module)
+	{
 		Debug.Log("Activating Input module: " + module);
-		foreach (HeartrateInputModule m in this._heartrateInputs) {
-			if (m.Type != module.Type) {
+		foreach (HeartrateInputModule m in this._heartrateInputs)
+		{
+			if (m.Type != module.Type)
+			{
 				m.gameObject.SetActive(false);
 				m.Deactivate();
 			}
@@ -234,7 +256,8 @@ public class HeartratePlugin : VTSPlugin {
 		this._activeModule = module;
 	}
 
-	private void Update() {
+	private void Update()
+	{
 		int priorHeartrate = this._heartRate;
 		this._average.AddValue(this._activeModule != null ? this._activeModule.GetHeartrate() : 0);
 		this._heartRate = Mathf.RoundToInt(this._average.Average);
@@ -244,16 +267,19 @@ public class HeartratePlugin : VTSPlugin {
 		// Data API message
 		DataMessage dataMessage = new DataMessage(this.HeartRate);
 
-		foreach (ExpressionModule module in this._expressionModules) {
+		foreach (ExpressionModule module in this._expressionModules)
+		{
 			module.RefreshExpressionList();
 		}
 
-		foreach (HotkeyModule module in this._hotkeyModules) {
+		foreach (HotkeyModule module in this._hotkeyModules)
+		{
 			module.RefreshHotkeyList();
 		}
 
 		// apply art mesh tints
-		foreach (ColorInputModule module in this._colors) {
+		foreach (ColorInputModule module in this._colors)
+		{
 			module.ApplyColor(interpolation);
 			DataMessage.Tint colorModule = new DataMessage.Tint(module.ModuleColor, module.ModuleInterpolatedColor, module.ModuleMatchers);
 			dataMessage.data.tints.Add(colorModule);
@@ -261,13 +287,15 @@ public class HeartratePlugin : VTSPlugin {
 
 		SortExpressionModules();
 		// apply expressions
-		foreach (ExpressionModule module in this._expressionModules) {
+		foreach (ExpressionModule module in this._expressionModules)
+		{
 			module.CheckModuleCondition(priorHeartrate, this._heartRate);
 		}
 
 		SortHotkeyModules();
 		// apply hotkeys
-		foreach (HotkeyModule module in this._hotkeyModules) {
+		foreach (HotkeyModule module in this._hotkeyModules)
+		{
 			module.CheckModuleCondition(priorHeartrate, this._heartRate);
 		}
 
@@ -298,16 +326,20 @@ public class HeartratePlugin : VTSPlugin {
 		this._repeat120.value = this._saw120.GetValue(beatsPerSecond);
 		this._repeatBreath.value = this._sawBreath.GetValue(breathingFrequency);
 
-		if (this._paramValues.Count > 0 && this.IsAuthenticated) {
+		if (this._paramValues.Count > 0 && this.IsAuthenticated)
+		{
 			this.InjectParameterValues(this._paramValues.ToArray(),
-			(s) => {
+			(s) =>
+			{
 				InjectedParamValuesToDictionary(this._paramValues.ToArray());
 			},
-			(e) => {
+			(e) =>
+			{
 				Debug.LogError(e.data.message);
 			});
 		}
-		else if (!this.IsAuthenticated) {
+		else if (!this.IsAuthenticated)
+		{
 			InjectedParamValuesToDictionary(this._paramValues.ToArray());
 		}
 
@@ -337,12 +369,15 @@ public class HeartratePlugin : VTSPlugin {
 
 	#region Event Callbacks
 
-	public void GetModelData() {
+	public void GetModelData()
+	{
 		Debug.Log("Querying for model data...");
 		GetCurrentModel(
-			(modelData) => {
+			(modelData) =>
+			{
 				// Model is loaded in VTS and it's not the model we have a loaded profile for
-				if (modelData.data.modelLoaded && !modelData.data.modelID.Equals(ProfileManager.Instance.CurrentProfile.modelID)) {
+				if (modelData.data.modelLoaded && !modelData.data.modelID.Equals(ProfileManager.Instance.CurrentProfile.modelID))
+				{
 					// load Default profile for the new model
 					ProfileManager.Instance.SetCurrentProfileInfo(
 						modelData.data.modelName,
@@ -351,17 +386,20 @@ public class HeartratePlugin : VTSPlugin {
 					SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
 					// If no model is loaded in VTS but we do have a model profile loaded here, revent to the NO_MODEL default profile
 				}
-				else if (!modelData.data.modelLoaded && ProfileManager.Instance.IsModelLoaded()) {
+				else if (!modelData.data.modelLoaded && ProfileManager.Instance.IsModelLoaded())
+				{
 					ProfileManager.Instance.CreateDefaultNoModelProfile();
 					FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
 					SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
 				}
-				if (ProfileManager.Instance.IsModelLoaded()) {
+				if (ProfileManager.Instance.IsModelLoaded())
+				{
 					GetHotkeyData();
 					GetExpressionData();
 				}
 			},
-			(modelError) => {
+			(modelError) =>
+			{
 				ProfileManager.Instance.CreateDefaultNoModelProfile();
 				Debug.LogError(string.Format("Error while querying Model Data from VTube Studio: {0} - {1}",
 					modelError.data.errorID, modelError.data.message));
@@ -369,59 +407,77 @@ public class HeartratePlugin : VTSPlugin {
 		);
 	}
 
-	private void GetHotkeyData() {
+	private void GetHotkeyData()
+	{
 		Debug.Log("Querying for Hotkey Data...");
-		if (ProfileManager.Instance.IsModelLoaded()) {
+		if (ProfileManager.Instance.IsModelLoaded())
+		{
 			GetHotkeysInCurrentModel(
 				ProfileManager.Instance.CurrentProfile.modelID,
-				(s) => {
-					try {
-						if (this._hotkeysByModelID.ContainsKey(s.data.modelID)) {
+				(s) =>
+				{
+					try
+					{
+						if (this._hotkeysByModelID.ContainsKey(s.data.modelID))
+						{
 							this._hotkeysByModelID[s.data.modelID] = new List<HotkeyData>(s.data.availableHotkeys);
 						}
-						else {
+						else
+						{
 							this._hotkeysByModelID.Add(s.data.modelID, new List<HotkeyData>(s.data.availableHotkeys));
 						}
 					}
-					catch (System.Exception e) {
+					catch (System.Exception e)
+					{
 						Debug.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
 					}
 				},
-				(e) => {
+				(e) =>
+				{
 					Debug.LogError(string.Format("Error while querying Hotkey Data from VTube Studio: {0} - {1}",
 						e.data.errorID, e.data.message));
 				}
 			);
 		}
-		else {
+		else
+		{
 			Debug.Log("No model loaded for hotkeys...");
 		}
 	}
 
-	private void GetExpressionData() {
+	private void GetExpressionData()
+	{
 		Debug.Log("Querying for expression data...");
-		if (ProfileManager.Instance.IsModelLoaded()) {
+		if (ProfileManager.Instance.IsModelLoaded())
+		{
 			GetExpressionStateList(
-				(expressionData) => {
-					try {
-						if (this._expressionsByModelID.ContainsKey(expressionData.data.modelID)) {
+				(expressionData) =>
+				{
+					try
+					{
+						if (this._expressionsByModelID.ContainsKey(expressionData.data.modelID))
+						{
 							this._expressionsByModelID[expressionData.data.modelID] = new List<ExpressionData>(expressionData.data.expressions);
 						}
-						else {
+						else
+						{
 							this._expressionsByModelID.Add(expressionData.data.modelID, new List<ExpressionData>(expressionData.data.expressions));
 						}
 					}
-					catch (System.Exception e) {
+					catch (System.Exception e)
+					{
 						Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
 					}
 				},
-				(expressionError) => {
+				(expressionError) =>
+				{
 					Debug.LogError(string.Format("Error while querying Expression Data from VTube Studio: {0} - {1}",
 						expressionError.data.errorID, expressionError.data.message));
 				}
 			);
 		}
-		else {
+		else
+		{
 			Debug.Log("No model loaded for expressions...");
 		}
 	}
@@ -430,7 +486,8 @@ public class HeartratePlugin : VTSPlugin {
 
 	#region Parameters
 
-	private void CreateAllParameters() {
+	private void CreateAllParameters()
+	{
 		this._paramValues = new List<VTSParameterInjectionValue>();
 		CreateNewParameter(PARAMETER_LINEAR, "param_vts_heartrate_linear", 1, this._linear);
 		CreateNewParameter(PARAMETER_SINE_PULSE, "param_vts_heartrate_pulse", 1, this._pulse);
@@ -449,13 +506,15 @@ public class HeartratePlugin : VTSPlugin {
 		CreateNewParameter(PARAMETER_SAW_REPEAT_BREATH, "param_vts_heartrate_repeat_breath", 1, this._repeatBreath);
 	}
 
-	private void CreateNewParameter(string paramName, string paramDescriptionKey, int paramMax, VTSParameterInjectionValue value) {
+	private void CreateNewParameter(string paramName, string paramDescriptionKey, int paramMax, VTSParameterInjectionValue value)
+	{
 
 		value.id = paramName;
 		value.value = 0;
 		value.weight = 1;
 		this._paramValues.Add(value);
-		if (this.IsAuthenticated) {
+		if (this.IsAuthenticated)
+		{
 			VTSCustomParameter newParam = new VTSCustomParameter();
 			newParam.defaultValue = 0;
 			newParam.min = 0;
@@ -465,19 +524,23 @@ public class HeartratePlugin : VTSPlugin {
 			Debug.Log(string.Format("Creating tracking parameter: {0}", paramName));
 			this.AddCustomParameter(
 				newParam,
-				(s) => {
+				(s) =>
+				{
 					Debug.Log(string.Format("Successfully created parameter in VTube Studio: {0}", paramName));
 				},
-				(e) => {
+				(e) =>
+				{
 					Debug.LogError(string.Format("Error while injecting Parameter Data {0} into VTube Studio: {1} - {2}",
 						paramName, e.data.errorID, e.data.message));
 				});
 		}
 	}
 
-	private void InjectedParamValuesToDictionary(VTSParameterInjectionValue[] values) {
+	private void InjectedParamValuesToDictionary(VTSParameterInjectionValue[] values)
+	{
 		this._parameterMap = new Dictionary<string, float>();
-		foreach (VTSParameterInjectionValue parameter in values) {
+		foreach (VTSParameterInjectionValue parameter in values)
+		{
 			this._parameterMap.Add(parameter.id, parameter.value);
 		}
 	}
@@ -486,90 +549,113 @@ public class HeartratePlugin : VTSPlugin {
 
 	#region Module Creation
 
-	public void CreateColorTintModule(ColorInputModule.SaveData module) {
+	public void CreateColorTintModule(ColorInputModule.SaveData module)
+	{
 		ColorInputModule instance = Instantiate<ColorInputModule>(this._colorPrefab, Vector3.zero, Quaternion.identity, this._outputModulesParent);
 		int index = GetModuleNewChildIndex();
 		instance.transform.SetSiblingIndex(index);
 		this._colors.Add(instance);
-		if (module != null) {
+		if (module != null)
+		{
 			instance.FromSaveData(module);
 		}
 	}
 
-	public void DestroyColorTintModule(ColorInputModule module) {
-		if (this._colors.Contains(module)) {
+	public void DestroyColorTintModule(ColorInputModule module)
+	{
+		if (this._colors.Contains(module))
+		{
 			this._colors.Remove(module);
 			module.ApplyColor(0);
 			Destroy(module.gameObject);
 		}
 	}
 
-	public void CreateExpressionModule(ExpressionModule.SaveData module) {
+	public void CreateExpressionModule(ExpressionModule.SaveData module)
+	{
 		ExpressionModule instance = Instantiate<ExpressionModule>(this._expressionPrefab, Vector3.zero, Quaternion.identity, this._outputModulesParent);
 		int index = GetModuleNewChildIndex();
 		instance.transform.SetSiblingIndex(index);
 		this._expressionModules.Add(instance);
 		SortExpressionModules();
-		if (module != null) {
+		if (module != null)
+		{
 			instance.FromSaveData(module);
 		}
 	}
 
-	public void DestroyExpressionModule(ExpressionModule module) {
-		if (this._expressionModules.Contains(module)) {
+	public void DestroyExpressionModule(ExpressionModule module)
+	{
+		if (this._expressionModules.Contains(module))
+		{
 			this._expressionModules.Remove(module);
 			SortExpressionModules();
 			Destroy(module.gameObject);
 		}
 	}
 
-	private void SortExpressionModules() {
+	private void SortExpressionModules()
+	{
 		this._expressionModules.Sort((a, b)
-			=> { return a.Threshold.CompareTo(b.Threshold); });
+			=>
+		{ return a.Threshold.CompareTo(b.Threshold); });
 	}
 
-	public void CreateHotkeyModule(HotkeyModule.SaveData module) {
+	public void CreateHotkeyModule(HotkeyModule.SaveData module)
+	{
 		HotkeyModule instance = Instantiate<HotkeyModule>(this._hotkeyPrefab, Vector3.zero, Quaternion.identity, this._outputModulesParent);
 		int index = GetModuleNewChildIndex();
 		instance.transform.SetSiblingIndex(index);
 		this._hotkeyModules.Add(instance);
 		SortHotkeyModules();
-		if (module != null) {
+		if (module != null)
+		{
 			instance.FromSaveData(module);
 		}
 	}
 
-	public void DestroyHotkeyModule(HotkeyModule module) {
-		if (this._hotkeyModules.Contains(module)) {
+	public void DestroyHotkeyModule(HotkeyModule module)
+	{
+		if (this._hotkeyModules.Contains(module))
+		{
 			this._hotkeyModules.Remove(module);
 			SortHotkeyModules();
 			Destroy(module.gameObject);
 		}
 	}
 
-	private void SortHotkeyModules() {
+	private void SortHotkeyModules()
+	{
 		this._hotkeyModules.Sort((a, b)
-			=> { return a.Threshold.CompareTo(b.Threshold); });
+			=>
+		{ return a.Threshold.CompareTo(b.Threshold); });
 	}
 
-	private int GetModuleNewChildIndex() {
+	private int GetModuleNewChildIndex()
+	{
 		return 1; //Math.Max(1, TransformUtils.GetActiveChildCount(this._outputModulesParent) - 3);
 	}
 
-	public List<HotkeyData> GetHotkeysForModelID(string modelID) {
-		if (this._hotkeysByModelID.ContainsKey(modelID)) {
+	public List<HotkeyData> GetHotkeysForModelID(string modelID)
+	{
+		if (this._hotkeysByModelID.ContainsKey(modelID))
+		{
 			return new List<HotkeyData>(this._hotkeysByModelID[modelID]);
 		}
-		else {
+		else
+		{
 			return new List<HotkeyData>();
 		}
 	}
 
-	public List<ExpressionData> GetExpressionsForModelID(string modelID) {
-		if (this._expressionsByModelID.ContainsKey(modelID)) {
+	public List<ExpressionData> GetExpressionsForModelID(string modelID)
+	{
+		if (this._expressionsByModelID.ContainsKey(modelID))
+		{
 			return new List<ExpressionData>(this._expressionsByModelID[modelID]);
 		}
-		else {
+		else
+		{
 			return new List<ExpressionData>();
 		}
 	}
@@ -578,13 +664,15 @@ public class HeartratePlugin : VTSPlugin {
 
 	#region Data Saving
 
-	public GlobalSaveData ToGlobalSaveData() {
+	public GlobalSaveData ToGlobalSaveData()
+	{
 		GlobalSaveData data = new GlobalSaveData();
 		data.version = Application.version;
 		data.maxRate = this._maxRate;
 		data.minRate = this._minRate;
 		data.activeInput = this._activeModule.Type;
-		foreach (HeartrateInputModule module in this._heartrateInputs) {
+		foreach (HeartrateInputModule module in this._heartrateInputs)
+		{
 			data.inputs.Add(module.ToSaveData());
 		}
 		data.language = Localization.LocalizationManager.Instance.CurrentLanguage;
@@ -592,7 +680,8 @@ public class HeartratePlugin : VTSPlugin {
 		return data;
 	}
 
-	public ModelSaveData ToModelSaveData() {
+	public ModelSaveData ToModelSaveData()
+	{
 		ModelSaveData data = new ModelSaveData();
 		ProfileManager.ProfileData currentModel = ProfileManager.Instance.CurrentProfile;
 		data.version = Application.version;
@@ -600,45 +689,54 @@ public class HeartratePlugin : VTSPlugin {
 		data.modelID = currentModel.modelID;
 		data.profileName = currentModel.profileName;
 		data.profileID = currentModel.profileID;
-		foreach (ColorInputModule module in this._colors) {
+		foreach (ColorInputModule module in this._colors)
+		{
 			data.colors.Add(module.ToSaveData());
 		}
-		foreach (ExpressionModule module in this._expressionModules) {
+		foreach (ExpressionModule module in this._expressionModules)
+		{
 			data.expressions.Add(module.ToSaveData());
 		}
-		foreach (HotkeyModule module in this._hotkeyModules) {
+		foreach (HotkeyModule module in this._hotkeyModules)
+		{
 			data.hotkeys.Add(module.ToSaveData());
 		}
 		return data;
 	}
 
-	public void FromGlobalSaveData(GlobalSaveData data) {
+	public void FromGlobalSaveData(GlobalSaveData data)
+	{
 		this._maxRate = Mathf.Clamp(data.maxRate, 0, 255);
 		this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
 		this._minRate = Mathf.Clamp(data.minRate, 0, 255);
 		this._heartrateRanges.SetMinRate(this._minRate.ToString());
 		// Default to SLIDER if we can't find the provided input type
-		HeartrateInputModule activeModule = this._heartrateInputs.Find((x => x.Type == data.activeInput));
+		HeartrateInputModule activeModule = this._heartrateInputs.Find(x => x.Type == data.activeInput);
 		activeModule = activeModule != null ? activeModule : this._heartrateInputs.Find((x => x.Type == HeartrateInputModule.InputType.SLIDER));
 		this.SetActiveHeartrateInput(activeModule);
 
 		// Load settings for all input modules
-		foreach (HeartrateInputModule.SaveData input in data.inputs) {
+		foreach (HeartrateInputModule.SaveData input in data.inputs)
+		{
 			HeartrateInputModule match = this._heartrateInputs.Find(m => m.Type == input.type);
-			if (match != null) {
+			if (match != null)
+			{
 				match.FromSaveData(input);
 			}
 		}
 
-		if (!Application.version.Equals(data.version)) {
+		if (!Application.version.Equals(data.version))
+		{
 			Debug.Log("Applying system language settings on new version");
 			Localization.LocalizationManager.Instance.SwitchLanguage(Application.systemLanguage);
 		}
-		else if (data.language != 0) {
+		else if (data.language != 0)
+		{
 			Debug.Log(String.Format("Setting language to {0}", data.language));
 			Localization.LocalizationManager.Instance.SwitchLanguage(data.language);
 		}
-		else {
+		else
+		{
 			Debug.Log("Defaulting language to English as no settings were found");
 			Localization.LocalizationManager.Instance.SwitchLanguage(Localization.SupportedLanguage.ENGLISH);
 		}
@@ -646,39 +744,49 @@ public class HeartratePlugin : VTSPlugin {
 		APIManager.Instance.SetPort(data.apiServerPort);
 	}
 
-	public void FromModelSaveData(ModelSaveData data) {
+	public void FromModelSaveData(ModelSaveData data)
+	{
 		// wipe current settings
 		DestroyCurrentModules();
-		if (data != null) {
-			foreach (ColorInputModule.SaveData module in data.colors) {
+		if (data != null)
+		{
+			foreach (ColorInputModule.SaveData module in data.colors)
+			{
 				CreateColorTintModule(module);
 			}
-			foreach (ExpressionModule.SaveData module in data.expressions) {
+			foreach (ExpressionModule.SaveData module in data.expressions)
+			{
 				CreateExpressionModule(module);
 			}
-			foreach (HotkeyModule.SaveData module in data.hotkeys) {
+			foreach (HotkeyModule.SaveData module in data.hotkeys)
+			{
 				CreateHotkeyModule(module);
 			}
 		}
 	}
 
-	private void DestroyCurrentModules() {
+	private void DestroyCurrentModules()
+	{
 		List<ColorInputModule> tempColor = new List<ColorInputModule>(this._colors);
-		foreach (ColorInputModule c in tempColor) {
+		foreach (ColorInputModule c in tempColor)
+		{
 			DestroyColorTintModule(c);
 		}
 		List<ExpressionModule> tempExpression = new List<ExpressionModule>(this._expressionModules);
-		foreach (ExpressionModule e in tempExpression) {
+		foreach (ExpressionModule e in tempExpression)
+		{
 			DestroyExpressionModule(e);
 		}
 		List<HotkeyModule> tempHotkey = new List<HotkeyModule>(this._hotkeyModules);
-		foreach (HotkeyModule h in tempHotkey) {
+		foreach (HotkeyModule h in tempHotkey)
+		{
 			DestroyHotkeyModule(h);
 		}
 	}
 
 	[System.Serializable]
-	public class GlobalSaveData {
+	public class GlobalSaveData
+	{
 		public string version;
 		public int minRate = 0;
 		public int maxRate = 0;
@@ -687,13 +795,15 @@ public class HeartratePlugin : VTSPlugin {
 		public Localization.SupportedLanguage language;
 		public int apiServerPort;
 
-		public override string ToString() {
+		public override string ToString()
+		{
 			return new NewtonsoftJsonUtilityImpl().ToJson(this);
 		}
 	}
 
 	[System.Serializable]
-	public class ModelSaveData {
+	public class ModelSaveData
+	{
 		public string version;
 		public string modelID;
 		public string modelName;
@@ -703,7 +813,8 @@ public class HeartratePlugin : VTSPlugin {
 		public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
 		public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();
 
-		public override string ToString() {
+		public override string ToString()
+		{
 			return new NewtonsoftJsonUtilityImpl().ToJson(this);
 		}
 	}

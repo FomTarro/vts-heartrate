@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using VTS.Core;
 
-public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveDataManager.SaveDataEventType> {
-    
+public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveDataManager.SaveDataEventType>
+{
+
 	private string GLOBAL_SAVE_DIRECTORY = "";
 	private string GLOBAL_SAVE_FILE_PATH = "";
 	private string MODEL_SAVE_DIRECTORY = "";
@@ -15,7 +17,10 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 	private Dictionary<EventCallbackRegistration, Action> _onFileRead = new Dictionary<EventCallbackRegistration, Action>();
 	private Dictionary<EventCallbackRegistration, Action> _onFileWrite = new Dictionary<EventCallbackRegistration, Action>();
 
-	public override void Initialize() {
+	private IJsonUtility jsonUtility = new NewtonsoftJsonUtilityImpl();
+
+	public override void Initialize()
+	{
 		this.GLOBAL_SAVE_DIRECTORY = Application.persistentDataPath;
 		this.GLOBAL_SAVE_FILE_PATH = Path.Combine(this.GLOBAL_SAVE_DIRECTORY, "save.json");
 		this.MODEL_SAVE_DIRECTORY = Path.Combine(this.GLOBAL_SAVE_DIRECTORY, "models");
@@ -27,46 +32,59 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		Debug.Log(string.Format("Version: {0}", Application.version));
 	}
 
-	private void CreateDirectoryIfNotFound(string path) {
-		if (!Directory.Exists(path)) {
+	private void CreateDirectoryIfNotFound(string path)
+	{
+		if (!Directory.Exists(path))
+		{
 			Directory.CreateDirectory(path);
 		}
 	}
 
 	#region Global Settings
 
-	public HeartratePlugin.GlobalSaveData ReadGlobalSaveData() {
+	public HeartratePlugin.GlobalSaveData ReadGlobalSaveData()
+	{
 		HeartratePlugin.GlobalSaveData data = new HeartratePlugin.GlobalSaveData();
-		if (File.Exists(this.GLOBAL_SAVE_FILE_PATH)) {
+		if (File.Exists(this.GLOBAL_SAVE_FILE_PATH))
+		{
+			Debug.Log(string.Format("Reading from path: {0}", this.GLOBAL_SAVE_FILE_PATH));
 			string content = File.ReadAllText(this.GLOBAL_SAVE_FILE_PATH);
-			data = JsonUtility.FromJson<HeartratePlugin.GlobalSaveData>(content);
+			data = this.jsonUtility.FromJson<HeartratePlugin.GlobalSaveData>(content);
 			data = ModernizeLegacyGlobalSaveData(data, content);
 		}
 		return data;
 	}
 
-	public void WriteGlobalSaveData(HeartratePlugin.GlobalSaveData data) {
+	public void WriteGlobalSaveData(HeartratePlugin.GlobalSaveData data)
+	{
 		data.version = Application.version;
+		Debug.Log(string.Format("Writing to path: {0}", this.GLOBAL_SAVE_FILE_PATH));
 		File.WriteAllText(this.GLOBAL_SAVE_FILE_PATH, data.ToString());
 	}
 
-	private HeartratePlugin.GlobalSaveData ModernizeLegacyGlobalSaveData(HeartratePlugin.GlobalSaveData data, string content) {
+	private HeartratePlugin.GlobalSaveData ModernizeLegacyGlobalSaveData(HeartratePlugin.GlobalSaveData data, string content)
+	{
 		string version = data.version;
-		if (VersionUtils.IsOlderThan(version, "1.0.0")) {
-			LegacyGlobalSaveData_v0_1_0 legacyData = JsonUtility.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
+		if (VersionUtils.IsOlderThan(version, "1.0.0"))
+		{
+			LegacyGlobalSaveData_v0_1_0 legacyData = this.jsonUtility.FromJson<LegacyGlobalSaveData_v0_1_0>(content);
 			return Modernize_v1_0_0_to_v1_1_0(Modernize_v0_1_0_to_v1_0_0(legacyData));
 		}
-		else if (VersionUtils.IsOlderThan(version, "1.1.0")) {
+		else if (VersionUtils.IsOlderThan(version, "1.1.0"))
+		{
 			return Modernize_v1_0_0_to_v1_1_0(data);
 		}
-		else {
+		else
+		{
 			return data;
 		}
 	}
 
-	private HeartratePlugin.GlobalSaveData Modernize_v0_1_0_to_v1_0_0(LegacyGlobalSaveData_v0_1_0 legacyData) {
+	private HeartratePlugin.GlobalSaveData Modernize_v0_1_0_to_v1_0_0(LegacyGlobalSaveData_v0_1_0 legacyData)
+	{
 		Debug.Log("Migrating global save file data from v0.1.0 to v1.0.0...");
-		if (legacyData.colors != null && legacyData.colors.Count > 0) {
+		if (legacyData.colors != null && legacyData.colors.Count > 0)
+		{
 			// make a new ModelSaveData, apply it to the default, no-model profile.
 			// TODO: is there a way to make this apply to the first LOADED model?
 			LegacyModelSaveData_v1_0_0 modelData = new LegacyModelSaveData_v1_0_0();
@@ -83,7 +101,8 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		return data;
 	}
 
-	private HeartratePlugin.GlobalSaveData Modernize_v1_0_0_to_v1_1_0(HeartratePlugin.GlobalSaveData legacyData) {
+	private HeartratePlugin.GlobalSaveData Modernize_v1_0_0_to_v1_1_0(HeartratePlugin.GlobalSaveData legacyData)
+	{
 		Debug.Log("Migrating global save file data from v1.0.0 to v1.1.0...");
 		HeartratePlugin.GlobalSaveData data = new HeartratePlugin.GlobalSaveData();
 		data.version = legacyData.version;
@@ -98,21 +117,24 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 
 	#region Model Settings
 
-	public HeartratePlugin.ModelSaveData ReadModelData(ProfileManager.ProfileData profile) {
+	public HeartratePlugin.ModelSaveData ReadModelData(ProfileManager.ProfileData profile)
+	{
 		HeartratePlugin.ModelSaveData data = new HeartratePlugin.ModelSaveData();
 		Debug.Log("Loading Model: " + profile.FileName);
 		string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, profile.FileName + ".json");
-		if (File.Exists(filePath)) {
+		if (File.Exists(filePath))
+		{
 			Debug.Log(string.Format("Reading from path: {0}", profile.FileName));
 			string text = File.ReadAllText(filePath);
-			data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
+			data = this.jsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
 			data = ModernizeLegacyModelSaveData(data, text);
 		}
 		ExecuteReadCallbacks();
 		return data;
 	}
 
-	public void WriteModelSaveData(HeartratePlugin.ModelSaveData data) {
+	public void WriteModelSaveData(HeartratePlugin.ModelSaveData data)
+	{
 		data.version = Application.version;
 		string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, ProfileManager.Instance.CurrentProfile.FileName + ".json");
 		Debug.Log(string.Format("Writing to path: {0}", ProfileManager.Instance.CurrentProfile.FileName));
@@ -120,31 +142,38 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		ExecuteWriteCallbacks();
 	}
 
-	public void DeleteProfileData(ProfileManager.ProfileData data) {
+	public void DeleteProfileData(ProfileManager.ProfileData data)
+	{
 		string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, data.FileName + ".json");
-		if (File.Exists(filePath)) {
+		if (File.Exists(filePath))
+		{
 			Debug.Log(string.Format("Deleting from path: {0}", data.FileName));
 			File.Delete(filePath);
 			ExecuteWriteCallbacks();
 		}
 	}
 
-	private HeartratePlugin.ModelSaveData ModernizeLegacyModelSaveData(HeartratePlugin.ModelSaveData data, string content) {
+	private HeartratePlugin.ModelSaveData ModernizeLegacyModelSaveData(HeartratePlugin.ModelSaveData data, string content)
+	{
 		string version = data.version;
-		if (VersionUtils.IsOlderThan(version, "1.1.0")) {
-			LegacyModelSaveData_v1_0_0 legacyData = JsonUtility.FromJson<LegacyModelSaveData_v1_0_0>(content);
+		if (VersionUtils.IsOlderThan(version, "1.1.0"))
+		{
+			LegacyModelSaveData_v1_0_0 legacyData = this.jsonUtility.FromJson<LegacyModelSaveData_v1_0_0>(content);
 			return Modernize_v1_1_0_to_v_1_2_0(Modernize_v1_0_0_to_v_1_1_0(legacyData));
 		}
-		else if (VersionUtils.IsOlderThan(version, "1.2.0")) {
-			LegacyModelSaveData_v1_1_0 legacyData_v1_1_0 = JsonUtility.FromJson<LegacyModelSaveData_v1_1_0>(content);
+		else if (VersionUtils.IsOlderThan(version, "1.2.0"))
+		{
+			LegacyModelSaveData_v1_1_0 legacyData_v1_1_0 = this.jsonUtility.FromJson<LegacyModelSaveData_v1_1_0>(content);
 			return Modernize_v1_1_0_to_v_1_2_0(legacyData_v1_1_0);
 		}
-		else {
+		else
+		{
 			return data;
 		}
 	}
 
-	private LegacyModelSaveData_v1_1_0 Modernize_v1_0_0_to_v_1_1_0(LegacyModelSaveData_v1_0_0 legacyData) {
+	private LegacyModelSaveData_v1_1_0 Modernize_v1_0_0_to_v_1_1_0(LegacyModelSaveData_v1_0_0 legacyData)
+	{
 		Debug.Log("Migrating model save file data from v1.0.0 to v 1.1.0...");
 		LegacyModelSaveData_v1_1_0 data = new LegacyModelSaveData_v1_1_0();
 		data.colors = legacyData.colors;
@@ -154,7 +183,8 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		data.version = legacyData.version;
 		data.expressions = new List<ExpressionModule.SaveData>();
 
-		foreach (LegacyExpressionSaveData_v1_0_0 legacyExpression in legacyData.expressions) {
+		foreach (LegacyExpressionSaveData_v1_0_0 legacyExpression in legacyData.expressions)
+		{
 			ExpressionModule.SaveData expressionData = new ExpressionModule.SaveData();
 			expressionData.threshold = legacyExpression.threshold;
 			expressionData.expressionFile = legacyExpression.expressionFile;
@@ -166,7 +196,8 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		return data;
 	}
 
-	private HeartratePlugin.ModelSaveData Modernize_v1_1_0_to_v_1_2_0(LegacyModelSaveData_v1_1_0 legacyData) {
+	private HeartratePlugin.ModelSaveData Modernize_v1_1_0_to_v_1_2_0(LegacyModelSaveData_v1_1_0 legacyData)
+	{
 		Debug.Log("Migrating model save file data from v1.1.0 to v 1.2.0...");
 		HeartratePlugin.ModelSaveData data = new HeartratePlugin.ModelSaveData();
 		data.colors = legacyData.colors;
@@ -184,11 +215,13 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 
 	#region Profile Settings 
 
-	public List<ProfileManager.ProfileData> GetProfileList() {
+	public List<ProfileManager.ProfileData> GetProfileList()
+	{
 		List<ProfileManager.ProfileData> list = new List<ProfileManager.ProfileData>();
-		foreach (string s in Directory.GetFiles(this.MODEL_SAVE_DIRECTORY)) {
+		foreach (string s in Directory.GetFiles(this.MODEL_SAVE_DIRECTORY))
+		{
 			string text = File.ReadAllText(s);
-			HeartratePlugin.ModelSaveData data = JsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
+			HeartratePlugin.ModelSaveData data = this.jsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
 			data = ModernizeLegacyModelSaveData(data, text);
 			ProfileManager.ProfileData info = new ProfileManager.ProfileData(data.modelName, data.modelID, data.profileName, data.profileID);
 			// string key = string.Format("{0}<size=0>{1}</size> ({2})", info.modelName, info.profileID, info.profileName);
@@ -201,16 +234,19 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 
 	#region Plugin Tokens
 
-	public APIManager.TokenSaveData ReadTokenSaveData() {
+	public APIManager.TokenSaveData ReadTokenSaveData()
+	{
 		APIManager.TokenSaveData data = new APIManager.TokenSaveData();
-		if (File.Exists(this.PLUGINS_SAVE_FILE_PATH)) {
+		if (File.Exists(this.PLUGINS_SAVE_FILE_PATH))
+		{
 			string text = File.ReadAllText(this.PLUGINS_SAVE_FILE_PATH);
-			data = JsonUtility.FromJson<APIManager.TokenSaveData>(text);
+			data = this.jsonUtility.FromJson<APIManager.TokenSaveData>(text);
 		}
 		return data;
 	}
 
-	public void WriteTokenSaveData(APIManager.TokenSaveData data) {
+	public void WriteTokenSaveData(APIManager.TokenSaveData data)
+	{
 		File.WriteAllText(this.PLUGINS_SAVE_FILE_PATH, data.ToString());
 	}
 
@@ -218,39 +254,50 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 
 	#region Events
 
-	public EventCallbackRegistration RegisterEventCallback(SaveDataEventType eventType, Action callback) {
+	public EventCallbackRegistration RegisterEventCallback(SaveDataEventType eventType, Action callback)
+	{
 		EventCallbackRegistration registration = new EventCallbackRegistration(System.Guid.NewGuid().ToString());
-		if (eventType == SaveDataEventType.FILE_READ) {
+		if (eventType == SaveDataEventType.FILE_READ)
+		{
 			this._onFileRead.Add(registration, callback);
 		}
-		else if (eventType == SaveDataEventType.FILE_WRITE) {
+		else if (eventType == SaveDataEventType.FILE_WRITE)
+		{
 			this._onFileWrite.Add(registration, callback);
 		}
 		return registration;
 	}
 
-	public void UnregisterEventCallback(EventCallbackRegistration registration) {
-		if (this._onFileRead.ContainsKey(registration)) {
+	public void UnregisterEventCallback(EventCallbackRegistration registration)
+	{
+		if (this._onFileRead.ContainsKey(registration))
+		{
 			this._onFileRead.Remove(registration);
 		}
-		else if (this._onFileWrite.ContainsKey(registration)) {
+		else if (this._onFileWrite.ContainsKey(registration))
+		{
 			this._onFileWrite.Remove(registration);
 		}
 	}
 
-	private void ExecuteReadCallbacks() {
-		foreach (Action callback in this._onFileRead.Values) {
+	private void ExecuteReadCallbacks()
+	{
+		foreach (Action callback in this._onFileRead.Values)
+		{
 			callback();
 		}
 	}
 
-	private void ExecuteWriteCallbacks() {
-		foreach (Action callback in this._onFileWrite.Values) {
+	private void ExecuteWriteCallbacks()
+	{
+		foreach (Action callback in this._onFileWrite.Values)
+		{
 			callback();
 		}
 	}
 
-	public enum SaveDataEventType : int {
+	public enum SaveDataEventType : int
+	{
 		FILE_READ,
 		FILE_WRITE,
 	}

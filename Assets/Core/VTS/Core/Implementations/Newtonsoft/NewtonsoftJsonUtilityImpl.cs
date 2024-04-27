@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace VTS {
+namespace VTS.Core {
 
 	public class NewtonsoftJsonUtilityImpl : IJsonUtility {
-        private StringEnumConverter _converter = new StringEnumConverter();
+		private StringEnumConverter _converter = new StringEnumConverter();
 
 		public T FromJson<T>(string json) {
 			return JsonConvert.DeserializeObject<T>(json, this._converter);

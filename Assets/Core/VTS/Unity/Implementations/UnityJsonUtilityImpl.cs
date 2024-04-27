@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
 
+using VTS.Core;
+
 namespace VTS.Unity {
-    
+
 	public class UnityJsonUtilityImpl : IJsonUtility {
-		
+
 		public T FromJson<T>(string json) {
 			if (IsMessageType(json, "HotkeysInCurrentModelResponse")) {
 				json = ReplaceStringWithEnum<HotkeyAction>(json, "type");
-			}
-			else if (IsMessageType(json, "APIError")) {
+			} else if (IsMessageType(json, "APIError")) {
 				json = ReplaceStringWithEnum<ErrorID>(json, "type");
 			}
 			return JsonUtility.FromJson<T>(json);
@@ -57,8 +58,7 @@ namespace VTS.Unity {
 					if ("NaN".Equals(pair[1]) || float.MinValue.Equals(nullable) || int.MinValue.Equals(nullable)) {
 						output = output.Replace(prop + ",", "");
 						output = output.Replace(prop, "");
-					}
-					else if ("\"\"".Equals(pair[1])) {
+					} else if ("\"\"".Equals(pair[1])) {
 						output = output.Replace(prop + ",", "");
 						output = output.Replace(prop, "");
 					}
