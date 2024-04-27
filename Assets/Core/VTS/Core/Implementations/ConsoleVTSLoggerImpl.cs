@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VTS {
+namespace VTS.Core {
 
 	public class ConsoleVTSLoggerImpl : IVTSLogger {
 
@@ -11,7 +11,7 @@ namespace VTS {
 		public void LogError(string error) {
 			Console.WriteLine(string.Format("[Error] - {0}", error));
 		}
-		
+
 		public void LogError(Exception error) {
 			Console.WriteLine(string.Format("[Error] - {0}", error));
 		}

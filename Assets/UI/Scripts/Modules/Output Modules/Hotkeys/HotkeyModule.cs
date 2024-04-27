@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using VTS.Core;
 
-public class HotkeyModule : MonoBehaviour {
+public class HotkeyModule : MonoBehaviour
+{
 	[SerializeField]
 	private TMP_InputField _threshold = null;
 	private int _thresholdVal = 0;
@@ -15,8 +17,10 @@ public class HotkeyModule : MonoBehaviour {
 	// we load the expression that should be selected from a profile load into this buffer
 	// until the async method resolves.
 	private string _waitingOn = null;
-	public string SelectedHotkey {
-		get {
+	public string SelectedHotkey
+	{
+		get
+		{
 			return this._waitingOn == null ?
 			(this._dropdown.value < this._hotkeys.Count ?
 				this._hotkeys[this._dropdown.value].hotkeyID : null) :
@@ -31,18 +35,22 @@ public class HotkeyModule : MonoBehaviour {
 	[SerializeField]
 	private TMP_Text _minimizedSummary = null;
 
-	private List<VTS.HotkeyData> _hotkeys = new List<VTS.HotkeyData>();
+	private List<HotkeyData> _hotkeys = new List<HotkeyData>();
 
-	public void Clone() {
+	public void Clone()
+	{
 		HeartrateManager.Instance.Plugin.CreateHotkeyModule(this.ToSaveData());
 	}
 
-	public void Delete() {
+	public void Delete()
+	{
 		HeartrateManager.Instance.Plugin.DestroyHotkeyModule(this);
 	}
 
-	public void CheckModuleCondition(int priorHeartrate, int currentHeartrate) {
-		if (this._priorBehavior != this.Behavior) {
+	public void CheckModuleCondition(int priorHeartrate, int currentHeartrate)
+	{
+		if (this._priorBehavior != this.Behavior)
+		{
 			// forces a re-assessment of the module status
 			// TODO: if the behavior changes from ABOVE AND BELOW to just ABOVE, 
 			// it will try to trigger AGAIN which just turns it off
@@ -51,21 +59,26 @@ public class HotkeyModule : MonoBehaviour {
 				(this.Behavior == TriggerBehavior.ACTIVATE_ABOVE || this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW)) ||
 				((this._priorBehavior == TriggerBehavior.ACTIVATE_BELOW || this._priorBehavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW) &&
 				(this.Behavior == TriggerBehavior.ACTIVATE_BELOW || this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW)))
-			) {
+			)
+			{
 				this._priorThreshold = -1;
 			}
 		}
 		// rising edge
 		if (
 		(this._priorThreshold != this.Threshold && currentHeartrate >= this.Threshold) ||
-		(priorHeartrate < this.Threshold && currentHeartrate >= this.Threshold)) {
+		(priorHeartrate < this.Threshold && currentHeartrate >= this.Threshold))
+		{
 			if (
 				this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW ||
-				this.Behavior == TriggerBehavior.ACTIVATE_ABOVE) {
-				if (HeartrateManager.Instance.Plugin.IsAuthenticated) {
+				this.Behavior == TriggerBehavior.ACTIVATE_ABOVE)
+			{
+				if (HeartrateManager.Instance.Plugin.IsAuthenticated)
+				{
 					HeartrateManager.Instance.Plugin.TriggerHotkey(this.SelectedHotkey,
 					(s) => { },
-					(e) => {
+					(e) =>
+					{
 						Debug.LogError(string.Format("Error while triggering hotkey {0} in VTube Studio: {1} - {2}",
 							this.SelectedHotkey, e.data.errorID, e.data.message));
 					});
@@ -78,14 +91,18 @@ public class HotkeyModule : MonoBehaviour {
 		}
 		else if (
 		(this._priorThreshold != this.Threshold && currentHeartrate < this.Threshold) ||
-		(priorHeartrate >= this.Threshold && currentHeartrate < this.Threshold)) {
+		(priorHeartrate >= this.Threshold && currentHeartrate < this.Threshold))
+		{
 			if (
 				this.Behavior == TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW ||
-				this.Behavior == TriggerBehavior.ACTIVATE_BELOW) {
-				if (HeartrateManager.Instance.Plugin.IsAuthenticated) {
+				this.Behavior == TriggerBehavior.ACTIVATE_BELOW)
+			{
+				if (HeartrateManager.Instance.Plugin.IsAuthenticated)
+				{
 					HeartrateManager.Instance.Plugin.TriggerHotkey(this.SelectedHotkey,
 					(s) => { },
-					(e) => {
+					(e) =>
+					{
 						Debug.LogError(string.Format("Error while triggering hotkey {0} in VTube Studio: {1} - {2}",
 							this.SelectedHotkey, e.data.errorID, e.data.message));
 					});
@@ -99,19 +116,23 @@ public class HotkeyModule : MonoBehaviour {
 		this._priorBehavior = this.Behavior;
 	}
 
-	private int HotkeyToIndex(string hotkeyID) {
+	private int HotkeyToIndex(string hotkeyID)
+	{
 		return hotkeyID == null
 			? -1
 			: this._dropdown.options.FindIndex((o) => { return o.text.Contains(hotkeyID); });
 	}
 
-	private void SetHotkey(string hotkeyID) {
+	private void SetHotkey(string hotkeyID)
+	{
 		// index will only be -1 if the desired item is not in the list
 		int index = HotkeyToIndex(hotkeyID);
-		if (index < 0) {
+		if (index < 0)
+		{
 			this._waitingOn = hotkeyID;
 		}
-		else if (this._dropdown.options.Count > 0 && this._dropdown.options.Count > index) {
+		else if (this._dropdown.options.Count > 0 && this._dropdown.options.Count > index)
+		{
 			this._dropdown.SetValueWithoutNotify(index);
 			// finally found what we were waiting for
 			this._waitingOn = null;
@@ -119,55 +140,66 @@ public class HotkeyModule : MonoBehaviour {
 		this._minimizedSummary.text = string.Format("({0})", GetMinimizedText());
 	}
 
-	private string GetMinimizedText() {
+	private string GetMinimizedText()
+	{
 		string name = this._dropdown.options.Count > 0 && this._hotkeys.Count >= this._dropdown.options.Count
 			? string.Format("[{0}] {1}", this._hotkeys[this._dropdown.value].type, this._hotkeys[this._dropdown.value].name)
 			: "NO HOTKEY SET";
-		if (name.Length > 48) {
+		if (name.Length > 48)
+		{
 			return string.Format("{0}...", name.Substring(0, 45));
 		}
-		else {
+		else
+		{
 			return name;
 		}
 	}
 
 	// TODO: consolidate this behavior into RefreshableDropdown
-	public void RefreshHotkeyList() {
+	public void RefreshHotkeyList()
+	{
 		int currentIndex = this._dropdown.value;
 		string hotkey = this._dropdown.options.Count > 0 ? this._dropdown.options[currentIndex].text : null;
 		this._dropdown.ClearOptions();
 		this._hotkeys = HeartrateManager.Instance.Plugin.GetHotkeysForModelID(ProfileManager.Instance.CurrentProfile.modelID);
 		List<string> hotkeyNames = new List<string>();
-		foreach (VTS.HotkeyData data in this._hotkeys) {
+		foreach (HotkeyData data in this._hotkeys)
+		{
 			hotkeyNames.Add(string.Format("[{0}] <size=0>{1}</size>{2}", data.type, data.hotkeyID, data.name));
 		}
 		this._dropdown.AddOptions(hotkeyNames);
 		this._dropdown.RefreshShownValue();
-		if (this._waitingOn != null) {
+		if (this._waitingOn != null)
+		{
 			SetHotkey(this._waitingOn);
 		}
-		else {
+		else
+		{
 			SetHotkey(hotkey);
 		}
 	}
 
-	private void OnEditThreshold(string value) {
+	private void OnEditThreshold(string value)
+	{
 		this._thresholdVal = Mathf.Clamp(MathUtils.StringToInt(value), 0, 255);
 		this._threshold.text = this._thresholdVal.ToString();
 	}
 
 	[System.Serializable]
-	public class SaveData {
+	public class SaveData
+	{
 		public string hotkeyID;
 		public int threshold;
 		public TriggerBehavior behavior;
 
-		public override string ToString() {
+		public override string ToString()
+		{
 			return JsonUtility.ToJson(this);
 		}
 	}
 
-	public SaveData ToSaveData() {
+	public SaveData ToSaveData()
+	{
 		SaveData data = new SaveData();
 		data.threshold = this.Threshold;
 		data.behavior = this.Behavior;
@@ -175,7 +207,8 @@ public class HotkeyModule : MonoBehaviour {
 		return data;
 	}
 
-	public void FromSaveData(SaveData data) {
+	public void FromSaveData(SaveData data)
+	{
 		this._behavior.ClearOptions();
 		this._behavior.AddOptions(Names());
 		this._threshold.text = data.threshold.ToString();
@@ -185,13 +218,15 @@ public class HotkeyModule : MonoBehaviour {
 		SetHotkey(data.hotkeyID);
 	}
 
-	public enum TriggerBehavior : int {
+	public enum TriggerBehavior : int
+	{
 		ACTIVATE_ABOVE_ACTIVATE_BELOW = 0,
 		ACTIVATE_ABOVE = 1,
 		ACTIVATE_BELOW = 2,
 	}
 
-	private static List<string> Names() {
+	private static List<string> Names()
+	{
 		return new List<String>(new String[] {
 			"output_hotkey_behavior_ab",
 			"output_hotkey_behavior_a",

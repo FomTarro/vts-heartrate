@@ -7,7 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace VTS.Core {
-	
+
+	/// <summary>
+	/// The wrapper class for websocket operations between the plugin and VTS.
+	/// </summary>
 	public class VTSWebSocket : IVTSWebSocket {
 
 		// Dependencies
@@ -21,8 +24,8 @@ namespace VTS.Core {
 		private IVTSLogger _logger = null;
 
 		// API Callbacks
-		private Dictionary<string, VTSCallbacks> _callbacks = new Dictionary<string, VTSCallbacks>();
-		private Dictionary<string, VTSEventCallbacks> _events = new Dictionary<string, VTSEventCallbacks>();
+		private readonly Dictionary<string, VTSCallbacks> _callbacks = new Dictionary<string, VTSCallbacks>();
+		private readonly Dictionary<string, VTSEventCallbacks> _events = new Dictionary<string, VTSEventCallbacks>();
 
 		// UDP 
 		private const int UDP_DEFAULT_PORT = 47779;
@@ -55,15 +58,15 @@ namespace VTS.Core {
 			ProcessResponses();
 			CheckPorts();
 			UpdatePortDiscoveryTimeout(timeDelta);
-			if(this._ws != null){
+			if (this._ws != null) {
 				this._ws.Tick(timeDelta);
 			}
 		}
 
-        public void Dispose(){
-            GLOBAL_PORT_DISCOVERY_EVENT -= OnPortDiscovered;
-		    Disconnect();
-        }
+		public void Dispose() {
+			GLOBAL_PORT_DISCOVERY_EVENT -= OnPortDiscovered;
+			Disconnect();
+		}
 
 		#endregion
 
@@ -80,8 +83,7 @@ namespace VTS.Core {
 						// If the task faults, try again
 						UDP_RESULT.Dispose();
 						UDP_RESULT = null;
-					}
-					else if (UDP_RESULT.IsCompleted) {
+					} else if (UDP_RESULT.IsCompleted) {
 						// Otherwise, collect the result
 						string text = Encoding.UTF8.GetString(UDP_RESULT.Result.Buffer);
 						IPAddress address = MapAddress(UDP_RESULT.Result.RemoteEndPoint.Address);
@@ -97,13 +99,11 @@ namespace VTS.Core {
 							if (data.data.active) {
 								// Update record if active
 								PORTS_BY_IP[address][data.data.port] = data;
-							}
-							else {
+							} else {
 								// Remove record if inactive
 								PORTS_BY_IP[address].Remove(data.data.port);
 							}
-						}
-						else {
+						} else {
 							if (data.data.active) {
 								PORTS_BY_IP[address].Add(data.data.port, data);
 							}
@@ -130,8 +130,7 @@ namespace VTS.Core {
 					UDP_CLIENT.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 					UDP_CLIENT.Client.Bind(LOCAL_PT);
 				}
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				this._logger.LogError(e.ToString());
 			}
 		}
@@ -229,8 +228,7 @@ namespace VTS.Core {
 						}
 					};
 				});
-			}
-			else {
+			} else {
 				ConnectImpl(this._port, onConnect, onDisconnect, onError);
 			}
 		}
@@ -240,8 +238,7 @@ namespace VTS.Core {
 				Disconnect();
 				SetPort(port);
 				this._ws.Start(string.Format(VTS_WS_URL, this._ip.ToString(), this._port), onConnect, onDisconnect, onError);
-			}
-			else {
+			} else {
 				onError.Invoke(new Exception("WebSocket not initialized."));
 			}
 		}
@@ -267,16 +264,14 @@ namespace VTS.Core {
 					// make sure to remove null properties
 					string output = this._json.ToJson(request);
 					this._ws.Send(output);
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					this._logger.LogError(e.ToString());
 					VTSErrorData error = new VTSErrorData();
 					error.data.errorID = ErrorID.InternalServerError;
 					error.data.message = e.Message;
 					onError(error);
 				}
-			}
-			else {
+			} else {
 				VTSErrorData error = new VTSErrorData();
 				error.data.errorID = ErrorID.InternalServerError;
 				error.data.message = "No websocket data";
@@ -284,16 +279,16 @@ namespace VTS.Core {
 			}
 		}
 
-		public void SendEventSubscription<T, K>(T request, Action<K> onEvent, Action<VTSEventSubscriptionResponseData> onSubscribe, Action<VTSErrorData> onError, Action resubscribe) where T : VTSEventSubscriptionRequestData where K : VTSEventData {
+		public void SendEventSubscription<T, K, V>(T request, Action<K> onEvent, Action<VTSEventSubscriptionResponseData> onSubscribe, Action<VTSErrorData> onError, Action resubscribe) where T : VTSEventSubscriptionRequestData<V> where K : VTSEventData where V : VTSEventConfigData {
 			this.Send<T, VTSEventSubscriptionResponseData>(
 				request,
 				(s) => {
 					// add event or remove event from register
-					if (this._events.ContainsKey(request.GetEventName())) {
-						this._events.Remove(request.GetEventName());
+					if (this._events.ContainsKey(request.data.eventName)) {
+						this._events.Remove(request.data.eventName);
 					}
 					if (request.GetSubscribed()) {
-						this._events.Add(request.GetEventName(), new VTSEventCallbacks((k) => { onEvent((K)k); }, onError, resubscribe));
+						this._events.Add(request.data.eventName, new VTSEventCallbacks((k) => { onEvent((K)k); }, onError, resubscribe));
 					}
 					onSubscribe(s);
 				},
@@ -337,17 +332,30 @@ namespace VTS.Core {
 									case "ModelOutlineEvent":
 										this._events[response.messageType].onEvent(this._json.FromJson<VTSModelOutlineEventData>(data));
 										break;
+									case "HotkeyTriggeredEvent":
+										this._events[response.messageType].onEvent(this._json.FromJson<VTSHotkeyTriggeredEventData>(data));
+										break;
+									case "ModelAnimationEvent":
+										this._events[response.messageType].onEvent(this._json.FromJson<VTSModelAnimationEventData>(data));
+										break;
+									case "ItemEvent":
+										this._events[response.messageType].onEvent(this._json.FromJson<VTSItemEventData>(data));
+										break;
+									case "ModelClickedEvent":
+										this._events[response.messageType].onEvent(this._json.FromJson<VTSModelClickedEventData>(data));
+										break;
+									case "PostProcessingEvent":
+										this._events[response.messageType].onEvent(this._json.FromJson<VTSPostProcessingEventData>(data));
+										break;
 								}
-							}
-							catch (Exception e) {
+							} catch (Exception e) {
 								// Neatly handle errors in case the deserialization or success callback throw an exception
 								VTSErrorData error = new VTSErrorData();
 								error.requestID = response.requestID;
 								error.data.message = e.Message;
 								this._events[response.messageType].onError(error);
 							}
-						}
-						else if (this._callbacks.ContainsKey(response.requestID)) {
+						} else if (this._callbacks.ContainsKey(response.requestID)) {
 							try {
 								switch (response.messageType) {
 									case "APIError":
@@ -448,6 +456,18 @@ namespace VTS.Core {
 									case "ArtMeshSelectionResponse":
 										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSArtMeshSelectionResponseData>(data));
 										break;
+									case "PermissionResponse":
+										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSPermissionResponseData>(data));
+										break;
+									case "ItemPinResponse":
+										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSItemPinResponseData>(data));
+										break;
+									case "PostProcessingListResponse":
+										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSPostProcessingStateResponseData>(data));
+										break;
+									case "PostProcessingUpdateResponse":
+										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSPostProcessingUpdateResponseData>(data));
+										break;
 									case "EventSubscriptionResponse":
 										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSEventSubscriptionResponseData>(data));
 										break;
@@ -456,10 +476,8 @@ namespace VTS.Core {
 										error.data.message = "Unable to parse response as valid response type: " + data;
 										this._callbacks[response.requestID].onError(error);
 										break;
-
 								}
-							}
-							catch (Exception e) {
+							} catch (Exception e) {
 								// Neatly handle errors in case the deserialization or success callback throw an exception
 								VTSErrorData error = new VTSErrorData();
 								error.requestID = response.requestID;

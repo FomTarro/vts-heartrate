@@ -1,5 +1,5 @@
-﻿namespace VTS {
-	
+﻿namespace VTS.Core {
+
 	/// <summary>
 	/// Interface for providing a JSON Serializer/Deserializer implementation.
 	/// </summary>
@@ -14,7 +14,7 @@
 		/// <summary>
 		/// Converts an object into a JSON string.
 		/// </summary>
-		/// <param name="obj">The object to serialized.</param>
+		/// <param name="obj">The object to serialize.</param>
 		/// <returns>The serialized JSON string.</returns>
 		string ToJson(object obj);
 	}
