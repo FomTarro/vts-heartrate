@@ -232,6 +232,9 @@ output_hotkey_behavior_ab,"%output_hotkey_behavior_a, %output_hotkey_behavior_b"
 output_hotkey_behavior_a,Trigger above,閾値以上になると動作
 output_hotkey_behavior_b,Trigger below,閾値以下になると動作
 ,,
+output_vfx_title,VFX Config,
+output_vfx_tooltip,TODO!!!,
+,,
 output_custom_params_title,Custom Parameters,カスタムパラメータ
 output_custom_params_tooltip,"This plugin outputs <b>15</b> custom tracking parameters for use. They are as follows:
 

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UI.InputTools;
 
 public class RefreshableDropdownModule : MonoBehaviour
@@ -10,7 +8,8 @@ public class RefreshableDropdownModule : MonoBehaviour
     [SerializeField]
     private ExtendedButton _button = null;
 
-    private void OnValidate(){
+    private void OnValidate()
+    {
         this._dropdown = GetComponentInChildren<RefreshableDropdown>();
     }
     // Start is called before the first frame update

@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8987925111482354569}
-  - component: {fileID: 8987925111482354570}
   - component: {fileID: 8987925111482354571}
   - component: {fileID: 8987925111482354568}
   m_Layer: 0
@@ -33,18 +32,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8987925111482354570
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8987925111482354572}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20d9f0e2e9942a849a1829a20cc58c37, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8987925111482354571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,6 +57,8 @@ MonoBehaviour:
   _hotkeyPrefab: {fileID: 2760136597762969181, guid: 100d30b43e729044b90727d2d4683726,
     type: 3}
   _hotkeyModules: []
+  _vfxPrefab: {fileID: 4455167599300650675, guid: cf5f25af77312b04f948779b9c9154e6,
+    type: 3}
   _heartrateInputs:
   - {fileID: 0}
   - {fileID: 0}

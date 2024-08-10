@@ -22,8 +22,7 @@ public class HotkeyModule : MonoBehaviour
 		get
 		{
 			return this._waitingOn == null ?
-			(this._dropdown.value < this._hotkeys.Count ?
-				this._hotkeys[this._dropdown.value].hotkeyID : null) :
+			(this._dropdown.value < HOTKEYS.Count ? HOTKEYS[this._dropdown.value].hotkeyID : null) :
 			this._waitingOn;
 		}
 	}
@@ -35,7 +34,7 @@ public class HotkeyModule : MonoBehaviour
 	[SerializeField]
 	private TMP_Text _minimizedSummary = null;
 
-	private List<HotkeyData> _hotkeys = new List<HotkeyData>();
+	private static List<HotkeyData> HOTKEYS = new List<HotkeyData>();
 
 	public void Clone()
 	{
@@ -142,8 +141,8 @@ public class HotkeyModule : MonoBehaviour
 
 	private string GetMinimizedText()
 	{
-		string name = this._dropdown.options.Count > 0 && this._hotkeys.Count >= this._dropdown.options.Count
-			? string.Format("[{0}] {1}", this._hotkeys[this._dropdown.value].type, this._hotkeys[this._dropdown.value].name)
+		string name = this._dropdown.options.Count > 0 && HOTKEYS.Count >= this._dropdown.options.Count
+			? string.Format("[{0}] {1}", HOTKEYS[this._dropdown.value].type, HOTKEYS[this._dropdown.value].name)
 			: "NO HOTKEY SET";
 		if (name.Length > 48)
 		{
@@ -161,9 +160,9 @@ public class HotkeyModule : MonoBehaviour
 		int currentIndex = this._dropdown.value;
 		string hotkey = this._dropdown.options.Count > 0 ? this._dropdown.options[currentIndex].text : null;
 		this._dropdown.ClearOptions();
-		this._hotkeys = HeartrateManager.Instance.Plugin.GetHotkeysForModelID(ProfileManager.Instance.CurrentProfile.modelID);
+		HOTKEYS = HeartrateManager.Instance.Plugin.GetHotkeysForModelID(ProfileManager.Instance.CurrentProfile.modelID);
 		List<string> hotkeyNames = new List<string>();
-		foreach (HotkeyData data in this._hotkeys)
+		foreach (HotkeyData data in HOTKEYS)
 		{
 			hotkeyNames.Add(string.Format("[{0}] <size=0>{1}</size>{2}", data.type, data.hotkeyID, data.name));
 		}

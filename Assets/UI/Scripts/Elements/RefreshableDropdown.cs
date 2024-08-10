@@ -9,7 +9,8 @@ public abstract class RefreshableDropdown : MonoBehaviour
     protected TMP_Dropdown _dropdown = null;
 
     // Start is called before the first frame update
-    void Start(){
+    void Start()
+    {
         this._dropdown.onValueChanged.AddListener(SetValue);
         Initialize();
     }
@@ -17,10 +18,14 @@ public abstract class RefreshableDropdown : MonoBehaviour
     protected abstract void Initialize();
     protected abstract void SetValue(int index);
 
-    public void OnEnable(){
-        try{
+    public void OnEnable()
+    {
+        try
+        {
             Refresh();
-        }catch(System.Exception){
+        }
+        catch (System.Exception)
+        {
 
         }
     }
@@ -31,13 +36,15 @@ public abstract class RefreshableDropdown : MonoBehaviour
     /// Call this in the Refresh implementation when data is returned. This approach allows for asynchronous refreshes.
     /// </summary>
     /// <param name="values"></param>
-    protected void RefreshValues(IEnumerable values){
-        string currentSelection = 
-            this._dropdown.options.Count > 0 ? 
-            this._dropdown.options[this._dropdown.value].text : 
+    protected void RefreshValues(IEnumerable values)
+    {
+        string currentSelection =
+            this._dropdown.options.Count > 0 ?
+            this._dropdown.options[this._dropdown.value].text :
             null;
         List<string> options = new List<string>();
-        foreach(object value in values){
+        foreach (object value in values)
+        {
             options.Add(value.ToString());
         }
         this._dropdown.ClearOptions();
@@ -45,12 +52,14 @@ public abstract class RefreshableDropdown : MonoBehaviour
         this._dropdown.RefreshShownValue();
         // set current selection to the same value as it was before the refresh, if it exists
         this._dropdown.SetValueWithoutNotify(
-            Mathf.Min(this._dropdown.options.Count, 
+            Mathf.Min(this._dropdown.options.Count,
             StringToIndex(currentSelection)));
     }
 
-    protected int StringToIndex(string val){
-        return this._dropdown.options.FindIndex((o) 
-            => { return o.text.Equals(val); });
+    protected int StringToIndex(string val)
+    {
+        return this._dropdown.options.FindIndex((o)
+            =>
+        { return o.text.Equals(val); });
     }
 }

@@ -1,22 +1,24 @@
 ﻿using UnityEngine;
 using UI.InputTools;
- 
+
 [RequireComponent(typeof(ExtendedButton))]
 public class TooltipButton : MonoBehaviour
 {
     private ExtendedButton _button = null;
     [SerializeField]
     private Tooltips _tooltip;
- 
+
     // Start is called before the first frame update
     void Start()
     {
         this._button = GetComponent<ExtendedButton>();
         this._button.onPointerUp.AddListener(() => { DisplayTooltip(this._tooltip); });
     }
- 
-    private void DisplayTooltip(Tooltips tip){
-        switch(tip){
+
+    private void DisplayTooltip(Tooltips tip)
+    {
+        switch (tip)
+        {
             case Tooltips.HEARTRATE_RANGES:
                 UIManager.Instance.ShowPopUp(
                     "input_ranges_title",
@@ -133,6 +135,12 @@ public class TooltipButton : MonoBehaviour
                     "output_hotkey_tooltip"
                 );
                 break;
+            case Tooltips.OUTPUT_VFX:
+                UIManager.Instance.ShowPopUp(
+                    "output_vfx_title",
+                    "output_vfx_tooltip"
+                );
+                break;
             case Tooltips.SETTINGS_API:
                 UIManager.Instance.ShowPopUp(
                     "settings_api_server_title",
@@ -144,12 +152,13 @@ public class TooltipButton : MonoBehaviour
                 );
                 break;
             default:
-            break;
+                break;
         }
     }
- 
+
     [System.Serializable]
-    private enum Tooltips : int {
+    private enum Tooltips : int
+    {
         HEARTRATE_RANGES = 101,
         HEARTRATE_SLIDER = 102,
         HEARTRATE_PULSOID_CONNECT = 103,
@@ -160,13 +169,14 @@ public class TooltipButton : MonoBehaviour
         HEARTRATE_HYPERATE = 108,
         HEARTRATE_WEBSOCKET = 109,
         HEARTRATE_FITBIT = 110,
- 
+
         OUTPUT_PARAMS = 201,
         OUTPUT_COLOR = 202,
         OUTPUT_EXPRESSION = 203,
         OUTPUT_COPY = 204,
         OUTPUT_HOTKEY = 205,
         OUTPUT_PROFILE = 206,
+        OUTPUT_VFX = 207,
 
         SETTINGS_API = 301,
     }
