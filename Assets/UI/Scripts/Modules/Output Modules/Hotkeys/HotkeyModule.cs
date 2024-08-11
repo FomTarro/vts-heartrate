@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -16,14 +16,14 @@ public class HotkeyModule : MonoBehaviour
 	// Because the dropdown is populated by an async method, 
 	// we load the expression that should be selected from a profile load into this buffer
 	// until the async method resolves.
-	private string _waitingOn = null;
-	public string SelectedHotkey
+	private string _waitingOnID = null;
+	private string SelectedHotkey
 	{
 		get
 		{
-			return this._waitingOn == null ?
-			(this._dropdown.value < HOTKEYS.Count ? HOTKEYS[this._dropdown.value].hotkeyID : null) :
-			this._waitingOn;
+			return this._waitingOnID != null ?
+			this._waitingOnID :
+			GetDataFromDropdownSelection().hotkeyID;
 		}
 	}
 
@@ -33,8 +33,6 @@ public class HotkeyModule : MonoBehaviour
 	private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_ACTIVATE_BELOW;
 	[SerializeField]
 	private TMP_Text _minimizedSummary = null;
-
-	private static List<HotkeyData> HOTKEYS = new List<HotkeyData>();
 
 	public void Clone()
 	{
@@ -78,7 +76,7 @@ public class HotkeyModule : MonoBehaviour
 					(s) => { },
 					(e) =>
 					{
-						Debug.LogError(string.Format("Error while triggering hotkey {0} in VTube Studio: {1} - {2}",
+						Debug.LogError(string.Format("Error while triggering hotkey [{0}] in VTube Studio: {1} - {2}",
 							this.SelectedHotkey, e.data.errorID, e.data.message));
 					});
 				}
@@ -115,34 +113,33 @@ public class HotkeyModule : MonoBehaviour
 		this._priorBehavior = this.Behavior;
 	}
 
-	private int HotkeyToIndex(string hotkeyID)
+	private void OnHotkeySelectionChanged(string hotkeyID)
 	{
-		return hotkeyID == null
+		// try to find the index in the list of the hotkey with the given UUID
+		int index =
+			hotkeyID == null
 			? -1
-			: this._dropdown.options.FindIndex((o) => { return o.text.Contains(hotkeyID); });
-	}
-
-	private void SetHotkey(string hotkeyID)
-	{
-		// index will only be -1 if the desired item is not in the list
-		int index = HotkeyToIndex(hotkeyID);
+			: this._dropdown.options.FindIndex((o) => { return ((HotkeyDropdownOption)o).Data.hotkeyID.Equals(hotkeyID); });
 		if (index < 0)
 		{
-			this._waitingOn = hotkeyID;
+			// if we can't find that UUID, we store it in a "pending" variable
+			// Which we will check every time new options get loaded in
+			this._waitingOnID = hotkeyID;
 		}
 		else if (this._dropdown.options.Count > 0 && this._dropdown.options.Count > index)
 		{
+			// if we can find the UUID, we clear our "pending" variable
+			// and just set the correct option
 			this._dropdown.SetValueWithoutNotify(index);
-			// finally found what we were waiting for
-			this._waitingOn = null;
+			this._waitingOnID = null;
 		}
 		this._minimizedSummary.text = string.Format("({0})", GetMinimizedText());
 	}
 
 	private string GetMinimizedText()
 	{
-		string name = this._dropdown.options.Count > 0 && HOTKEYS.Count >= this._dropdown.options.Count
-			? string.Format("[{0}] {1}", HOTKEYS[this._dropdown.value].type, HOTKEYS[this._dropdown.value].name)
+		string name = GetDataFromDropdownSelection().hotkeyID != null
+			? string.Format("[{0}] {1}", GetDataFromDropdownSelection().type, GetDataFromDropdownSelection().name)
 			: "NO HOTKEY SET";
 		if (name.Length > 48)
 		{
@@ -154,27 +151,29 @@ public class HotkeyModule : MonoBehaviour
 		}
 	}
 
-	// TODO: consolidate this behavior into RefreshableDropdown
+	// TODO: this might actually be better than RefreshableDropdown, 
 	public void RefreshHotkeyList()
 	{
-		int currentIndex = this._dropdown.value;
-		string hotkey = this._dropdown.options.Count > 0 ? this._dropdown.options[currentIndex].text : null;
+		HotkeyData currentSelection = GetDataFromDropdownSelection();
 		this._dropdown.ClearOptions();
-		HOTKEYS = HeartrateManager.Instance.Plugin.GetHotkeysForModelID(ProfileManager.Instance.CurrentProfile.modelID);
-		List<string> hotkeyNames = new List<string>();
-		foreach (HotkeyData data in HOTKEYS)
+		List<HotkeyData> hotkeys = HeartrateManager.Instance.Plugin.GetHotkeysForModelID(ProfileManager.Instance.CurrentProfile.modelID);
+		List<TMP_Dropdown.OptionData> hotkeyNames = new List<TMP_Dropdown.OptionData>();
+		foreach (HotkeyData data in hotkeys)
 		{
-			hotkeyNames.Add(string.Format("[{0}] <size=0>{1}</size>{2}", data.type, data.hotkeyID, data.name));
+			HotkeyDropdownOption opt = new HotkeyDropdownOption();
+			opt.text = string.Format("[{0}] {1}", data.type, data.name);
+			opt.Data = data;
+			hotkeyNames.Add(opt);
 		}
 		this._dropdown.AddOptions(hotkeyNames);
 		this._dropdown.RefreshShownValue();
-		if (this._waitingOn != null)
+		if (this._waitingOnID != null)
 		{
-			SetHotkey(this._waitingOn);
+			OnHotkeySelectionChanged(this._waitingOnID);
 		}
 		else
 		{
-			SetHotkey(hotkey);
+			OnHotkeySelectionChanged(currentSelection.hotkeyID);
 		}
 	}
 
@@ -184,7 +183,20 @@ public class HotkeyModule : MonoBehaviour
 		this._threshold.text = this._thresholdVal.ToString();
 	}
 
-	[System.Serializable]
+	private HotkeyData GetDataFromDropdownSelection()
+	{
+		return this._dropdown.options.Count > 0 && this._dropdown.value >= 0
+		? ((HotkeyDropdownOption)this._dropdown.options[this._dropdown.value]).Data
+		: new HotkeyData();
+	}
+
+	// Extension class to strap arbitrary data onto a Unity Dropdown option
+	public class HotkeyDropdownOption : TMP_Dropdown.OptionData
+	{
+		public HotkeyData Data { get; set; }
+	}
+
+	[Serializable]
 	public class SaveData
 	{
 		public string hotkeyID;
@@ -202,7 +214,7 @@ public class HotkeyModule : MonoBehaviour
 		SaveData data = new SaveData();
 		data.threshold = this.Threshold;
 		data.behavior = this.Behavior;
-		data.hotkeyID = this.SelectedHotkey;
+		data.hotkeyID = SelectedHotkey;
 		return data;
 	}
 
@@ -214,7 +226,11 @@ public class HotkeyModule : MonoBehaviour
 		this._thresholdVal = Mathf.Clamp(data.threshold, 0, 255);
 		this._threshold.onEndEdit.AddListener(OnEditThreshold);
 		this._behavior.SetValueWithoutNotify((int)data.behavior);
-		SetHotkey(data.hotkeyID);
+		this._dropdown.onValueChanged.AddListener((i) =>
+		{
+			OnHotkeySelectionChanged(((HotkeyDropdownOption)this._dropdown.options[i]).Data.hotkeyID);
+		});
+		RefreshHotkeyList();
 	}
 
 	public enum TriggerBehavior : int
