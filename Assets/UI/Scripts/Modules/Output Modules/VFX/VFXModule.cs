@@ -15,22 +15,26 @@ public class VFXModule : MonoBehaviour
     [SerializeField]
     private EffectParameterEntry _effectParameterPrefab = null;
 
-    private static List<PostProcessingEffect> _effects = new List<PostProcessingEffect>();
-    private string _waitingOn = null;
-    public string SelectedEffect
+    private List<EffectParameterEntry> _effectParameterList = new List<EffectParameterEntry>();
+
+    private List<EffectParameterEntry.SaveData> _waitingOnEffects = new List<EffectParameterEntry.SaveData>();
+
+    // Because the dropdown is populated by an async method, 
+    // we load the expression that should be selected from a profile load into this buffer
+    // until the async method resolves.
+    private int _waitingOnID = -1;
+    private Effects SelectedEffect
     {
         get
         {
-            return this._waitingOn == null ?
-            (this._dropdown.value < _effects.Count ?
-                _effects[this._dropdown.value].internalID : null) :
-            this._waitingOn;
+            return this._waitingOnID != -1 ?
+            (Effects)this._waitingOnID :
+            GetDataFromDropdownSelection().enumID;
         }
     }
 
     [SerializeField]
     private TMP_Text _minimizedSummary = null;
-
 
     public void Clone()
     {
@@ -42,59 +46,60 @@ public class VFXModule : MonoBehaviour
         HeartrateManager.Instance.Plugin.DestroyVFXModule(this);
     }
 
-    public void RefreshVFXList()
+    public void ApplyEffect()
     {
-        int currentIndex = this._dropdown.value;
-        string currentEffect = this._dropdown.options.Count > 0 ? this._dropdown.options[currentIndex].text : null;
-        this._dropdown.ClearOptions();
-        _effects = HeartrateManager.Instance.Plugin.VFXList;
-        List<string> effectNames = new List<string>();
-        foreach (PostProcessingEffect effect in _effects)
+        VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
+        options.setPostProcessingValues = true;
+        options.postProcessingOn = true;
+        List<PostProcessingValue> values = new List<PostProcessingValue>();
+        foreach (EffectParameterEntry item in this._effectParameterList)
         {
-            effectNames.Add(string.Format("<size=0>{0}</size>{1}", effect.internalID, effect.enumID));
+            if (item.gameObject.activeSelf && HeartrateManager.Instance.Plugin.ParameterMap.ContainsKey(item.SelectedParameter))
+            {
+                values.Add(new PostProcessingValue(item.Effect, HeartrateManager.Instance.Plugin.ParameterMap[item.SelectedParameter]));
+            }
         }
-        this._dropdown.AddOptions(effectNames);
-        this._dropdown.RefreshShownValue();
-        if (this._waitingOn != null)
-        {
-            SetEffect(this._waitingOn);
-        }
-        else
-        {
-            SetEffect(currentEffect);
-        }
+        HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
     }
 
-    private int EffectToIndex(string effectID)
+    private void OnEffectSelectionChanged(Effects effectID)
     {
-        return effectID == null
+        // try to find the index in the list of the hotkey with the given UUID
+        int index =
+            (int)effectID == -1
             ? -1
-            : this._dropdown.options.FindIndex((o) => { return o.text.Contains(effectID); });
-    }
-
-    private void SetEffect(string effectID)
-    {
-        // index will only be -1 if the desired item is not in the list
-        int index = EffectToIndex(effectID);
+            : this._dropdown.options.FindIndex((o) => { return ((VFXDropdownOption)o).Data.enumID == effectID; });
         if (index < 0)
         {
-            this._waitingOn = effectID;
+            // if we can't find that UUID, we store it in a "pending" variable
+            // Which we will check every time new options get loaded in
+            this._waitingOnID = (int)effectID;
         }
         else if (this._dropdown.options.Count > 0 && this._dropdown.options.Count > index)
         {
+            // if we can find the UUID, we clear our "pending" variable
+            // and just set the correct option
             this._dropdown.SetValueWithoutNotify(index);
-            // finally found what we were waiting for
-            this._waitingOn = null;
+            this._waitingOnID = -1;
+        }
+        foreach (EffectParameterEntry item in this._effectParameterList)
+        {
+            if (item.ParentEffect == this.SelectedEffect)
+            {
+                item.gameObject.SetActive(true);
+            }
+            else
+            {
+                item.gameObject.SetActive(false);
+            }
         }
         this._minimizedSummary.text = string.Format("({0})", GetMinimizedText());
-
-
     }
 
     private string GetMinimizedText()
     {
-        string name = this._dropdown.options.Count > 0 && _effects.Count >= this._dropdown.options.Count
-            ? string.Format("{0}", _effects[this._dropdown.value].enumID)
+        string name = (int)GetDataFromDropdownSelection().enumID != -1
+            ? string.Format("{0}", GetDataFromDropdownSelection().internalID)
             : "NO EFFECT SET";
         if (name.Length > 48)
         {
@@ -106,15 +111,66 @@ public class VFXModule : MonoBehaviour
         }
     }
 
-    public void Apply(Dictionary<string, float> parameter)
-    {
 
+    public void RefreshEffectList()
+    {
+        PostProcessingEffect currentSelection = GetDataFromDropdownSelection();
+        this._dropdown.ClearOptions();
+        List<PostProcessingEffect> effects = HeartrateManager.Instance.Plugin.VFXList;
+        List<TMP_Dropdown.OptionData> effectNames = new List<TMP_Dropdown.OptionData>();
+        foreach (PostProcessingEffect data in effects)
+        {
+            VFXDropdownOption opt = new VFXDropdownOption();
+            opt.text = string.Format("{0}", data.internalID);
+            opt.Data = data;
+            effectNames.Add(opt);
+            foreach (PostProcessingEffectConfig config in data.configEntries)
+            {
+                // first we add any entries that don't exist in the list already
+                if (config.type.ToLower().Equals("float"))
+                {
+                    EffectParameterEntry entry = this._effectParameterList.Find(item => item.Effect == config.enumID);
+                    if (entry != null)
+                    {
+                        entry.Initialize(data.enumID, config);
+                    }
+                    else
+                    {
+                        EffectParameterEntry instance = Instantiate<EffectParameterEntry>(this._effectParameterPrefab, Vector3.zero, Quaternion.identity, this._parameterListParent);
+                        instance.Initialize(data.enumID, config);
+                        instance.gameObject.SetActive(false);
+                        this._effectParameterList.Add(instance);
+                    }
+                }
+            }
+        }
+        this._dropdown.AddOptions(effectNames);
+        this._dropdown.RefreshShownValue();
+        if (this._waitingOnID != -1)
+        {
+            OnEffectSelectionChanged((Effects)this._waitingOnID);
+        }
+        else
+        {
+            OnEffectSelectionChanged(currentSelection.enumID);
+        }
     }
 
-    [System.Serializable]
+    private PostProcessingEffect GetDataFromDropdownSelection()
+    {
+        return this._dropdown.options.Count > 0 && this._dropdown.value >= 0
+        ? ((VFXDropdownOption)this._dropdown.options[this._dropdown.value]).Data
+        : new PostProcessingEffect();
+    }
+
+    // Extension class to strap arbitrary data onto a Unity Dropdown option
+    public class VFXDropdownOption : ExtendedDropdownOption<PostProcessingEffect> { }
+
+    [Serializable]
     public class SaveData
     {
-        public string effectID;
+        public Effects effectID;
+        public List<EffectParameterEntry.SaveData> effectConfigs = new List<EffectParameterEntry.SaveData>();
 
         public override string ToString()
         {
@@ -126,11 +182,31 @@ public class VFXModule : MonoBehaviour
     {
         SaveData data = new SaveData();
         data.effectID = this.SelectedEffect;
+        foreach (EffectParameterEntry item in this._effectParameterList)
+        {
+            if (item.gameObject.activeSelf)
+            {
+                data.effectConfigs.Add(item.ToSaveData());
+            }
+        }
         return data;
     }
 
     public void FromSaveData(SaveData data)
     {
-        // TODO;
+        this._dropdown.onValueChanged.AddListener((i) =>
+        {
+            OnEffectSelectionChanged(((VFXDropdownOption)this._dropdown.options[i]).Data.enumID);
+        });
+        OnEffectSelectionChanged(data.effectID);
+        this._waitingOnEffects = data.effectConfigs;
+        foreach (EffectParameterEntry.SaveData item in data.effectConfigs)
+        {
+            EffectParameterEntry instance = Instantiate<EffectParameterEntry>(this._effectParameterPrefab, Vector3.zero, Quaternion.identity, this._parameterListParent);
+            instance.FromSaveData(item);
+            instance.gameObject.SetActive(false);
+            this._effectParameterList.Add(instance);
+        }
+        RefreshEffectList();
     }
 }

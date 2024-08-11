@@ -15,7 +15,7 @@ public class HeartratePlugin : UnityVTSPlugin
 	private int _minRate = 70;
 	private ShiftingAverage _average = new ShiftingAverage(30);
 
-	private PostProcessingEffect[] _vfxList;
+	private PostProcessingEffect[] _vfxList = new PostProcessingEffect[0];
 	public List<PostProcessingEffect> VFXList { get { return new List<PostProcessingEffect>(_vfxList); } }
 
 	private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
@@ -343,7 +343,7 @@ public class HeartratePlugin : UnityVTSPlugin
 
 		foreach (VFXModule module in this._vfxModules)
 		{
-			module.Apply(this._parameterMap);
+			module.ApplyEffect();
 		}
 
 		// set API data values
@@ -504,7 +504,7 @@ public class HeartratePlugin : UnityVTSPlugin
 			this._vfxList = success.data.postProcessingEffects;
 			foreach (VFXModule module in this._vfxModules)
 			{
-				module.RefreshVFXList();
+				module.RefreshEffectList();
 			}
 		},
 		(error) =>
@@ -764,6 +764,10 @@ public class HeartratePlugin : UnityVTSPlugin
 		{
 			data.hotkeys.Add(module.ToSaveData());
 		}
+		foreach (VFXModule module in this._vfxModules)
+		{
+			data.vfx.Add(module.ToSaveData());
+		}
 		return data;
 	}
 
@@ -825,6 +829,10 @@ public class HeartratePlugin : UnityVTSPlugin
 			{
 				CreateHotkeyModule(module);
 			}
+			foreach (VFXModule.SaveData module in data.vfx)
+			{
+				CreateVFXModule(module);
+			}
 		}
 	}
 
@@ -844,6 +852,11 @@ public class HeartratePlugin : UnityVTSPlugin
 		foreach (HotkeyModule h in tempHotkey)
 		{
 			DestroyHotkeyModule(h);
+		}
+		List<VFXModule> tempVFX = new List<VFXModule>(this._vfxModules);
+		foreach (VFXModule v in tempVFX)
+		{
+			DestroyVFXModule(v);
 		}
 	}
 
@@ -875,6 +888,7 @@ public class HeartratePlugin : UnityVTSPlugin
 		public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
 		public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
 		public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();
+		public List<VFXModule.SaveData> vfx = new List<VFXModule.SaveData>();
 
 		public override string ToString()
 		{
