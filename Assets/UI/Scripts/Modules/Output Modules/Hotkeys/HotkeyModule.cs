@@ -151,7 +151,8 @@ public class HotkeyModule : MonoBehaviour
 		}
 	}
 
-	// TODO: this might actually be better than RefreshableDropdown, 
+	// TODO: this might actually be better than RefreshableDropdown
+	// no longer as brittle with string-matching
 	public void RefreshHotkeyList()
 	{
 		HotkeyData currentSelection = GetDataFromDropdownSelection();
@@ -191,10 +192,7 @@ public class HotkeyModule : MonoBehaviour
 	}
 
 	// Extension class to strap arbitrary data onto a Unity Dropdown option
-	public class HotkeyDropdownOption : TMP_Dropdown.OptionData
-	{
-		public HotkeyData Data { get; set; }
-	}
+	public class HotkeyDropdownOption : ExtendedDropdownOption<HotkeyData> { }
 
 	[Serializable]
 	public class SaveData
@@ -230,6 +228,7 @@ public class HotkeyModule : MonoBehaviour
 		{
 			OnHotkeySelectionChanged(((HotkeyDropdownOption)this._dropdown.options[i]).Data.hotkeyID);
 		});
+		OnHotkeySelectionChanged(data.hotkeyID);
 		RefreshHotkeyList();
 	}
 
