@@ -46,6 +46,23 @@ public class VFXModule : MonoBehaviour
         HeartrateManager.Instance.Plugin.DestroyVFXModule(this);
     }
 
+    public void ResetAllEffects()
+    {
+        VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
+        options.setPostProcessingValues = true;
+        options.postProcessingOn = true;
+        List<PostProcessingValue> values = new List<PostProcessingValue>();
+        foreach (EffectParameterEntry item in this._effectParameterList)
+        {
+            if (item.gameObject.activeSelf)
+            {
+                values.Add(new PostProcessingValue(item.Effect, 0));
+                item.Reset();
+            }
+        }
+        HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
+    }
+
     public void ApplyEffect()
     {
         VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();

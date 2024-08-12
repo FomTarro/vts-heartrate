@@ -32,6 +32,11 @@ public class EffectParameterEntry : MonoBehaviour
         this._effectName.text = config.internalID;
     }
 
+    public void Reset()
+    {
+        this._dropdown.SetValueWithoutNotify(0);
+    }
+
     [Serializable]
     public class SaveData
     {
