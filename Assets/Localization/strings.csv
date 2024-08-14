@@ -233,9 +233,16 @@ output_hotkey_behavior_a,Trigger above,閾値以上になると動作
 output_hotkey_behavior_b,Trigger below,閾値以下になると動作
 ,,
 output_vfx_title,VFX Config,
-output_vfx_tooltip,TODO!!!,
+output_vfx_tooltip,"VTube Studio offers a ton of cool <b>post-processing rendering effects</b>, called ""visual effects"" or ""<b>VFX</b>"" for short.
+
+You can make the intensity of these effects scale with your heartrate using <b>%output_custom_params_title</b>! Simply <b>select the desired tracking parameter</b> that you want to use to <b>control a given config value</b> of the effect. You can then additionally <b>modify the config value</b> using the slider to <b>increase</b> or <b>decrease</b> its maximum intensity.
+
+There is a <b>lot of customizability</b> with this feature, so it is recommended that you <b>play around with different values</b> and see how they look by using the %input_slider_title input method to try out a range of heartrates.",
+output_vfx_tooltip_button,Learn more about VFX,
+output_vfx_reset_button,Reset All Effect Parameters,
+output_vfx_reset_warning,Are you sure you want to reset all configured parameters for this effect? This will set all parameters to 0.0.,
 ,,
-output_custom_params_title,Custom Parameters,カスタムパラメータ
+output_custom_params_title,Custom Tracking Parameters,カスタムパラメータ
 output_custom_params_tooltip,"This plugin outputs <b>15</b> custom tracking parameters for use. They are as follows:
 
 <b>VTS_Heartrate_Linear</b>: %param_vts_heartrate_linear

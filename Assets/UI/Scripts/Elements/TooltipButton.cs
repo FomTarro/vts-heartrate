@@ -138,7 +138,11 @@ public class TooltipButton : MonoBehaviour
             case Tooltips.OUTPUT_VFX:
                 UIManager.Instance.ShowPopUp(
                     "output_vfx_title",
-                    "output_vfx_tooltip"
+                    "output_vfx_tooltip",
+                    new PopUp.PopUpOption(
+                        "output_vfx_tooltip_button",
+                        ColorUtils.ColorPreset.BLUE,
+                        () => { Application.OpenURL("https://github.com/DenchiSoft/VTubeStudio/wiki/Visual-Effects"); })
                 );
                 break;
             case Tooltips.SETTINGS_API:

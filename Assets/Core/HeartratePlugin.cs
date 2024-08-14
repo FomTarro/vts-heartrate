@@ -134,9 +134,9 @@ public class HeartratePlugin : UnityVTSPlugin
 	{
 		this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
 		this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
+		CreateAllParameters();
 		FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
 		FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
-		CreateAllParameters();
 		Connect();
 	}
 
@@ -183,7 +183,7 @@ public class HeartratePlugin : UnityVTSPlugin
 
 	private void SubscribeToEvents()
 	{
-		this.Logger.Log("Scubscribing to VTube Studio Events...");
+		this.Logger.Log("Subscribing to VTube Studio Events...");
 		SubscribeToModelLoadedEvent(new VTSModelLoadedEventConfigOptions(),
 			(loadData) =>
 			{

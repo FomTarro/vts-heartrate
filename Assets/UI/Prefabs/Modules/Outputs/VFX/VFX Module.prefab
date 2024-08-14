@@ -951,7 +951,7 @@ PrefabInstance:
     - target: {fileID: 4354000376095387835, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}
       propertyPath: key
-      value: output_vfx_reset
+      value: output_vfx_reset_button
       objectReference: {fileID: 0}
     - target: {fileID: 6606979861038441958, guid: ed4acb700a96fa54189c7bcb521b4dc9,
         type: 3}

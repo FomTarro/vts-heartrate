@@ -17,8 +17,6 @@ public class VFXModule : MonoBehaviour
 
     private List<EffectParameterEntry> _effectParameterList = new List<EffectParameterEntry>();
 
-    private List<EffectParameterEntry.SaveData> _waitingOnEffects = new List<EffectParameterEntry.SaveData>();
-
     // Because the dropdown is populated by an async method, 
     // we load the expression that should be selected from a profile load into this buffer
     // until the async method resolves.
@@ -48,35 +46,56 @@ public class VFXModule : MonoBehaviour
 
     public void ResetAllEffects()
     {
-        VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
-        options.setPostProcessingValues = true;
-        options.postProcessingOn = true;
-        List<PostProcessingValue> values = new List<PostProcessingValue>();
-        foreach (EffectParameterEntry item in this._effectParameterList)
-        {
-            if (item.gameObject.activeSelf)
-            {
-                values.Add(new PostProcessingValue(item.Effect, 0));
-                item.Reset();
-            }
-        }
-        HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
+
+        UIManager.Instance.ShowPopUp(
+            "output_vfx_reset_button",
+            "output_vfx_reset_warning",
+            new PopUp.PopUpOption(
+                "button_generic_confirm",
+                ColorUtils.ColorPreset.RED,
+                () =>
+                {
+                    VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
+                    options.setPostProcessingValues = true;
+                    options.postProcessingOn = true;
+                    List<PostProcessingValue> values = new List<PostProcessingValue>();
+                    foreach (EffectParameterEntry item in this._effectParameterList)
+                    {
+                        if (item.gameObject.activeSelf)
+                        {
+                            values.Add(new PostProcessingValue(item.Effect, 0));
+                            item.Reset();
+                        }
+                    }
+                    HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
+                    UIManager.Instance.HidePopUp();
+                }
+            ),
+            new PopUp.PopUpOption(
+                "button_generic_cancel",
+                ColorUtils.ColorPreset.GREY,
+                () => { UIManager.Instance.HidePopUp(); }
+            )
+        );
     }
 
     public void ApplyEffect()
     {
-        VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
-        options.setPostProcessingValues = true;
-        options.postProcessingOn = true;
-        List<PostProcessingValue> values = new List<PostProcessingValue>();
-        foreach (EffectParameterEntry item in this._effectParameterList)
+        if (HeartrateManager.Instance.Plugin.IsAuthenticated)
         {
-            if (item.gameObject.activeSelf && HeartrateManager.Instance.Plugin.ParameterMap.ContainsKey(item.SelectedParameter))
+            VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
+            options.setPostProcessingValues = true;
+            options.postProcessingOn = true;
+            List<PostProcessingValue> values = new List<PostProcessingValue>();
+            foreach (EffectParameterEntry item in this._effectParameterList)
             {
-                values.Add(new PostProcessingValue(item.Effect, HeartrateManager.Instance.Plugin.ParameterMap[item.SelectedParameter]));
+                if (item.gameObject.activeSelf && HeartrateManager.Instance.Plugin.ParameterMap.ContainsKey(item.SelectedParameter))
+                {
+                    values.Add(new PostProcessingValue(item.Effect, HeartrateManager.Instance.Plugin.ParameterMap[item.SelectedParameter] + item.Modifier));
+                }
             }
+            HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
         }
-        HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
     }
 
     private void OnEffectSelectionChanged(Effects effectID)
@@ -115,7 +134,7 @@ public class VFXModule : MonoBehaviour
 
     private string GetMinimizedText()
     {
-        string name = (int)GetDataFromDropdownSelection().enumID != -1
+        string name = GetDataFromDropdownSelection().internalID != null && GetDataFromDropdownSelection().internalID.Length > 0
             ? string.Format("{0}", GetDataFromDropdownSelection().internalID)
             : "NO EFFECT SET";
         if (name.Length > 48)
@@ -216,7 +235,6 @@ public class VFXModule : MonoBehaviour
             OnEffectSelectionChanged(((VFXDropdownOption)this._dropdown.options[i]).Data.enumID);
         });
         OnEffectSelectionChanged(data.effectID);
-        this._waitingOnEffects = data.effectConfigs;
         foreach (EffectParameterEntry.SaveData item in data.effectConfigs)
         {
             EffectParameterEntry instance = Instantiate<EffectParameterEntry>(this._effectParameterPrefab, Vector3.zero, Quaternion.identity, this._parameterListParent);
