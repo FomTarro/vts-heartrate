@@ -16,15 +16,16 @@ namespace UnityEngine.UI
         public int iterations = 5;
         public Vector2 shadowSpread = Vector2.one;
 
-        protected DropShadow()
-        {}
+        public float aspectRatio = 1;
+
+        protected DropShadow() { }
 
 #if UNITY_EDITOR
-        protected override void OnValidate()
-        {
-            EffectDistance = shadowDistance;
-            base.OnValidate();
-        }
+		protected override void OnValidate()
+		{
+			EffectDistance = shadowDistance;
+			base.OnValidate();
+		}
 
 #endif
 
@@ -89,30 +90,30 @@ namespace UnityEngine.UI
         {
             UIVertex vt;
             int count = verts.Count;
-
+            aspectRatio = this.graphic.rectTransform.rect.width / this.graphic.rectTransform.rect.height;
             List<UIVertex> vertsCopy = new List<UIVertex>(verts);
             verts.Clear();
 
-            for(int i=0; i<iterations; i++)
+            for (int i = 0; i < iterations; i++)
             {
-                for(int v=0; v<count; v++)
+                for (int v = 0; v < count; v++)
                 {
                     vt = vertsCopy[v];
                     Vector3 position = vt.position;
-                    float fac = (float)i/(float)iterations;
-                    position.x *= (1 + shadowSpread.x*fac*0.01f);
-                    position.y *= (1 + shadowSpread.y*fac*0.01f);
-                    position.x += shadowDistance.x * fac;
-                    position.y += shadowDistance.y * fac;
+                    float fac = (float)i / (float)iterations;
+                    position.x *= (1 + (shadowSpread.x * fac * 0.01f * (100f / this.graphic.rectTransform.rect.width)));
+                    position.y *= (1 + (shadowSpread.y * fac * (0.01f) * (100f / this.graphic.rectTransform.rect.height)));
+                    position.x += (shadowDistance.x * fac);
+                    position.y += (shadowDistance.y * fac);
                     vt.position = position;
                     Color32 color = shadowColor;
-                    color.a = (byte)((float)color.a /(float)iterations);
+                    color.a = (byte)((float)color.a / (float)iterations);
                     vt.color = color;
                     verts.Add(vt);
                 }
             }
 
-            for(int i=0; i<vertsCopy.Count; i++)
+            for (int i = 0; i < vertsCopy.Count; i++)
             {
                 verts.Add(vertsCopy[i]);
             }
@@ -122,7 +123,7 @@ namespace UnityEngine.UI
         {
             if (!IsActive())
                 return;
-        
+
             List<UIVertex> output = new List<UIVertex>();
             vh.GetUIVertexStream(output);
 

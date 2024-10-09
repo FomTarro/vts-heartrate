@@ -45,8 +45,9 @@ public class VFXModule : MonoBehaviour
         HeartrateManager.Instance.Plugin.DestroyVFXModule(this);
     }
 
-    public void Reset()
+    public void Reset(bool hardReset = true)
     {
+        Debug.Log("Resetting VFX module...");
         VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
         options.setPostProcessingValues = true;
         List<PostProcessingValue> values = new List<PostProcessingValue>();
@@ -55,7 +56,10 @@ public class VFXModule : MonoBehaviour
             if (item.gameObject.activeSelf)
             {
                 values.Add(new PostProcessingValue(item.Effect, 0));
-                item.Reset();
+                if (hardReset)
+                {
+                    item.Reset();
+                }
             }
         }
         HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
@@ -95,7 +99,6 @@ public class VFXModule : MonoBehaviour
             {
                 if (item.gameObject.activeSelf)
                 {
-                    // float mapped = MathUtils.Normalize(combined, -1, 2)
                     values.Add(new PostProcessingValue(item.Effect, item.Value));
                     item.UpdateDisplay();
                 }
@@ -121,7 +124,7 @@ public class VFXModule : MonoBehaviour
         {
             // if we can find the UUID, we clear our "pending" variable
             // and just set the correct option
-            Reset();
+            PopulateOptionsForEffect(((VFXDropdownOption)this._dropdown.options[index]).Data);
             this._dropdown.SetValueWithoutNotify(index);
             this._waitingOnID = -1;
         }
@@ -161,31 +164,14 @@ public class VFXModule : MonoBehaviour
         this._dropdown.ClearOptions();
         List<PostProcessingEffect> effects = HeartrateManager.Instance.Plugin.VFXList;
         List<TMP_Dropdown.OptionData> effectNames = new List<TMP_Dropdown.OptionData>();
-        foreach (PostProcessingEffect data in effects)
+        foreach (PostProcessingEffect effect in effects)
         {
             VFXDropdownOption opt = new VFXDropdownOption();
-            opt.text = string.Format("{0}", data.internalID);
-            opt.Data = data;
+            opt.text = string.Format("{0}", effect.internalID);
+            opt.Data = effect;
             effectNames.Add(opt);
-            foreach (PostProcessingEffectConfig config in data.configEntries)
-            {
-                // first we add any entries that don't exist in the list already
-                if (config.type.ToLower().Equals("float"))
-                {
-                    EffectParameterEntry entry = this._effectParameterList.Find(item => item.Effect == config.enumID);
-                    if (entry != null)
-                    {
-                        entry.Initialize(data.enumID, config);
-                    }
-                    else
-                    {
-                        EffectParameterEntry instance = Instantiate<EffectParameterEntry>(this._effectParameterPrefab, Vector3.zero, Quaternion.identity, this._parameterListParent);
-                        instance.Initialize(data.enumID, config);
-                        instance.gameObject.SetActive(false);
-                        this._effectParameterList.Add(instance);
-                    }
-                }
-            }
+            // used to instantiate an item for every property of every effect, almost 200/per module at time of writing
+            // instead, we now create as many as needed for any given selected effect.
         }
         this._dropdown.AddOptions(effectNames);
         this._dropdown.RefreshShownValue();
@@ -196,6 +182,48 @@ public class VFXModule : MonoBehaviour
         else
         {
             OnEffectSelectionChanged(currentSelection.enumID);
+        }
+    }
+
+    private void PopulateOptionsForEffect(PostProcessingEffect effect)
+    {
+        int i = 0;
+        foreach (PostProcessingEffectConfig property in effect.configEntries)
+        {
+            // first we add any entries that don't exist in the list already
+            if (property.type.ToLower().Equals("float"))
+            {
+                if (this._effectParameterList.Count <= i)
+                {
+                    EffectParameterEntry instance = Instantiate<EffectParameterEntry>(this._effectParameterPrefab, Vector3.zero, Quaternion.identity, this._parameterListParent);
+                    instance.name = effect.enumID + " - " + property.enumID + " - " + i;
+                    instance.Initialize(effect.enumID, property);
+                    instance.gameObject.SetActive(false);
+                    this._effectParameterList.Add(instance);
+                }
+                else
+                {
+                    EffectParameterEntry entry = this._effectParameterList[i];
+                    entry.name = effect.enumID + " - " + property.enumID + " - " + i;
+                    entry.Initialize(effect.enumID, property);
+                    entry.gameObject.SetActive(false);
+                }
+                i++;
+                // EffectParameterEntry entry = this._effectParameterList.Find(item => item.Effect == property.enumID);
+                // if (entry != null)
+                // {
+                //     entry.Initialize(effect.enumID, property);
+                //     entry.name = effect.enumID + " - " + property.enumID + " - " + i;
+                // }
+                // else
+                // {
+                //     EffectParameterEntry instance = Instantiate<EffectParameterEntry>(this._effectParameterPrefab, Vector3.zero, Quaternion.identity, this._parameterListParent);
+                //     entry.name = effect.enumID + " - " + property.enumID + " - " + i;
+                //     instance.Initialize(effect.enumID, property);
+                //     instance.gameObject.SetActive(false);
+                //     this._effectParameterList.Add(instance);
+                // }
+            }
         }
     }
 
@@ -237,13 +265,18 @@ public class VFXModule : MonoBehaviour
 
     public void FromSaveData(SaveData data)
     {
+        Debug.Log("Loading VFX module...");
         this._dropdown.onValueChanged.AddListener((i) =>
         {
+            // Only reset on dropdwon change, not on programatic set
+            // This prevents the initial population of the dropdown from wiping loaded data that is waiting to be relevant
+            Reset();
             OnEffectSelectionChanged(((VFXDropdownOption)this._dropdown.options[i]).Data.enumID);
         });
         OnEffectSelectionChanged(data.effectID);
         foreach (EffectParameterEntry.SaveData item in data.effectConfigs)
         {
+            // create as many effects parameters as we think we will need
             EffectParameterEntry instance = Instantiate<EffectParameterEntry>(this._effectParameterPrefab, Vector3.zero, Quaternion.identity, this._parameterListParent);
             instance.FromSaveData(item);
             instance.gameObject.SetActive(false);

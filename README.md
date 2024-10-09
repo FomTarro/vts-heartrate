@@ -210,7 +210,7 @@ In this way, you can enjoy having dynamic VFX that scale with your heartrate, wh
 
 ### Stream Widget
 
-You can use the <b>Stream Widget</b> as a Browser Source in OBS, or as a Web Item in VTube Studio. It prints your heartrate in real time, and the backing image does a pulsing animation at the corresponding speed.
+You can use the <b>Stream Widget</b> as a [Browser Source in OBS](https://obsproject.com/kb/browser-source), or as a [Web Item in VTube Studio](https://github.com/DenchiSoft/VTubeStudio/wiki/Web-Items). It prints your heartrate in real time, and the backing image does a pulsing animation at the corresponding speed.
 
 The widget will automatically attempt to connect to vts-heartrate when it loads, so if you open the widget before launching vts-heartrate, simply refresh the widget to connect.
 

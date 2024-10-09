@@ -143,12 +143,13 @@ public class HeartratePlugin : UnityVTSPlugin
 
 	private void OnApplicationQuit()
 	{
+		Debug.Log("Quitting!");
 		SaveDataManager.Instance.WriteGlobalSaveData(ToGlobalSaveData());
 		SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
 		// we do this AFTER saving
 		foreach (VFXModule vfx in this._vfxModules)
 		{
-			vfx.Reset();
+			vfx.Reset(false);
 		}
 	}
 
