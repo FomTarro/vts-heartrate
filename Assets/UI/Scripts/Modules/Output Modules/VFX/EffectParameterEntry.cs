@@ -24,7 +24,11 @@ public class EffectParameterEntry : MonoBehaviour
     [SerializeField]
     private TMP_Text _sliderValueDisplay = null;
     [SerializeField]
+    private TMP_Text _paramValueDisplay = null;
+    [SerializeField]
     private TMP_Text _calculatedValueDisplay = null;
+    [SerializeField]
+    private TMP_Text _minimizedValueDisplay = null;
     public float Modifier
     {
         get { return MathUtils.Normalize(this._slider.value, -1f, 1f, Min, Max); }
@@ -80,8 +84,10 @@ public class EffectParameterEntry : MonoBehaviour
 
     public void UpdateDisplay()
     {
-        this._sliderValueDisplay.text = string.Format("{0:0.00}", Modifier) + " ×";
-        this._calculatedValueDisplay.text = "= " + string.Format("{0:0.00}", Value);
+        this._paramValueDisplay.text = string.Format("{0:0.00}", Param);
+        this._sliderValueDisplay.text = string.Format("{0:0.00}", Modifier);
+        this._calculatedValueDisplay.text = string.Format("{0:0.00}", Value);
+        this._minimizedValueDisplay.text = string.Format("({0:0.00})", Value);
     }
 
     private void OnValueChange(float value)
