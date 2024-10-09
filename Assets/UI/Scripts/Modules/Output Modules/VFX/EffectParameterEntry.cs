@@ -113,7 +113,7 @@ public class EffectParameterEntry : MonoBehaviour
         SaveData data = new SaveData();
         data.effect = this.Effect;
         data.drivingParameter = this.SelectedParameter;
-        data.modifier = this.Modifier;
+        data.modifier = this._slider.value;
         return data;
     }
 

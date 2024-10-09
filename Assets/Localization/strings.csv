@@ -83,7 +83,9 @@ JoshuaTapioca"
 ,,
 input_select_title,Select an Input Method,入力方式を選択
 input_ranges_title,Expected Heartrate Ranges,心拍数の期待範囲
-input_ranges_tooltip,"Input your expected range of heartrates here. <b>%input_ranges_min</b> refers to your low-stress heartrate, while <b>%input_ranges_max</b> refers to your high-stress heartrate. <b>%input_ranges_offset</b> refers to a flat value that can be added or subtracted to your real heartrate value. If you feel self-conscious about your heartrate, consider applying an %input_ranges_offset!
+input_ranges_tooltip,"Input your expected range of heartrates here. <b>%input_ranges_min</b> refers to your low-stress heartrate, while <b>%input_ranges_max</b> refers to your high-stress heartrate.
+
+<b>%input_ranges_offset</b> refers to a flat value that can be added or subtracted to your real heartrate value. If you feel self-conscious about your heartrate, consider applying an %input_ranges_offset!
 
 The values of the various <b>%button_tab_outputs</b> will be scaled based on where your current heartrate lands along this range.","こちらに期待される心拍数の範囲を入力してください。<b>%input_ranges_min</b> は最低心拍数、<b>%input_ranges_max</b> は最大心拍数です。 
 
