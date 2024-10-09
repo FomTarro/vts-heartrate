@@ -40,6 +40,8 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
         * [Automatic Hotkey Triggering](#automatic-hotkey-triggering)
         * [Custom Tracking Parameters](#custom-tracking-parameters)
         * [Live2D Items](#live2d-items)
+        * [VFX Configs](#vfx-configs)
+        * [Stream Widget](#stream-widget)
     * [Profiles](#profiles)
 * [API](#api)
     * [Data API](#data-api)
@@ -108,6 +110,9 @@ Please note that this plugin is not an officially licensed or certified affiliat
 Once you have a HypeRate account, you can use this input method to collect heartrate data from the service.
 
 ### Fitbit
+
+**⚠ IMPORTANT! ⚠**: As of October 2023, [Pulsoid](#pulsoid) now natively supports Fitbit devices through their app! As such, it is **highly recommended** to use the **'Pulsoid'** input method for this plugin, and connect your Fitbit device through that.
+
 [<b>Fitbit</b>](https://www.fitbit.com) is wearable fitness device brand, with an app for Android/iOS.
 
 In order to use your Fitbit with vts-heartrate, you will need to download a special companion app onto the Fitbit device itself. 
@@ -188,6 +193,30 @@ There are several <b>Live2D Item assets</b> available which are <b>already confi
 These packs include things such as sweat drips, EKG monitors, steamy breath puffs and more.
 
 Of course, if you're up the the task, you can also <b>make your own Live2D Items</b> using these custom parameters, as well. You can find the complete guide to making Live2D Items in the [VTube Studio Manual](https://github.com/DenchiSoft/VTubeStudio/wiki/Live2D-Items).
+
+### VFX Configs
+
+VTube Studio offers a ton of cool [<b>post-processing rendering effects</b>](https://github.com/DenchiSoft/VTubeStudio/wiki/Visual-Effects), called "visual effects" or "<b>VFX</b>" for short.
+
+You can make the intensity of these effects scale with your heartrate using <b>Custom Tracking Parameters</b>! Simply <b>select the desired tracking parameter</b> that you want to use to <b>control a given config value</b> of the effect. You can then additionally <b>modify the config value</b> using the slider to <b>increase</b> or <b>decrease</b> its maximum intensity.
+
+There is a <b>lot of customizability</b> with this feature, so it is recommended that you <b>play around with different values</b> and see how they look.
+
+For example, the configuration in the provided image will cause the `analog_glitch` effect to have a pulsating intensity driven by the `VTS_Heartrate_Pulse` parameter, which is then multiplied by `0.50` to dampen the minimum and maximum strength of the overall effect. It will also cause the `scanline_jitter` aspect of the effect to have an intensity driven by `VTS_Heartrate_Linear` parameter, multiplied by `0.65` for the same reason. 
+
+In this way, you can enjoy having dynamic VFX that scale with your heartrate, while still being able to limit how intense they get, even at your highest heartrate values.
+
+![VFX Config example](img/vfx_config.png)
+
+### Stream Widget
+
+You can use the <b>Stream Widget</b> as a Browser Source in OBS, or as a Web Item in VTube Studio. It prints your heartrate in real time, and the backing image does a pulsing animation at the corresponding speed.
+
+The widget will automatically attempt to connect to vts-heartrate when it loads, so if you open the widget before launching vts-heartrate, simply refresh the widget to connect.
+
+You can get the URL for the widget from a button within vts-heartrate.
+
+![Stream Widget](img/widget.gif)
 
 ## Profiles
 As of version 1.2.0, vts-heartrate supports <b>profiles</b>.

@@ -292,7 +292,7 @@ param_vts_heartrate_bpm_generic,"A value from 0 to 9 that represents the ones, t
 param_vts_heartrate_bpm_ones,"A value from 0 to 9 that represents the first digit of the current BPM. For example, with a heartrate of 95, this parameter would be 5.",
 param_vts_heartrate_bpm_tens,"A value from 0 to 9 that represents the second digit of the current BPM. For example, with a heartrate of 95, this parameter would be 9.",
 param_vts_heartrate_bpm_hundreds,"A value from 0 to 9 that represents the third digit of the current BPM. For example, with a heartrate of 95, this parameter would be 0.",
-param_vts_heartrate_repeat_generic,"A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every fixed number of heartbrats, denoted by the number at the end of the parameter name.",
+param_vts_heartrate_repeat_generic,"A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every fixed number of heartbeats, denoted by the number at the end of the parameter name.",
 param_vts_heartrate_repeat_1,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every heartbeat.,
 param_vts_heartrate_repeat_5,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 5 heartbeats.,
 param_vts_heartrate_repeat_10,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 10 heartbeats.,
