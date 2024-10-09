@@ -121,6 +121,7 @@ public class VFXModule : MonoBehaviour
         {
             // if we can find the UUID, we clear our "pending" variable
             // and just set the correct option
+            Reset();
             this._dropdown.SetValueWithoutNotify(index);
             this._waitingOnID = -1;
         }

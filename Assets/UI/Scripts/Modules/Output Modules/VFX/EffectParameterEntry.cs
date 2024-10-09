@@ -27,14 +27,14 @@ public class EffectParameterEntry : MonoBehaviour
     private TMP_Text _calculatedValueDisplay = null;
     public float Modifier
     {
-        get { return this._slider.value * Range; }
+        get { return MathUtils.Normalize(this._slider.value, -1f, 1f, Min, Max); }
     }
     public float Param
     {
         get
         {
             float param = HeartrateManager.Instance.Plugin.ParameterMap.ContainsKey(SelectedParameter) ? HeartrateManager.Instance.Plugin.ParameterMap[SelectedParameter] : 0;
-            return MathUtils.Normalize(param, 0, 1, this._min, this._max);
+            return param;
         }
     }
 
@@ -51,7 +51,7 @@ public class EffectParameterEntry : MonoBehaviour
     public float Max { get { return this._max; } }
 
     public float Range { get { return this._max - this._min; } }
-    public float Value { get { return Mathf.Max(Min, Mathf.Min(Max, this.Param + this.Modifier)); } }
+    public float Value { get { return Mathf.Max(Min, Mathf.Min(Max, this.Param * this.Modifier)); } }
 
     public void Initialize(Effects parentEffect, PostProcessingEffectConfig config)
     {
@@ -72,9 +72,15 @@ public class EffectParameterEntry : MonoBehaviour
         this._slider.value = 0;
         OnValueChange(0);
     }
+
+    private void Update()
+    {
+        UpdateDisplay();
+    }
+
     public void UpdateDisplay()
     {
-        this._sliderValueDisplay.text = string.Format("{0:0.00}", Modifier) + " +";
+        this._sliderValueDisplay.text = string.Format("{0:0.00}", Modifier) + " ×";
         this._calculatedValueDisplay.text = "= " + string.Format("{0:0.00}", Value);
     }
 
