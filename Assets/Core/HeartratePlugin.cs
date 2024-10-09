@@ -13,6 +13,7 @@ public class HeartratePlugin : UnityVTSPlugin
 	public int HeartRate { get { return Math.Max(0, this._heartRate); } }
 	private int _maxRate = 100;
 	private int _minRate = 70;
+	private int _offset = 0;
 	private ShiftingAverage _average = new ShiftingAverage(30);
 
 	private PostProcessingEffect[] _vfxList = new PostProcessingEffect[0];
@@ -144,6 +145,11 @@ public class HeartratePlugin : UnityVTSPlugin
 	{
 		SaveDataManager.Instance.WriteGlobalSaveData(ToGlobalSaveData());
 		SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
+		// we do this AFTER saving
+		foreach (VFXModule vfx in this._vfxModules)
+		{
+			vfx.Reset();
+		}
 	}
 
 	public void Connect()
@@ -251,6 +257,11 @@ public class HeartratePlugin : UnityVTSPlugin
 		this._maxRate = Mathf.Clamp(0, rate, 255);
 	}
 
+	public void SetOffset(int rate)
+	{
+		this._offset = Mathf.Clamp(-255, rate, 255);
+	}
+
 	public void SetActiveHeartrateInput(HeartrateInputModule module)
 	{
 		this.Logger.Log("Activating Input module: " + module);
@@ -270,7 +281,7 @@ public class HeartratePlugin : UnityVTSPlugin
 	{
 		int priorHeartrate = this._heartRate;
 		this._average.AddValue(this._activeModule != null ? this._activeModule.GetHeartrate() : 0);
-		this._heartRate = Mathf.RoundToInt(this._average.Average);
+		this._heartRate = Mathf.Max(0, Mathf.RoundToInt(this._average.Average) + this._offset);
 		float numerator = Math.Max(0, (float)(this._heartRate - this._minRate));
 		float denominator = Math.Max(1, (float)(this._maxRate - this._minRate));
 		float interpolation = Mathf.Clamp01(numerator / denominator);
@@ -733,6 +744,7 @@ public class HeartratePlugin : UnityVTSPlugin
 		data.version = Application.version;
 		data.maxRate = this._maxRate;
 		data.minRate = this._minRate;
+		data.offset = this._offset;
 		data.activeInput = this._activeModule.Type;
 		foreach (HeartrateInputModule module in this._heartrateInputs)
 		{
@@ -777,6 +789,8 @@ public class HeartratePlugin : UnityVTSPlugin
 		this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
 		this._minRate = Mathf.Clamp(data.minRate, 0, 255);
 		this._heartrateRanges.SetMinRate(this._minRate.ToString());
+		this._offset = Mathf.Clamp(data.offset, -255, 255);
+		this._heartrateRanges.SetOffset(this._offset.ToString());
 		// Default to SLIDER if we can't find the provided input type
 		HeartrateInputModule activeModule = this._heartrateInputs.Find(x => x.Type == data.activeInput);
 		activeModule = activeModule != null ? activeModule : this._heartrateInputs.Find((x => x.Type == HeartrateInputModule.InputType.SLIDER));
@@ -866,6 +880,7 @@ public class HeartratePlugin : UnityVTSPlugin
 		public string version;
 		public int minRate = 0;
 		public int maxRate = 0;
+		public int offset = 0;
 		public HeartrateInputModule.InputType activeInput = HeartrateInputModule.InputType.SLIDER;
 		public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>();
 		public Localization.SupportedLanguage language;

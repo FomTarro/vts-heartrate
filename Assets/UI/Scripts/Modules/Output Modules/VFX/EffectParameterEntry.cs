@@ -23,15 +23,36 @@ public class EffectParameterEntry : MonoBehaviour
     private Slider _slider = null;
     [SerializeField]
     private TMP_Text _sliderValueDisplay = null;
+    [SerializeField]
+    private TMP_Text _calculatedValueDisplay = null;
     public float Modifier
     {
-        get { return this._slider.value; }
+        get { return this._slider.value * Range; }
+    }
+    public float Param
+    {
+        get
+        {
+            float param = HeartrateManager.Instance.Plugin.ParameterMap.ContainsKey(SelectedParameter) ? HeartrateManager.Instance.Plugin.ParameterMap[SelectedParameter] : 0;
+            return MathUtils.Normalize(param, 0, 1, this._min, this._max);
+        }
     }
 
     private bool loaded = false;
 
     public EffectConfigs Effect { get; private set; }
     public Effects ParentEffect { get; private set; }
+
+    [SerializeField]
+    private float _min = 0;
+    public float Min { get { return this._min; } }
+    [SerializeField]
+    private float _max = 1;
+    public float Max { get { return this._max; } }
+
+    public float Range { get { return this._max - this._min; } }
+    public float Value { get { return Mathf.Max(Min, Mathf.Min(Max, this.Param + this.Modifier)); } }
+
     public void Initialize(Effects parentEffect, PostProcessingEffectConfig config)
     {
         if (!loaded)
@@ -41,6 +62,8 @@ public class EffectParameterEntry : MonoBehaviour
         this.Effect = config.enumID;
         this.ParentEffect = parentEffect;
         this._effectName.text = config.internalID;
+        this._min = config.floatMin;
+        this._max = config.floatMax;
     }
 
     public void Reset()
@@ -48,14 +71,24 @@ public class EffectParameterEntry : MonoBehaviour
         this._dropdown.SetValueWithoutNotify(0);
         this._slider.value = 0;
         OnValueChange(0);
-        UIManager.Instance.HidePopUp();
+    }
+    public void UpdateDisplay()
+    {
+        this._sliderValueDisplay.text = string.Format("{0:0.00}", Modifier) + " +";
+        this._calculatedValueDisplay.text = "= " + string.Format("{0:0.00}", Value);
     }
 
     private void OnValueChange(float value)
     {
-        this._sliderValueDisplay.text = string.Format("{0:0.00}", value) + " +";
+        UpdateDisplay();
     }
 
+    private void OnDropdownChange(int index)
+    {
+        this._slider.value = 0;
+        OnValueChange(0);
+        UpdateDisplay();
+    }
     [Serializable]
     public class SaveData
     {
@@ -89,6 +122,7 @@ public class EffectParameterEntry : MonoBehaviour
         }
         this._dropdown.AddOptions(opts);
         this._dropdown.SetValueWithoutNotify(this._dropdown.options.FindIndex(opt => opt.text.Equals(data.drivingParameter)));
+        this._dropdown.onValueChanged.AddListener(OnDropdownChange);
         this._slider.value = data.modifier;
         this._slider.onValueChanged.AddListener(OnValueChange);
         OnValueChange(data.modifier);

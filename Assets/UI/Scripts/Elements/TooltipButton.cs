@@ -145,6 +145,12 @@ public class TooltipButton : MonoBehaviour
                         () => { Application.OpenURL("https://github.com/DenchiSoft/VTubeStudio/wiki/Visual-Effects"); })
                 );
                 break;
+            case Tooltips.OUTPUT_WIDGET:
+                UIManager.Instance.ShowPopUp(
+                    "output_stream_widget_title",
+                    "output_stream_widget_tooltip"
+                );
+                break;
             case Tooltips.SETTINGS_API:
                 UIManager.Instance.ShowPopUp(
                     "settings_api_server_title",
@@ -181,6 +187,7 @@ public class TooltipButton : MonoBehaviour
         OUTPUT_HOTKEY = 205,
         OUTPUT_PROFILE = 206,
         OUTPUT_VFX = 207,
+        OUTPUT_WIDGET = 208,
 
         SETTINGS_API = 301,
     }

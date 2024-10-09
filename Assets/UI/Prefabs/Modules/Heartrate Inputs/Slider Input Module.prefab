@@ -171,6 +171,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2805666901923603297}
     m_Modifications:
+    - target: {fileID: 1150793698318212355, guid: 2f6070870fb2f3e42ac23de317b38f81,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1361413499987099151, guid: 2f6070870fb2f3e42ac23de317b38f81,
         type: 3}
       propertyPath: m_Pivot.x
@@ -276,10 +281,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2399050026535773527, guid: 2f6070870fb2f3e42ac23de317b38f81,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3783888571487351880, guid: 2f6070870fb2f3e42ac23de317b38f81,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476287377025317379, guid: 2f6070870fb2f3e42ac23de317b38f81,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5100298499677393633, guid: 2f6070870fb2f3e42ac23de317b38f81,
         type: 3}
       propertyPath: m_Name
       value: Slider
+      objectReference: {fileID: 0}
+    - target: {fileID: 7446088183456008402, guid: 2f6070870fb2f3e42ac23de317b38f81,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f6070870fb2f3e42ac23de317b38f81, type: 3}

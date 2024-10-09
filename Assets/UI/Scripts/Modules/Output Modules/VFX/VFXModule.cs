@@ -41,12 +41,28 @@ public class VFXModule : MonoBehaviour
 
     public void Delete()
     {
+        Reset();
         HeartrateManager.Instance.Plugin.DestroyVFXModule(this);
+    }
+
+    public void Reset()
+    {
+        VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
+        options.setPostProcessingValues = true;
+        List<PostProcessingValue> values = new List<PostProcessingValue>();
+        foreach (EffectParameterEntry item in this._effectParameterList)
+        {
+            if (item.gameObject.activeSelf)
+            {
+                values.Add(new PostProcessingValue(item.Effect, 0));
+                item.Reset();
+            }
+        }
+        HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
     }
 
     public void ResetAllEffects()
     {
-
         UIManager.Instance.ShowPopUp(
             "output_vfx_reset_button",
             "output_vfx_reset_warning",
@@ -55,19 +71,7 @@ public class VFXModule : MonoBehaviour
                 ColorUtils.ColorPreset.RED,
                 () =>
                 {
-                    VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
-                    options.setPostProcessingValues = true;
-                    options.postProcessingOn = true;
-                    List<PostProcessingValue> values = new List<PostProcessingValue>();
-                    foreach (EffectParameterEntry item in this._effectParameterList)
-                    {
-                        if (item.gameObject.activeSelf)
-                        {
-                            values.Add(new PostProcessingValue(item.Effect, 0));
-                            item.Reset();
-                        }
-                    }
-                    HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
+                    Reset();
                     UIManager.Instance.HidePopUp();
                 }
             ),
@@ -89,9 +93,11 @@ public class VFXModule : MonoBehaviour
             List<PostProcessingValue> values = new List<PostProcessingValue>();
             foreach (EffectParameterEntry item in this._effectParameterList)
             {
-                if (item.gameObject.activeSelf && HeartrateManager.Instance.Plugin.ParameterMap.ContainsKey(item.SelectedParameter))
+                if (item.gameObject.activeSelf)
                 {
-                    values.Add(new PostProcessingValue(item.Effect, HeartrateManager.Instance.Plugin.ParameterMap[item.SelectedParameter] + item.Modifier));
+                    // float mapped = MathUtils.Normalize(combined, -1, 2)
+                    values.Add(new PostProcessingValue(item.Effect, item.Value));
+                    item.UpdateDisplay();
                 }
             }
             HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
@@ -100,7 +106,7 @@ public class VFXModule : MonoBehaviour
 
     private void OnEffectSelectionChanged(Effects effectID)
     {
-        // try to find the index in the list of the hotkey with the given UUID
+        // try to find the index in the list of the effect with the given UUID
         int index =
             (int)effectID == -1
             ? -1
