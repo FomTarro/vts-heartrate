@@ -85,11 +85,14 @@ input_select_title,Select an Input Method,入力方式を選択
 input_ranges_title,Expected Heartrate Ranges,心拍数の期待範囲
 input_ranges_tooltip,"Input your expected range of heartrates here. <b>%input_ranges_min</b> refers to your low-stress heartrate, while <b>%input_ranges_max</b> refers to your high-stress heartrate.
 
+<b>%input_ranges_offset</b> refers to a flat value that can be added or subtracted to your real heartrate value. If you feel self-conscious about your heartrate, consider applying an %input_ranges_offset!
+
 The values of the various <b>%button_tab_outputs</b> will be scaled based on where your current heartrate lands along this range.","こちらに期待される心拍数の範囲を入力してください。<b>%input_ranges_min</b> は最低心拍数、<b>%input_ranges_max</b> は最大心拍数です。 
 
 各出力値 <b>%button_tab_outputs</b> は、現在の心拍数が入力した心拍数の範囲内のどこに位置するかによってスケーリングされます。"
 input_ranges_min,Resting,安静時
 input_ranges_max,Maximum,最大
+input_ranges_offset,Offset,
 input_slider_title,Test Slider,テストスライダー
 input_slider_tooltip,"Use the slider for quick testing of different heartrate values.
 The slider range is from 0 to 255.","テストスライダーで異なる心拍数の入力値を簡易テストできます。
@@ -185,9 +188,24 @@ fitbit_ionic,Ionic,Ionic
 fitbit_versa_2,Versa 2,Versa 2
 fitbit_versa_lite,Versa Lite,Versa Lite
 fitbit_versa,Versa,Versa
+input_fitbit_retiring_title,Consider Using Pulsoid!,
+input_fitbit_retiring_tooltip,"As of October 2023, Pulsoid now natively supports Fitbit devices through their app! 
+
+As such, it is <b>highly recommended</b> to use the <b>'Pulsoid'</b> input method for this plugin, and connect your Fitbit device through that.
+
+For legacy purposes, this plugin will continue to feature its own semi-convoluted Fitbit integration for now. However, this input method will no longer recieve updates, and may be removed entirely in the future.
+
+For more information, check out the blog post below. ",
+input_fitbit_retiring_button_visit,Read the Blog Post,
 ,,
 output_create_title,Create New Output Module,
 output_create_tooltip,Which type of output module do you want to create?,
+,,
+output_stream_widget_title,Stream Widget,
+output_stream_widget_tooltip,"You can use the <b>%output_stream_widget_title</b> as a Browser Source in OBS, or as a Web Item in VTube Studio. It prints your heartrate in real time, and the backing image does a pulsing animation at the corresponding speed.
+
+The widget will automatically attempt to connect to vts-heartrate when it loads, so if you open the widget before launching vts-heartrate, simply refresh the widget to connect.",
+output_stream_widget_button,Get Stream Widget,
 ,,
 output_artmesh_title,Art Mesh Tint,アートメッシュの色付け
 output_artmesh_new,Create %output_artmesh_title,%output_artmesh_title を新規作成
@@ -232,7 +250,17 @@ output_hotkey_behavior_ab,"%output_hotkey_behavior_a, %output_hotkey_behavior_b"
 output_hotkey_behavior_a,Trigger above,閾値以上になると動作
 output_hotkey_behavior_b,Trigger below,閾値以下になると動作
 ,,
-output_custom_params_title,Custom Parameters,カスタムパラメータ
+output_vfx_title,VFX Config,
+output_vfx_tooltip,"VTube Studio offers a ton of cool <b>post-processing rendering effects</b>, called ""visual effects"" or ""<b>VFX</b>"" for short.
+
+You can make the intensity of these effects scale with your heartrate using <b>%output_custom_params_title</b>! Simply <b>select the desired tracking parameter</b> that you want to use to <b>control a given config value</b> of the effect. You can then additionally <b>modify the config value</b> using the slider to <b>increase</b> or <b>decrease</b> its maximum intensity.
+
+There is a <b>lot of customizability</b> with this feature, so it is recommended that you <b>play around with different values</b> and see how they look by using the %input_slider_title input method to try out a range of heartrates.",
+output_vfx_tooltip_button,Learn more about VFX,
+output_vfx_reset_button,Reset All Config Values,
+output_vfx_reset_warning,Are you sure you want to reset all configured parameters for this effect? This will set all parameters to 0.0.,
+,,
+output_custom_params_title,Custom Tracking Parameters,カスタムパラメータ
 output_custom_params_tooltip,"This plugin outputs <b>15</b> custom tracking parameters for use. They are as follows:
 
 <b>VTS_Heartrate_Linear</b>: %param_vts_heartrate_linear
@@ -264,7 +292,7 @@ param_vts_heartrate_bpm_generic,"A value from 0 to 9 that represents the ones, t
 param_vts_heartrate_bpm_ones,"A value from 0 to 9 that represents the first digit of the current BPM. For example, with a heartrate of 95, this parameter would be 5.",
 param_vts_heartrate_bpm_tens,"A value from 0 to 9 that represents the second digit of the current BPM. For example, with a heartrate of 95, this parameter would be 9.",
 param_vts_heartrate_bpm_hundreds,"A value from 0 to 9 that represents the third digit of the current BPM. For example, with a heartrate of 95, this parameter would be 0.",
-param_vts_heartrate_repeat_generic,"A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every fixed number of heartbrats, denoted by the number at the end of the parameter name.",
+param_vts_heartrate_repeat_generic,"A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every fixed number of heartbeats, denoted by the number at the end of the parameter name.",
 param_vts_heartrate_repeat_1,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every heartbeat.,
 param_vts_heartrate_repeat_5,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 5 heartbeats.,
 param_vts_heartrate_repeat_10,A value that scales linearly from 0.0 to 1.0 and resets back to 0.0 with every 10 heartbeats.,

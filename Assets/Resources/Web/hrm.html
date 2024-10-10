@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #display {
+            font-family: monospace;
+            font-size: 30em;
+            color: white;
+            text-align: center;
+            padding-top: 1rem;
+            filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.45));
+        }
+
+        #pulse {
+            top: -6rem;
+            position: absolute;
+            font-size: 30em;
+            z-index: -1;
+            overflow: hidden;
+            filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.45));
+        }
+    </style>
+    <head></head>
+    <body>
+        <meta charset="utf-8">
+        <div class="container">
+            <span id="display">100</span>
+            <span id="pulse">💗</span>
+        </div>
+    </body>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const offset = urlParams.get('offset') ? +urlParams.get('offset') : 0;
+        const dataWS = new WebSocket('ws://localhost:8214/data');
+        dataWS.onmessage = (e) => {
+            const parsed = JSON.parse(e.data);
+            const adjustedHr = (+parsed.data.heartrate) + offset;
+            document.getElementById("display").innerHTML = adjustedHr;
+            const mappedScale = 0.75 + ((parsed.data.parameters.vts_heartrate_pulse)/3.0)
+            document.getElementById("pulse").style.transform = `scale(${mappedScale})`;
+        }
+    </script>
+</html>

@@ -16,15 +16,14 @@ public class ExpressionModule : MonoBehaviour
 	// Because the dropdown is populated by an async method, 
 	// we load the expression that should be selected from a profile load into this buffer
 	// until the async method resolves.
-	private string _waitingOn = null;
-	public string SelectedExpression
+	private string _waitingOnFile = null;
+	private string SelectedExpression
 	{
 		get
 		{
-			return this._waitingOn == null ?
-			(this._dropdown.value < this._expressions.Count ?
-				this._expressions[this._dropdown.value].file : null) :
-			this._waitingOn;
+			return this._waitingOnFile != null ?
+			this._waitingOnFile :
+			GetDataFromDropdownSelection().file;
 		}
 	}
 
@@ -34,8 +33,6 @@ public class ExpressionModule : MonoBehaviour
 	private TriggerBehavior _priorBehavior = TriggerBehavior.ACTIVATE_ABOVE_DEACTIVATE_BELOW;
 	[SerializeField]
 	private TMP_Text _minimizedSummary = null;
-
-	private List<ExpressionData> _expressions = new List<ExpressionData>();
 
 	public void Clone()
 	{
@@ -129,7 +126,7 @@ public class ExpressionModule : MonoBehaviour
 					(s) => { },
 					(e) =>
 					{
-						Debug.LogError(string.Format("Error while setting expression {0} in VTube Studio: {1} - {2}",
+						Debug.LogError(string.Format("Error while setting expression [{0}] in VTube Studio: {1} - {2}",
 							this.SelectedExpression, e.data.errorID, e.data.message));
 					});
 				}
@@ -142,65 +139,68 @@ public class ExpressionModule : MonoBehaviour
 		this._priorBehavior = this.Behavior;
 	}
 
-	private int ExpressionToIndex(string expressionFile)
+	private void OnExpressionSelectionChanged(string expressionFile)
 	{
-		return expressionFile == null
+		// try to find the index in the list of the expression with the given file name
+		int index =
+			expressionFile == null
 			? -1
-			: this._dropdown.options.FindIndex((o) => { return o.text.Contains(expressionFile); });
-	}
-
-	private void SetExpression(string expressionFile)
-	{
-		int index = ExpressionToIndex(expressionFile);
-		// index will only be -1 if the desired item is not in the list
+			: this._dropdown.options.FindIndex((o) => { return ((ExpressionDropdownOption)o).Data.file.Equals(expressionFile); });
 		if (index < 0)
 		{
-			this._waitingOn = expressionFile;
+			// if we can't find that file, we store it in a "pending" variable
+			// Which we will check every time new options get loaded in
+			this._waitingOnFile = expressionFile;
 		}
 		else if (this._dropdown.options.Count > 0 && this._dropdown.options.Count > index)
 		{
+			// if we can find the file, we clear our "pending" variable
+			// and just set the correct option
 			this._dropdown.SetValueWithoutNotify(index);
-			// finally found what we were waiting for
-			this._waitingOn = null;
+			this._waitingOnFile = null;
 		}
 		this._minimizedSummary.text = string.Format("({0})", GetMinimizedText());
 	}
 
 	private string GetMinimizedText()
 	{
-		if (this.SelectedExpression != null && this.SelectedExpression.Length > 0)
+		string name = GetDataFromDropdownSelection().file != null
+		? string.Format("{0}", GetDataFromDropdownSelection().name)
+		: "NO EXPRESSION SET";
+		if (name.Length > 48)
 		{
-			return this.SelectedExpression.Length > 48
-			? string.Format("{0}...", this.SelectedExpression.Substring(0, 45))
-			: this.SelectedExpression;
+			return string.Format("{0}...", name.Substring(0, 45));
 		}
 		else
 		{
-			return "NO EXPRESSION SET";
+			return name;
 		}
 	}
 
-	// TODO: consolidate this behavior into RefreshableDropdown
+	// TODO: this might actually be better than RefreshableDropdown
+	// no longer as brittle with string-matching
 	public void RefreshExpressionList()
 	{
-		int currentIndex = this._dropdown.value;
-		string expressionFile = this._dropdown.options.Count > 0 ? this._dropdown.options[currentIndex].text : null;
+		ExpressionData currentSelection = GetDataFromDropdownSelection();
 		this._dropdown.ClearOptions();
-		this._expressions = HeartrateManager.Instance.Plugin.GetExpressionsForModelID(ProfileManager.Instance.CurrentProfile.modelID);
-		List<string> expressionNames = new List<string>();
-		foreach (ExpressionData data in this._expressions)
+		List<ExpressionData> expressions = HeartrateManager.Instance.Plugin.GetExpressionsForModelID(ProfileManager.Instance.CurrentProfile.modelID);
+		List<TMP_Dropdown.OptionData> expressionNames = new List<TMP_Dropdown.OptionData>();
+		foreach (ExpressionData data in expressions)
 		{
-			expressionNames.Add(data.file);
+			ExpressionDropdownOption opt = new ExpressionDropdownOption();
+			opt.text = string.Format("{0}", data.name);
+			opt.Data = data;
+			expressionNames.Add(opt);
 		}
 		this._dropdown.AddOptions(expressionNames);
 		this._dropdown.RefreshShownValue();
-		if (this._waitingOn != null)
+		if (this._waitingOnFile != null)
 		{
-			SetExpression(this._waitingOn);
+			OnExpressionSelectionChanged(this._waitingOnFile);
 		}
 		else
 		{
-			SetExpression(expressionFile);
+			OnExpressionSelectionChanged(currentSelection.file);
 		}
 	}
 
@@ -209,6 +209,16 @@ public class ExpressionModule : MonoBehaviour
 		this._thresholdVal = Mathf.Clamp(MathUtils.StringToInt(value), 0, 255);
 		this._threshold.text = this._thresholdVal.ToString();
 	}
+
+	private ExpressionData GetDataFromDropdownSelection()
+	{
+		return this._dropdown.options.Count > 0 && this._dropdown.value >= 0
+		? ((ExpressionDropdownOption)this._dropdown.options[this._dropdown.value]).Data
+		: new ExpressionData();
+	}
+
+	// Extension class to strap arbitrary data onto a Unity Dropdown option
+	public class ExpressionDropdownOption : ExtendedDropdownOption<ExpressionData> { }
 
 
 	[System.Serializable]
@@ -241,7 +251,12 @@ public class ExpressionModule : MonoBehaviour
 		this._thresholdVal = Mathf.Clamp(data.threshold, 0, 255);
 		this._threshold.onEndEdit.AddListener(OnEditThreshold);
 		this._behavior.SetValueWithoutNotify((int)data.behavior);
-		SetExpression(data.expressionFile);
+		this._dropdown.onValueChanged.AddListener((i) =>
+		{
+			OnExpressionSelectionChanged(((ExpressionDropdownOption)this._dropdown.options[i]).Data.file);
+		});
+		OnExpressionSelectionChanged(data.expressionFile);
+		RefreshExpressionList();
 	}
 
 	public enum TriggerBehavior : int

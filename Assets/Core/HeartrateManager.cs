@@ -1,24 +1,28 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class HeartrateManager : Singleton<HeartrateManager> {
+public class HeartrateManager : Singleton<HeartrateManager>
+{
 	[SerializeField]
 	private HeartratePlugin _plugin = null;
 	public HeartratePlugin Plugin { get { return this._plugin; } }
 
 	private const string VERSION_URL = @"https://www.skeletom.net/vts-heartrate/version";
 
-	public override void Initialize() {
+	public override void Initialize()
+	{
 		Application.targetFrameRate = 30;
 		this.Plugin.OnLaunch();
 		CheckVersion();
 	}
 
 	#region Version
-	private void CheckVersion() {
+	private void CheckVersion()
+	{
 		StartCoroutine(HttpUtils.GetRequest(
 			VERSION_URL,
-			(e) => {
+			(e) =>
+			{
 				Debug.LogError(e.message);
 				Dictionary<string, string> strings = new Dictionary<string, string>();
 				strings.Add("error_cannot_resolve_tooltip_populated",
@@ -37,10 +41,12 @@ public class HeartrateManager : Singleton<HeartrateManager> {
 							() => { Application.OpenURL("mailto:tom@skeletom.net"); })
 				);
 			},
-			(s) => {
+			(s) =>
+			{
 				VersionUtils.VersionInfo info = JsonUtility.FromJson<VersionUtils.VersionInfo>(s);
 				Debug.Log(VersionUtils.CompareVersion(info) ? "Newer version needed: " + info.url : "Up to date.");
-				if (VersionUtils.CompareVersion(info)) {
+				if (VersionUtils.CompareVersion(info))
+				{
 					Dictionary<string, string> strings = new Dictionary<string, string>();
 					strings.Add("settings_new_version_body_populated",
 						string.Format(Localization.LocalizationManager.Instance.GetString("settings_new_version_body"),

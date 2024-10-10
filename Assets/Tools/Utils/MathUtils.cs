@@ -1,16 +1,20 @@
 ﻿using System;
 
-public static class MathUtils {
+public static class MathUtils
+{
 	/// <summary>
 	/// Attempts to convert a string into a byte. Returns 0 if unable to convert.
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	public static byte StringToByte(string value) {
-		try {
+	public static byte StringToByte(string value)
+	{
+		try
+		{
 			return Convert.ToByte(value);
 		}
-		catch {
+		catch
+		{
 			return 0;
 		}
 	}
@@ -20,11 +24,14 @@ public static class MathUtils {
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	public static int StringToInt(string value) {
-		try {
+	public static int StringToInt(string value)
+	{
+		try
+		{
 			return Convert.ToInt32(value);
 		}
-		catch {
+		catch
+		{
 			return 0;
 		}
 	}
@@ -38,9 +45,10 @@ public static class MathUtils {
 	/// <param name="min">The minimum of the output range</param>
 	/// <param name="max">The maximum of the output range</param>
 	/// <returns></returns>
-	public static float Normalize(float val, float valmin, float valmax, float min, float max) {
+	public static float Normalize(float val, float valmin, float valmax, float min, float max)
+	{
 		float numerator = ((val - valmin) / (valmax - valmin));
 		numerator = Double.IsNaN(numerator) ? 0f : numerator;
-		return numerator == 0f? 0f : (numerator * (max - min)) + min;
+		return numerator == 0f ? min : (numerator * (max - min)) + min;
 	}
 }

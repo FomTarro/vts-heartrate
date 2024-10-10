@@ -13,7 +13,11 @@ public class HeartratePlugin : UnityVTSPlugin
 	public int HeartRate { get { return Math.Max(0, this._heartRate); } }
 	private int _maxRate = 100;
 	private int _minRate = 70;
+	private int _offset = 0;
 	private ShiftingAverage _average = new ShiftingAverage(30);
+
+	private PostProcessingEffect[] _vfxList = new PostProcessingEffect[0];
+	public List<PostProcessingEffect> VFXList { get { return new List<PostProcessingEffect>(_vfxList); } }
 
 	private const string PARAMETER_LINEAR = "VTS_Heartrate_Linear";
 	private const string PARAMETER_SINE_PULSE = "VTS_Heartrate_Pulse";
@@ -99,6 +103,13 @@ public class HeartratePlugin : UnityVTSPlugin
 	public List<HotkeyModule> HotkeyModules { get { return new List<HotkeyModule>(this._hotkeyModules); } }
 	private Dictionary<string, List<HotkeyData>> _hotkeysByModelID = new Dictionary<string, List<HotkeyData>>();
 
+	[Header("VFX")]
+	[SerializeField]
+	private VFXModule _vfxPrefab = null;
+
+	private List<VFXModule> _vfxModules = new List<VFXModule>();
+	public List<VFXModule> VFXModules { get { return new List<VFXModule>(this._vfxModules); } }
+
 	[Header("Input Modules")]
 	[SerializeField]
 	private List<HeartrateInputModule> _heartrateInputs = new List<HeartrateInputModule>();
@@ -124,16 +135,22 @@ public class HeartratePlugin : UnityVTSPlugin
 	{
 		this._heartrateInputs = new List<HeartrateInputModule>(FindObjectsOfType<HeartrateInputModule>());
 		this._heartrateInputs.Sort((a, b) => { return a.Type - b.Type; });
+		CreateAllParameters();
 		FromGlobalSaveData(SaveDataManager.Instance.ReadGlobalSaveData());
 		FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
-		CreateAllParameters();
 		Connect();
 	}
 
 	private void OnApplicationQuit()
 	{
+		Debug.Log("Quitting!");
 		SaveDataManager.Instance.WriteGlobalSaveData(ToGlobalSaveData());
 		SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
+		// we do this AFTER saving
+		foreach (VFXModule vfx in this._vfxModules)
+		{
+			vfx.Reset(false);
+		}
 	}
 
 	public void Connect()
@@ -147,23 +164,24 @@ public class HeartratePlugin : UnityVTSPlugin
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 				status.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
 				this._connectionStatus.SetStatus(status);
-				Debug.Log("Connected to VTube Studio!");
+				this.Logger.Log("Connected to VTube Studio!");
 				CreateAllParameters();
 				SubscribeToEvents();
+				GetVFXData();
 			},
 			() =>
 			{
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 				status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
 				this._connectionStatus.SetStatus(status);
-				Debug.Log("Disconnected from VTube Studio!");
+				this.Logger.Log("Disconnected from VTube Studio!");
 			},
 			(ex) =>
 			{
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
 				status.status = HttpUtils.ConnectionStatus.Status.ERROR;
 				this._connectionStatus.SetStatus(status);
-				Debug.LogError("Error connecting to VTube Studio!");
+				this.Logger.LogError("Error connecting to VTube Studio!");
 			});
 		HttpUtils.ConnectionStatus connect = new HttpUtils.ConnectionStatus();
 		connect.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
@@ -172,7 +190,7 @@ public class HeartratePlugin : UnityVTSPlugin
 
 	private void SubscribeToEvents()
 	{
-		Debug.Log("Scubscribing to VTube Studio Events...");
+		this.Logger.Log("Subscribing to VTube Studio Events...");
 		SubscribeToModelLoadedEvent(new VTSModelLoadedEventConfigOptions(),
 			(loadData) =>
 			{
@@ -181,7 +199,7 @@ public class HeartratePlugin : UnityVTSPlugin
 			(loadSuccess) =>
 			{
 				GetModelData();
-				Debug.Log("Subscribed to model load event.");
+				this.Logger.Log("Subscribed to model load event.");
 				SubscribeToModelConfigChangedEvent(
 					(configData) =>
 					{
@@ -192,8 +210,7 @@ public class HeartratePlugin : UnityVTSPlugin
 					},
 					(configSuccess) =>
 					{
-						Debug.Log("Subscribed to config change event.");
-						GetHotkeyData();
+						this.Logger.Log("Subscribed to config change event.");
 					},
 					(configError) =>
 					{
@@ -210,7 +227,7 @@ public class HeartratePlugin : UnityVTSPlugin
 
 	private void OnSubscriptionError(VTSErrorData data)
 	{
-		Debug.LogError(string.Format("Error subscribing to VTUbe Studio Events: {0}.", data.data.message));
+		this.Logger.LogError(string.Format("Error subscribing to VTUbe Studio Events: {0}.", data.data.message));
 		Dictionary<string, string> strings = new Dictionary<string, string>();
 		strings.Add("error_cannot_subscribe_tooltip_populated",
 			string.Format(Localization.LocalizationManager.Instance.GetString("error_cannot_subscribe_tooltip"),
@@ -241,9 +258,14 @@ public class HeartratePlugin : UnityVTSPlugin
 		this._maxRate = Mathf.Clamp(0, rate, 255);
 	}
 
+	public void SetOffset(int rate)
+	{
+		this._offset = Mathf.Clamp(-255, rate, 255);
+	}
+
 	public void SetActiveHeartrateInput(HeartrateInputModule module)
 	{
-		Debug.Log("Activating Input module: " + module);
+		this.Logger.Log("Activating Input module: " + module);
 		foreach (HeartrateInputModule m in this._heartrateInputs)
 		{
 			if (m.Type != module.Type)
@@ -260,22 +282,12 @@ public class HeartratePlugin : UnityVTSPlugin
 	{
 		int priorHeartrate = this._heartRate;
 		this._average.AddValue(this._activeModule != null ? this._activeModule.GetHeartrate() : 0);
-		this._heartRate = Mathf.RoundToInt(this._average.Average);
+		this._heartRate = Mathf.Max(0, Mathf.RoundToInt(this._average.Average) + this._offset);
 		float numerator = Math.Max(0, (float)(this._heartRate - this._minRate));
 		float denominator = Math.Max(1, (float)(this._maxRate - this._minRate));
 		float interpolation = Mathf.Clamp01(numerator / denominator);
 		// Data API message
 		DataMessage dataMessage = new DataMessage(this.HeartRate);
-
-		foreach (ExpressionModule module in this._expressionModules)
-		{
-			module.RefreshExpressionList();
-		}
-
-		foreach (HotkeyModule module in this._hotkeyModules)
-		{
-			module.RefreshHotkeyList();
-		}
 
 		// apply art mesh tints
 		foreach (ColorInputModule module in this._colors)
@@ -301,12 +313,10 @@ public class HeartratePlugin : UnityVTSPlugin
 
 		// calculate tracking parameters
 		float beatsPerSecond = ((float)this._heartRate) / 60f;
-		// float normalizedBeatsPerSecond = ((float)this._heartRate - this._minRate) / 60f;
 		float normalizedBeatsPerSecond = MathUtils.Normalize((float)this._heartRate, this._minRate, this._maxRate, 0, 1);
-		// Debug.Log(normalizedBeatsPerSecond);
 		this._linear.value = interpolation;
-
 		this._bpm.value = this._heartRate;
+
 		this._bpm_ones.value = this._heartRate < 1 ? -1 : this._heartRate % 10;
 		this._bpm_tens.value = this._heartRate < 10 ? -1 : (this._heartRate % 100) / 10;
 		this._bpm_hundreds.value = this._heartRate < 100 ? -1 : this._heartRate / 100;
@@ -328,19 +338,25 @@ public class HeartratePlugin : UnityVTSPlugin
 
 		if (this._paramValues.Count > 0 && this.IsAuthenticated)
 		{
-			this.InjectParameterValues(this._paramValues.ToArray(),
+			InjectParameterValues(this._paramValues.ToArray(),
 			(s) =>
 			{
 				InjectedParamValuesToDictionary(this._paramValues.ToArray());
 			},
 			(e) =>
 			{
-				Debug.LogError(e.data.message);
+				this.Logger.LogError(e.data.message);
 			});
 		}
 		else if (!this.IsAuthenticated)
 		{
 			InjectedParamValuesToDictionary(this._paramValues.ToArray());
+		}
+
+		// apply VFX Configs (after we calculate tracking params)
+		if (IsAuthenticated)
+		{
+			BatchVFXConfigs();
 		}
 
 		// set API data values
@@ -371,7 +387,7 @@ public class HeartratePlugin : UnityVTSPlugin
 
 	public void GetModelData()
 	{
-		Debug.Log("Querying for model data...");
+		this.Logger.Log("Querying for model data...");
 		GetCurrentModel(
 			(modelData) =>
 			{
@@ -384,7 +400,7 @@ public class HeartratePlugin : UnityVTSPlugin
 						modelData.data.modelID);
 					FromModelSaveData(SaveDataManager.Instance.ReadModelData(ProfileManager.Instance.CurrentProfile));
 					SaveDataManager.Instance.WriteModelSaveData(ToModelSaveData());
-					// If no model is loaded in VTS but we do have a model profile loaded here, revent to the NO_MODEL default profile
+					// If no model is loaded in VTS but we do have a model profile loaded here, revert to the NO_MODEL default profile
 				}
 				else if (!modelData.data.modelLoaded && ProfileManager.Instance.IsModelLoaded())
 				{
@@ -401,7 +417,7 @@ public class HeartratePlugin : UnityVTSPlugin
 			(modelError) =>
 			{
 				ProfileManager.Instance.CreateDefaultNoModelProfile();
-				Debug.LogError(string.Format("Error while querying Model Data from VTube Studio: {0} - {1}",
+				this.Logger.LogError(string.Format("Error while querying Model Data from VTube Studio: {0} - {1}",
 					modelError.data.errorID, modelError.data.message));
 			}
 		);
@@ -409,7 +425,7 @@ public class HeartratePlugin : UnityVTSPlugin
 
 	private void GetHotkeyData()
 	{
-		Debug.Log("Querying for Hotkey Data...");
+		this.Logger.Log("Querying for Hotkey Data...");
 		if (ProfileManager.Instance.IsModelLoaded())
 		{
 			GetHotkeysInCurrentModel(
@@ -426,28 +442,33 @@ public class HeartratePlugin : UnityVTSPlugin
 						{
 							this._hotkeysByModelID.Add(s.data.modelID, new List<HotkeyData>(s.data.availableHotkeys));
 						}
+						// repaint hotkey modules
+						foreach (HotkeyModule module in this._hotkeyModules)
+						{
+							module.RefreshHotkeyList();
+						}
 					}
-					catch (System.Exception e)
+					catch (Exception e)
 					{
-						Debug.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
+						this.Logger.LogError(string.Format("Error updating hotkeys: {0}", e.StackTrace));
 					}
 				},
 				(e) =>
 				{
-					Debug.LogError(string.Format("Error while querying Hotkey Data from VTube Studio: {0} - {1}",
+					this.Logger.LogError(string.Format("Error while querying Hotkey Data from VTube Studio: {0} - {1}",
 						e.data.errorID, e.data.message));
 				}
 			);
 		}
 		else
 		{
-			Debug.Log("No model loaded for hotkeys...");
+			this.Logger.Log("No model loaded for hotkeys...");
 		}
 	}
 
 	private void GetExpressionData()
 	{
-		Debug.Log("Querying for expression data...");
+		this.Logger.Log("Querying for expression data...");
 		if (ProfileManager.Instance.IsModelLoaded())
 		{
 			GetExpressionStateList(
@@ -463,23 +484,80 @@ public class HeartratePlugin : UnityVTSPlugin
 						{
 							this._expressionsByModelID.Add(expressionData.data.modelID, new List<ExpressionData>(expressionData.data.expressions));
 						}
+						foreach (ExpressionModule module in this._expressionModules)
+						{
+							// TODO: can we pass the expression dictionary in instead of making it accessible publicly?
+							module.RefreshExpressionList();
+						}
 					}
-					catch (System.Exception e)
+					catch (Exception e)
 					{
-						Debug.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
+						this.Logger.LogError(string.Format("Error updating expressions: {0}", e.StackTrace));
 					}
 				},
 				(expressionError) =>
 				{
-					Debug.LogError(string.Format("Error while querying Expression Data from VTube Studio: {0} - {1}",
+					this.Logger.LogError(string.Format("Error while querying Expression Data from VTube Studio: {0} - {1}",
 						expressionError.data.errorID, expressionError.data.message));
 				}
 			);
 		}
 		else
 		{
-			Debug.Log("No model loaded for expressions...");
+			this.Logger.Log("No model loaded for expressions...");
 		}
+	}
+
+	private void GetVFXData()
+	{
+		Effects[] effectFilter = new Effects[0];
+		GetPostProcessingEffectStateList(false, true, effectFilter,
+		(success) =>
+		{
+			this._vfxList = success.data.postProcessingEffects;
+			foreach (VFXModule module in this._vfxModules)
+			{
+				module.RefreshEffectList();
+			}
+		},
+		(error) =>
+		{
+			this.Logger.LogError(string.Format("Error while querying Expression Data from VTube Studio: {0} - {1}",
+			error.data.errorID, error.data.message));
+		});
+	}
+
+	private void BatchVFXConfigs()
+	{
+		// This is executed here instead of inside each module so that we can batch our request 
+		// and set every config parameter at once
+		VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
+		options.setPostProcessingValues = true;
+		options.postProcessingOn = true;
+		Dictionary<EffectConfigs, PostProcessingValue> values = new Dictionary<EffectConfigs, PostProcessingValue>();
+		foreach (VFXModule module in this._vfxModules)
+		{
+			foreach (PostProcessingValue value in module.EffectParameters)
+			{
+				if (!values.ContainsKey(value.configID))
+				{
+					values.Add(value.configID, value);
+				}
+				else if (float.Parse(values[value.configID].configValue) < float.Parse(value.configValue))
+				{
+					values[value.configID] = value;
+				}
+			}
+		}
+		PostProcessingValue[] array = new PostProcessingValue[values.Count];
+		values.Values.CopyTo(array, 0);
+		SetPostProcessingEffectValues(options, array,
+		(s) => { },
+		(e) =>
+		{
+			Debug.LogError(string.Format("Error while setting VFX Config in VTube Studio: {0} - {1}",
+				e.data.errorID, e.data.message));
+		});
 	}
 
 	#endregion
@@ -508,7 +586,6 @@ public class HeartratePlugin : UnityVTSPlugin
 
 	private void CreateNewParameter(string paramName, string paramDescriptionKey, int paramMax, VTSParameterInjectionValue value)
 	{
-
 		value.id = paramName;
 		value.value = 0;
 		value.weight = 1;
@@ -521,16 +598,16 @@ public class HeartratePlugin : UnityVTSPlugin
 			newParam.max = paramMax;
 			newParam.parameterName = paramName;
 			newParam.explanation = Localization.LocalizationManager.Instance.GetString(paramDescriptionKey);
-			Debug.Log(string.Format("Creating tracking parameter: {0}", paramName));
+			this.Logger.Log(string.Format("Creating tracking parameter: {0}", paramName));
 			this.AddCustomParameter(
 				newParam,
 				(s) =>
 				{
-					Debug.Log(string.Format("Successfully created parameter in VTube Studio: {0}", paramName));
+					this.Logger.Log(string.Format("Successfully created parameter in VTube Studio: {0}", paramName));
 				},
 				(e) =>
 				{
-					Debug.LogError(string.Format("Error while injecting Parameter Data {0} into VTube Studio: {1} - {2}",
+					this.Logger.LogError(string.Format("Error while injecting Parameter Data {0} into VTube Studio: {1} - {2}",
 						paramName, e.data.errorID, e.data.message));
 				});
 		}
@@ -660,6 +737,38 @@ public class HeartratePlugin : UnityVTSPlugin
 		}
 	}
 
+	public void CreateVFXModule(VFXModule.SaveData module)
+	{
+		VFXModule instance = Instantiate<VFXModule>(this._vfxPrefab, Vector3.zero, Quaternion.identity, this._outputModulesParent);
+		int index = GetModuleNewChildIndex();
+		instance.transform.SetSiblingIndex(index);
+		this._vfxModules.Add(instance);
+		SortVFXModules();
+		if (module != null)
+		{
+			instance.FromSaveData(module);
+		}
+	}
+
+	public void DestroyVFXModule(VFXModule module)
+	{
+		if (this._vfxModules.Contains(module))
+		{
+			this._vfxModules.Remove(module);
+			module.Reset(false);
+			SortVFXModules();
+			Destroy(module.gameObject);
+		}
+	}
+
+	private void SortVFXModules()
+	{
+		// TODO
+		// this._vfxModules.Sort((a, b)
+		// 	=>
+		// { return a.CompareTo(b); });
+	}
+
 	#endregion
 
 	#region Data Saving
@@ -670,6 +779,7 @@ public class HeartratePlugin : UnityVTSPlugin
 		data.version = Application.version;
 		data.maxRate = this._maxRate;
 		data.minRate = this._minRate;
+		data.offset = this._offset;
 		data.activeInput = this._activeModule.Type;
 		foreach (HeartrateInputModule module in this._heartrateInputs)
 		{
@@ -701,6 +811,10 @@ public class HeartratePlugin : UnityVTSPlugin
 		{
 			data.hotkeys.Add(module.ToSaveData());
 		}
+		foreach (VFXModule module in this._vfxModules)
+		{
+			data.vfx.Add(module.ToSaveData());
+		}
 		return data;
 	}
 
@@ -710,6 +824,8 @@ public class HeartratePlugin : UnityVTSPlugin
 		this._heartrateRanges.SetMaxRate(this._maxRate.ToString());
 		this._minRate = Mathf.Clamp(data.minRate, 0, 255);
 		this._heartrateRanges.SetMinRate(this._minRate.ToString());
+		this._offset = Mathf.Clamp(data.offset, -255, 255);
+		this._heartrateRanges.SetOffset(this._offset.ToString());
 		// Default to SLIDER if we can't find the provided input type
 		HeartrateInputModule activeModule = this._heartrateInputs.Find(x => x.Type == data.activeInput);
 		activeModule = activeModule != null ? activeModule : this._heartrateInputs.Find((x => x.Type == HeartrateInputModule.InputType.SLIDER));
@@ -727,17 +843,17 @@ public class HeartratePlugin : UnityVTSPlugin
 
 		if (!Application.version.Equals(data.version))
 		{
-			Debug.Log("Applying system language settings on new version");
+			this.Logger.Log("Applying system language settings on new version");
 			Localization.LocalizationManager.Instance.SwitchLanguage(Application.systemLanguage);
 		}
 		else if (data.language != 0)
 		{
-			Debug.Log(String.Format("Setting language to {0}", data.language));
+			this.Logger.Log(String.Format("Setting language to {0}", data.language));
 			Localization.LocalizationManager.Instance.SwitchLanguage(data.language);
 		}
 		else
 		{
-			Debug.Log("Defaulting language to English as no settings were found");
+			this.Logger.Log("Defaulting language to English as no settings were found");
 			Localization.LocalizationManager.Instance.SwitchLanguage(Localization.SupportedLanguage.ENGLISH);
 		}
 
@@ -762,6 +878,10 @@ public class HeartratePlugin : UnityVTSPlugin
 			{
 				CreateHotkeyModule(module);
 			}
+			foreach (VFXModule.SaveData module in data.vfx)
+			{
+				CreateVFXModule(module);
+			}
 		}
 	}
 
@@ -782,14 +902,20 @@ public class HeartratePlugin : UnityVTSPlugin
 		{
 			DestroyHotkeyModule(h);
 		}
+		List<VFXModule> tempVFX = new List<VFXModule>(this._vfxModules);
+		foreach (VFXModule v in tempVFX)
+		{
+			DestroyVFXModule(v);
+		}
 	}
 
-	[System.Serializable]
+	[Serializable]
 	public class GlobalSaveData
 	{
 		public string version;
 		public int minRate = 0;
 		public int maxRate = 0;
+		public int offset = 0;
 		public HeartrateInputModule.InputType activeInput = HeartrateInputModule.InputType.SLIDER;
 		public List<HeartrateInputModule.SaveData> inputs = new List<HeartrateInputModule.SaveData>();
 		public Localization.SupportedLanguage language;
@@ -801,7 +927,7 @@ public class HeartratePlugin : UnityVTSPlugin
 		}
 	}
 
-	[System.Serializable]
+	[Serializable]
 	public class ModelSaveData
 	{
 		public string version;
@@ -812,6 +938,7 @@ public class HeartratePlugin : UnityVTSPlugin
 		public List<ColorInputModule.SaveData> colors = new List<ColorInputModule.SaveData>();
 		public List<ExpressionModule.SaveData> expressions = new List<ExpressionModule.SaveData>();
 		public List<HotkeyModule.SaveData> hotkeys = new List<HotkeyModule.SaveData>();
+		public List<VFXModule.SaveData> vfx = new List<VFXModule.SaveData>();
 
 		public override string ToString()
 		{

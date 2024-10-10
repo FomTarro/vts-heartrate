@@ -126,6 +126,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		{
 			Debug.Log(string.Format("Reading from path: {0}", profile.FileName));
 			string text = File.ReadAllText(filePath);
+			Debug.Log(text);
 			data = this.jsonUtility.FromJson<HeartratePlugin.ModelSaveData>(text);
 			data = ModernizeLegacyModelSaveData(data, text);
 		}
@@ -138,6 +139,7 @@ public class SaveDataManager : Singleton<SaveDataManager>, IEventPublisher<SaveD
 		data.version = Application.version;
 		string filePath = Path.Combine(this.MODEL_SAVE_DIRECTORY, ProfileManager.Instance.CurrentProfile.FileName + ".json");
 		Debug.Log(string.Format("Writing to path: {0}", ProfileManager.Instance.CurrentProfile.FileName));
+		Debug.Log(data.ToString());
 		File.WriteAllText(filePath, data.ToString());
 		ExecuteWriteCallbacks();
 	}
