@@ -539,9 +539,13 @@ public class HeartratePlugin : UnityVTSPlugin
 		{
 			foreach (PostProcessingValue value in module.EffectParameters)
 			{
-				if (!values.ContainsKey(value.configID) || float.Parse(values[value.configID].configValue) < float.Parse(value.configValue))
+				if (!values.ContainsKey(value.configID))
 				{
 					values.Add(value.configID, value);
+				}
+				else if (float.Parse(values[value.configID].configValue) < float.Parse(value.configValue))
+				{
+					values[value.configID] = value;
 				}
 			}
 		}
