@@ -21,6 +21,8 @@ A VTube Studio plugin that allows for connectivity between heart rate monitors (
 
 💓 Support for <b>Live2D Items</b>!
 
+💓 NEW! Dynamically control <b>[VTube Studio VFX](https://github.com/DenchiSoft/VTubeStudio/wiki/Visual-Effects)</b> with your heartbeat! 
+
 💓 NEW! <b>Plugin API</b> so that you can build your own apps that consume or write heartrate data!
 
 # Table of Contents
