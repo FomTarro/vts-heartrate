@@ -338,7 +338,7 @@ public class HeartratePlugin : UnityVTSPlugin
 
 		if (this._paramValues.Count > 0 && this.IsAuthenticated)
 		{
-			this.InjectParameterValues(this._paramValues.ToArray(),
+			InjectParameterValues(this._paramValues.ToArray(),
 			(s) =>
 			{
 				InjectedParamValuesToDictionary(this._paramValues.ToArray());
@@ -353,9 +353,10 @@ public class HeartratePlugin : UnityVTSPlugin
 			InjectedParamValuesToDictionary(this._paramValues.ToArray());
 		}
 
-		foreach (VFXModule module in this._vfxModules)
+		// apply VFX Configs (after we calculate tracking params)
+		if (IsAuthenticated)
 		{
-			module.ApplyEffect();
+			BatchVFXConfigs();
 		}
 
 		// set API data values
@@ -521,8 +522,37 @@ public class HeartratePlugin : UnityVTSPlugin
 		},
 		(error) =>
 		{
-			// TODO: actually handle this error!
-			this.Logger.LogError(error.data.message);
+			this.Logger.LogError(string.Format("Error while querying Expression Data from VTube Studio: {0} - {1}",
+			error.data.errorID, error.data.message));
+		});
+	}
+
+	private void BatchVFXConfigs()
+	{
+		// This is executed here instead of inside each module so that we can batch our request 
+		// and set every config parameter at once
+		VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
+		options.setPostProcessingValues = true;
+		options.postProcessingOn = true;
+		Dictionary<EffectConfigs, PostProcessingValue> values = new Dictionary<EffectConfigs, PostProcessingValue>();
+		foreach (VFXModule module in this._vfxModules)
+		{
+			foreach (PostProcessingValue value in module.EffectParameters)
+			{
+				if (!values.ContainsKey(value.configID) || float.Parse(values[value.configID].configValue) < float.Parse(value.configValue))
+				{
+					values.Add(value.configID, value);
+				}
+			}
+		}
+		PostProcessingValue[] array = new PostProcessingValue[values.Count];
+		values.Values.CopyTo(array, 0);
+		SetPostProcessingEffectValues(options, array,
+		(s) => { },
+		(e) =>
+		{
+			Debug.LogError(string.Format("Error while setting VFX Config in VTube Studio: {0} - {1}",
+				e.data.errorID, e.data.message));
 		});
 	}
 
@@ -552,7 +582,6 @@ public class HeartratePlugin : UnityVTSPlugin
 
 	private void CreateNewParameter(string paramName, string paramDescriptionKey, int paramMax, VTSParameterInjectionValue value)
 	{
-
 		value.id = paramName;
 		value.value = 0;
 		value.weight = 1;

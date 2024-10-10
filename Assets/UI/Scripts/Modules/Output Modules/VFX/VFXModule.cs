@@ -17,6 +17,22 @@ public class VFXModule : MonoBehaviour
 
     private List<EffectParameterEntry> _effectParameterList = new List<EffectParameterEntry>();
 
+    public List<PostProcessingValue> EffectParameters
+    {
+        get
+        {
+            List<PostProcessingValue> values = new List<PostProcessingValue>();
+            foreach (EffectParameterEntry item in this._effectParameterList)
+            {
+                if (item.gameObject.activeSelf)
+                {
+                    values.Add(new PostProcessingValue(item.Effect, item.Value));
+                }
+            }
+            return values;
+        }
+    }
+
     // Because the dropdown is populated by an async method, 
     // we load the expression that should be selected from a profile load into this buffer
     // until the async method resolves.
@@ -62,7 +78,16 @@ public class VFXModule : MonoBehaviour
                 }
             }
         }
-        HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
+        if (HeartrateManager.Instance.Plugin.IsAuthenticated)
+        {
+            HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray(),
+            (s) => { },
+            (e) =>
+            {
+                Debug.LogError(string.Format("Error while setting VFX Config in VTube Studio: {0} - {1}",
+                    e.data.errorID, e.data.message));
+            });
+        }
     }
 
     public void ResetAllEffects()
@@ -85,26 +110,6 @@ public class VFXModule : MonoBehaviour
                 () => { UIManager.Instance.HidePopUp(); }
             )
         );
-    }
-
-    public void ApplyEffect()
-    {
-        if (HeartrateManager.Instance.Plugin.IsAuthenticated)
-        {
-            VTSPostProcessingUpdateOptions options = new VTSPostProcessingUpdateOptions();
-            options.setPostProcessingValues = true;
-            options.postProcessingOn = true;
-            List<PostProcessingValue> values = new List<PostProcessingValue>();
-            foreach (EffectParameterEntry item in this._effectParameterList)
-            {
-                if (item.gameObject.activeSelf)
-                {
-                    values.Add(new PostProcessingValue(item.Effect, item.Value));
-                    item.UpdateDisplay();
-                }
-            }
-            HeartrateManager.Instance.Plugin.SetPostProcessingEffectValues(options, values.ToArray());
-        }
     }
 
     private void OnEffectSelectionChanged(Effects effectID)
