@@ -113,7 +113,7 @@ Once you have a HypeRate account, you can use this input method to collect heart
 
 ### Fitbit
 
-**⚠ IMPORTANT! ⚠**: As of October 2023, [Pulsoid](#pulsoid) now natively supports Fitbit devices through their app! As such, it is **highly recommended** to use the **'Pulsoid'** input method for this plugin, and connect your Fitbit device through that.
+**⚠ IMPORTANT! ⚠**: As of October 2023, [Pulsoid](#pulsoid) and [HypeRate](#hyperate) now natively support Fitbit devices through their app! As such, it is **highly recommended** to use one of these input methods for this plugin, and connect your Fitbit device through that instead.
 
 [<b>Fitbit</b>](https://www.fitbit.com) is wearable fitness device brand, with an app for Android/iOS.
 
