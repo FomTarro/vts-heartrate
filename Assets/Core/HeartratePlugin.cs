@@ -755,6 +755,7 @@ public class HeartratePlugin : UnityVTSPlugin
 		if (this._vfxModules.Contains(module))
 		{
 			this._vfxModules.Remove(module);
+			module.Reset(false);
 			SortVFXModules();
 			Destroy(module.gameObject);
 		}
