@@ -188,15 +188,16 @@ fitbit_ionic,Ionic,Ionic
 fitbit_versa_2,Versa 2,Versa 2
 fitbit_versa_lite,Versa Lite,Versa Lite
 fitbit_versa,Versa,Versa
-input_fitbit_retiring_title,Consider Using Pulsoid!,
-input_fitbit_retiring_tooltip,"As of October 2023, Pulsoid now natively supports Fitbit devices through their app! 
+input_fitbit_retiring_title,Consider Using Another Method!,
+input_fitbit_retiring_tooltip,"As of October 2023, Pulsoid and HypeRate now both natively support Fitbit devices through their apps! 
 
-As such, it is <b>highly recommended</b> to use the <b>'Pulsoid'</b> input method for this plugin, and connect your Fitbit device through that.
+As such, it is <b>highly recommended</b> to use the <b>'Pulsoid'</b> or <b>'HypeRate'</b> input methods for this plugin, and connect your Fitbit device through those.
 
 For legacy purposes, this plugin will continue to feature its own semi-convoluted Fitbit integration for now. However, this input method will no longer recieve updates, and may be removed entirely in the future.
 
-For more information, check out the blog post below. ",
-input_fitbit_retiring_button_visit,Read the Blog Post,
+For more information, check out the blog posts below. ",
+input_fitbit_retiring_button_pulsoid_visit,About Pulsoid,
+input_fitbit_retiring_button_hyperate_visit,About HypeRate,
 ,,
 output_create_title,Create New Output Module,
 output_create_tooltip,Which type of output module do you want to create?,
