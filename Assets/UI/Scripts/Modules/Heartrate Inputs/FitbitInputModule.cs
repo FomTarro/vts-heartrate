@@ -57,11 +57,17 @@ public class FitbitInputModule : HeartrateInputModule
 			UIManager.Instance.ShowPopUp(
 				"input_fitbit_retiring_title",
 				"input_fitbit_retiring_tooltip",
-				new PopUp.PopUpOption("input_fitbit_retiring_button_visit",
+				new PopUp.PopUpOption("input_fitbit_retiring_button_pulsoid_visit",
 				ColorUtils.ColorPreset.BLUE,
 				() =>
 				{
 					Application.OpenURL("https://blog.pulsoid.net/post/pulsoid-x-fitbit");
+				}),
+				new PopUp.PopUpOption("input_fitbit_retiring_button_hyperate_visit",
+				ColorUtils.ColorPreset.BLUE,
+				() =>
+				{
+					Application.OpenURL("https://www.hyperate.io/stories/how-to-stream-your-heart-rate-from-fitbit-to-twitch");
 				})
 			);
 		}
