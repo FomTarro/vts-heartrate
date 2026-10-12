@@ -6,7 +6,9 @@ public class HypeRateManager : Singleton<HypeRateManager>
 {
 
 	private IWebSocket _socket = new WebSocketSharpImpl(new UnityVTSLoggerImpl());
-	private const string HYPERATE_SOCKET_URL = @"wss://app.hyperate.io/socket/websocket?token={0}";
+	private const string HYPERATE_SOCKET_URL = @"wss://app.hyperate.io/ws/{0}?token={1}";
+	
+	//@"wss://app.hyperate.io/socket/websocket?token={0}";
 	// "internal-testing" can be used to get random spoof data/test the pipes.
 	private string _hyperateID = null;
 	public string HypeRateID { get { return this._hyperateID; } }
@@ -24,10 +26,12 @@ public class HypeRateManager : Singleton<HypeRateManager>
 
 	public override void Initialize()
 	{
-		HypeRateMessage message = new HypeRateMessage("phoenix");
-		message.@event = "heartbeat";
-		// {\"topic\": \"phoenix\",\"event\": \"heartbeat\",\"payload\": {},\"ref\": 0}
-		this.KEEP_ALIVE_MESSAGE = JsonUtility.ToJson(message);
+        HypeRateMessage message = new("phoenix")
+        {
+            @event = "heartbeat"
+        };
+        // {\"topic\": \"phoenix\",\"event\": \"heartbeat\",\"payload\": {},\"ref\": 0}
+        this.KEEP_ALIVE_MESSAGE = JsonUtility.ToJson(message);
 	}
 
 	public void SetHyperateID(string id)
@@ -38,18 +42,22 @@ public class HypeRateManager : Singleton<HypeRateManager>
 	public void Connect(System.Action<HttpUtils.ConnectionStatus> onStatus)
 	{
 		Disconnect(onStatus);
-		HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
-		status.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
-		onStatus.Invoke(status);
+        HttpUtils.ConnectionStatus status = new()
+        {
+            status = HttpUtils.ConnectionStatus.Status.CONNECTING
+        };
+        onStatus.Invoke(status);
 		this._timeout = TIMEOUT_MAX;
 
 		this._onError = (message) =>
 		{
 			Debug.LogError("An error occured while connecting to the HypeRate socket...");
-			HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
-			errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
-			errorStatus.message = message;
-			onStatus.Invoke(errorStatus);
+            HttpUtils.ConnectionStatus errorStatus = new()
+            {
+                status = HttpUtils.ConnectionStatus.Status.ERROR,
+                message = message
+            };
+            onStatus.Invoke(errorStatus);
 			if (!this._socket.IsConnectionOpen())
 			{
 				Debug.Log("Attempting to reconnect to HypeRate socket...");
@@ -58,13 +66,15 @@ public class HypeRateManager : Singleton<HypeRateManager>
 		};
 		this._onData = () =>
 		{
-			HttpUtils.ConnectionStatus connectedStatus = new HttpUtils.ConnectionStatus();
-			connectedStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
-			onStatus.Invoke(connectedStatus);
+            HttpUtils.ConnectionStatus connectedStatus = new()
+            {
+                status = HttpUtils.ConnectionStatus.Status.CONNECTED
+            };
+            onStatus.Invoke(connectedStatus);
 		};
 
 		this._socket = new WebSocketSharpImpl(new UnityVTSLoggerImpl());
-		this._socket.Start(string.Format(HYPERATE_SOCKET_URL, HypeRateCredentials.API_KEY),
+		this._socket.Start(string.Format(HYPERATE_SOCKET_URL, _hyperateID, HypeRateCredentials.API_KEY),
 		() =>
 		{
 			Debug.Log("Connected to HypeRate socket");
@@ -72,18 +82,22 @@ public class HypeRateManager : Singleton<HypeRateManager>
 			Debug.Log(send);
 			this._socket.Send(send);
 			this._timeout = TIMEOUT_MAX;
-			// this._socket.Send("{\"topic\": \"hr:"+_hyperateID+"\", \"event\": \"phx_join\", \"payload\": {}, \"ref\": 0}");
-			HttpUtils.ConnectionStatus connectedStatus = new HttpUtils.ConnectionStatus();
-			connectedStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
-			onStatus.Invoke(connectedStatus);
+            // this._socket.Send("{\"topic\": \"hr:"+_hyperateID+"\", \"event\": \"phx_join\", \"payload\": {}, \"ref\": 0}");
+            HttpUtils.ConnectionStatus connectedStatus = new()
+            {
+                status = HttpUtils.ConnectionStatus.Status.CONNECTED
+            };
+            onStatus.Invoke(connectedStatus);
 		},
 		() =>
 		{
 			this._timeout = 0f;
 			Debug.Log("Disconnected from the HypeRate socket");
-			HttpUtils.ConnectionStatus disconnectedStatus = new HttpUtils.ConnectionStatus();
-			disconnectedStatus.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
-			onStatus.Invoke(disconnectedStatus);
+            HttpUtils.ConnectionStatus disconnectedStatus = new()
+            {
+                status = HttpUtils.ConnectionStatus.Status.DISCONNECTED
+            };
+            onStatus.Invoke(disconnectedStatus);
 		},
 		(ex) => { this._onError.Invoke(ex.ToString()); });
 	}
@@ -95,9 +109,11 @@ public class HypeRateManager : Singleton<HypeRateManager>
 		{
 			this._socket.Stop();
 		}
-		HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();
-		status.status = HttpUtils.ConnectionStatus.Status.DISCONNECTED;
-		onStatus.Invoke(status);
+        HttpUtils.ConnectionStatus status = new()
+        {
+            status = HttpUtils.ConnectionStatus.Status.DISCONNECTED
+        };
+        onStatus.Invoke(status);
 	}
 
 	private void FixedUpdate()
@@ -114,11 +130,16 @@ public class HypeRateManager : Singleton<HypeRateManager>
 					this._timeout = TIMEOUT_MAX;
 					this._heartrate = message.payload.hr;
 					this._onData.Invoke();
+				}else if ("heartbeat".Equals(message.@event))
+				{
+					// all good
+					this._timeout = TIMEOUT_MAX;
+					this._onData.Invoke();
 				}
-				else if (message.@event.Equals("phx_reply"))
+				else if ("phx_reply".Equals(message.@event))
 				{
 					// {"event":"phx_reply","payload":{"response":{},"status":"ok"},"ref":0,"topic":"phoenix"}
-					if (message.payload != null && message.payload.status.Equals("ok"))
+					if (message.payload != null && "ok".Equals(message.payload.status))
 					{
 						// all good
 						this._timeout = TIMEOUT_MAX;
@@ -127,27 +148,21 @@ public class HypeRateManager : Singleton<HypeRateManager>
 					else
 					{
 						Debug.LogError("Error from HypeRate socket with status: " + message.payload.status + " and error: " + message.payload.response);
-						if (this._onError != null)
-						{
-							this._onError.Invoke("error: " + message.payload.response);
-						}
-					}
+                        this._onError?.Invoke("error: " + message.payload.response);
+                    }
 				}
 				else
 				{
 					// error of some kind
 					Debug.LogError("Error from HypeRate socket with status: " + message.payload.status + " and error: " + message.payload.response);
-					if (this._onError != null)
-					{
-						this._onError.Invoke("error: " + message.payload.response);
-					}
-				}
+                    this._onError?.Invoke("error: " + message.payload.response);
+                }
 			}
 			this._socket.Send(KEEP_ALIVE_MESSAGE);
 		}
 		if (this._timeout > 0f)
 		{
-			this._timeout = this._timeout - Time.deltaTime;
+			this._timeout -= Time.deltaTime;
 			if (this._timeout <= 0f && this._onError != null)
 			{
 				if (this._socket.IsConnectionOpen())
