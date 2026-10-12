@@ -765,6 +765,7 @@ MonoBehaviour:
   m_UseGraphicAlpha: 1
   iterations: 5
   shadowSpread: {x: 1, y: 1}
+  aspectRatio: 1
 --- !u!114 &4821126472255064591
 MonoBehaviour:
   m_ObjectHideFlags: 0
