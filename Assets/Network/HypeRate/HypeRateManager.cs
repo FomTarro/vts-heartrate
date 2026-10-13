@@ -4,8 +4,7 @@ using VTS.Unity;
 
 public class HypeRateManager : Singleton<HypeRateManager>
 {
-
-	private IWebSocket _socket = new WebSocketSharpImpl(new UnityVTSLoggerImpl());
+	private readonly IWebSocket _socket = new WebSocketImpl(new UnityVTSLoggerImpl());
 	private const string HYPERATE_SOCKET_URL = @"wss://app.hyperate.io/ws/{0}?token={1}";
 	
 	//@"wss://app.hyperate.io/socket/websocket?token={0}";
@@ -72,8 +71,6 @@ public class HypeRateManager : Singleton<HypeRateManager>
             };
             onStatus.Invoke(connectedStatus);
 		};
-
-		this._socket = new WebSocketSharpImpl(new UnityVTSLoggerImpl());
 		this._socket.Start(string.Format(HYPERATE_SOCKET_URL, _hyperateID, HypeRateCredentials.API_KEY),
 		() =>
 		{

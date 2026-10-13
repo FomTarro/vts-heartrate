@@ -156,9 +156,6 @@ public class HeartratePlugin : UnityVTSPlugin
 	public void Connect()
 	{
 		Initialize(
-			new WebSocketSharpImpl(this.Logger),
-			new NewtonsoftJsonUtilityImpl(),
-			new TokenStorageImpl(Application.persistentDataPath),
 			() =>
 			{
 				HttpUtils.ConnectionStatus status = new HttpUtils.ConnectionStatus();

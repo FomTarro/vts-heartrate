@@ -32,7 +32,7 @@ namespace VTS.Core {
 		/// </summary>
 		/// <returns></returns>
 		Dictionary<int, VTSStateBroadcastData> GetPorts();
-		void Initialize(IWebSocket webSocket, IJsonUtility jsonUtility, IVTSLogger logger);
+		void Initialize();
 		void ResubscribeToEvents();
 		/// <summary>
 		/// Sends a payload of type T, expecting a response of type K. 
@@ -56,6 +56,7 @@ namespace VTS.Core {
 		/// <param name="resubscribe">Callback that executes a resubscription.</param>
 		/// <typeparam name="T">The request type.</typeparam>
 		/// <typeparam name="K">The response type.</typeparam>
+		/// <typeparam name="V">The config options type.</typeparam>
 		/// <returns></returns>
 		void SendEventSubscription<T, K, V>(T request, Action<K> onEvent, Action<VTSEventSubscriptionResponseData> onSubscribe, Action<VTSErrorData> onError, Action resubscribe)
 			where T : VTSEventSubscriptionRequestData<V>

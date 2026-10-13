@@ -7,21 +7,19 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace VTS.Core {
-
 	/// <summary>
 	/// The wrapper class for websocket operations between the plugin and VTS.
 	/// </summary>
 	public class VTSWebSocket : IVTSWebSocket {
-
 		// Dependencies
 		private const string VTS_WS_URL = "ws://{0}:{1}";
 		private IPAddress _ip = IPAddress.Loopback;
 		private const int DEFAULT_PORT = 8001;
 		private int _port = DEFAULT_PORT;
 		public int Port { get { return this._port; } }
-		private IWebSocket _ws = null;
-		private IJsonUtility _json = null;
-		private IVTSLogger _logger = null;
+		private readonly IWebSocket _ws = null;
+		private readonly IJsonUtility _json = null;
+		private readonly IVTSLogger _logger = null;
 
 		// API Callbacks
 		private readonly Dictionary<string, VTSCallbacks> _callbacks = new Dictionary<string, VTSCallbacks>();
@@ -29,6 +27,7 @@ namespace VTS.Core {
 
 		// UDP 
 		private const int UDP_DEFAULT_PORT = 47779;
+		private static readonly IPEndPoint LOCAL_PT = new IPEndPoint(IPAddress.Any, UDP_DEFAULT_PORT);
 		private static UdpClient UDP_CLIENT = null;
 		private static Task<UdpReceiveResult> UDP_RESULT = null;
 		private static readonly Dictionary<IPAddress, Dictionary<int, VTSStateBroadcastData>> PORTS_BY_IP = new Dictionary<IPAddress, Dictionary<int, VTSStateBroadcastData>>();
@@ -41,16 +40,16 @@ namespace VTS.Core {
 
 		#region Lifecycle
 
-		public void Initialize(IWebSocket webSocket, IJsonUtility jsonUtility, IVTSLogger logger) {
-			if (this._ws == null) {
-				// Only add this listener to the event the first time we initialize.
-				GLOBAL_PORT_DISCOVERY_EVENT += OnPortDiscovered;
-			}
-			// Stop existing socket.
-			Disconnect();
+		public VTSWebSocket(IWebSocket webSocket, IJsonUtility jsonUtility, IVTSLogger logger) {
+			GLOBAL_PORT_DISCOVERY_EVENT += OnPortDiscovered;
 			this._ws = webSocket;
 			this._json = jsonUtility;
 			this._logger = logger;
+		}
+
+		public void Initialize() {
+			// Stop existing socket.
+			Disconnect();
 			StartUDP();
 		}
 
@@ -58,14 +57,13 @@ namespace VTS.Core {
 			ProcessResponses();
 			CheckPorts();
 			UpdatePortDiscoveryTimeout(timeDelta);
-			if (this._ws != null) {
-				this._ws.Tick(timeDelta);
-			}
+			this._ws?.Tick(timeDelta);
 		}
 
 		public void Dispose() {
 			GLOBAL_PORT_DISCOVERY_EVENT -= OnPortDiscovered;
 			Disconnect();
+			UDP_CLIENT.Dispose();
 		}
 
 		#endregion
@@ -115,9 +113,11 @@ namespace VTS.Core {
 					}
 				}
 				// If our result has been collected and disposed of, start again
-				if (UDP_RESULT == null) {
-					UDP_RESULT = UDP_CLIENT.ReceiveAsync();
-				}
+				UDP_RESULT ??= Task.Run(() => {
+					IPEndPoint ep = null;
+					var bytes = UDP_CLIENT.Receive(ref ep);
+					return new UdpReceiveResult(bytes, ep);
+				});
 			}
 		}
 
@@ -125,10 +125,10 @@ namespace VTS.Core {
 			try {
 				if (UDP_CLIENT == null) {
 					// This configuration should prevent the UDP client from blocking other connections to the port
-					IPEndPoint LOCAL_PT = new IPEndPoint(IPAddress.Any, UDP_DEFAULT_PORT);
 					UDP_CLIENT = new UdpClient();
 					UDP_CLIENT.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 					UDP_CLIENT.Client.Bind(LOCAL_PT);
+					UDP_CLIENT.Client.ReceiveTimeout = (int)(DEFAULT_PORT_DISCOVERY_TIMEOUT * 2);
 				}
 			} catch (Exception e) {
 				this._logger.LogError(e.ToString());
@@ -148,9 +148,7 @@ namespace VTS.Core {
 			if (this._portDiscoveryTimer > 0f) {
 				this._portDiscoveryTimer -= timeDelta;
 				if (this._portDiscoveryTimer <= 0f) {
-					if (this._onPortDiscoveryTimeout != null) {
-						this._onPortDiscoveryTimeout.Invoke();
-					}
+					this._onPortDiscoveryTimeout?.Invoke();
 					this._portDiscoveryTimer = 0f;
 				}
 			}
@@ -174,9 +172,8 @@ namespace VTS.Core {
 		}
 
 		public bool SetIPAddress(string ipString) {
-			IPAddress address;
 			this._logger.Log(string.Format("Setting IP address: {0}...", ipString));
-			if (IPAddress.TryParse(ipString, out address)) {
+			if (IPAddress.TryParse(ipString, out IPAddress address)) {
 				this._ip = MapAddress(address);
 				this._logger.Log(string.Format("IP address {0} is valid IPv4 format.", ipString));
 				return true;
@@ -266,13 +263,13 @@ namespace VTS.Core {
 					this._ws.Send(output);
 				} catch (Exception e) {
 					this._logger.LogError(e.ToString());
-					VTSErrorData error = new VTSErrorData();
+					VTSErrorData error = new();
 					error.data.errorID = ErrorID.InternalServerError;
 					error.data.message = e.Message;
 					onError(error);
 				}
 			} else {
-				VTSErrorData error = new VTSErrorData();
+				VTSErrorData error = new();
 				error.data.errorID = ErrorID.InternalServerError;
 				error.data.message = "No websocket data";
 				onError(error);
@@ -347,11 +344,18 @@ namespace VTS.Core {
 									case "PostProcessingEvent":
 										this._events[response.messageType].onEvent(this._json.FromJson<VTSPostProcessingEventData>(data));
 										break;
+									case "ArtMeshTrackingEvent":
+										this._events[response.messageType].onEvent(this._json.FromJson<VTSArtMeshPointTrackingEventData>(data));
+										break;
+									case "ArtMeshOutlineEvent":
+										this._events[response.messageType].onEvent(this._json.FromJson<VTSArtMeshOutlineTrackingEventData>(data));
+										break;
 								}
 							} catch (Exception e) {
 								// Neatly handle errors in case the deserialization or success callback throw an exception
-								VTSErrorData error = new VTSErrorData();
-								error.requestID = response.requestID;
+								VTSErrorData error = new() {
+									requestID = response.requestID
+								};
 								error.data.message = e.Message;
 								this._events[response.messageType].onError(error);
 							}
@@ -468,19 +472,26 @@ namespace VTS.Core {
 									case "PostProcessingUpdateResponse":
 										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSPostProcessingUpdateResponseData>(data));
 										break;
+									case "ItemSortResponse":
+										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSItemSortResponseData>(data));
+										break;
+									case "ArtMeshAtPositionResponse":
+										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSArtMeshAtPositionResponseData>(data));
+										break;
 									case "EventSubscriptionResponse":
 										this._callbacks[response.requestID].onSuccess(this._json.FromJson<VTSEventSubscriptionResponseData>(data));
 										break;
 									default:
-										VTSErrorData error = new VTSErrorData();
+										VTSErrorData error = new();
 										error.data.message = "Unable to parse response as valid response type: " + data;
 										this._callbacks[response.requestID].onError(error);
 										break;
 								}
 							} catch (Exception e) {
 								// Neatly handle errors in case the deserialization or success callback throw an exception
-								VTSErrorData error = new VTSErrorData();
-								error.requestID = response.requestID;
+								VTSErrorData error = new() {
+									requestID = response.requestID
+								};
 								error.data.message = e.Message;
 								this._callbacks[response.requestID].onError(error);
 							}
