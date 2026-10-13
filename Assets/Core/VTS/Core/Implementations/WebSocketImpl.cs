@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace VTS.Core {
+namespace VTS.Core
+{
 
-    public class WebSocketImpl : IWebSocket {
-        private static readonly UTF8Encoding Encoder = new();
+    public class WebSocketImpl : IWebSocket
+    {
+        private static readonly UTF8Encoding Encoder = new UTF8Encoding();
         private readonly IVTSLogger _logger;
         private ClientWebSocket _socket;
         private readonly ConcurrentQueue<string> _intakeQueue;
@@ -22,7 +24,8 @@ namespace VTS.Core {
 
         private Uri _url;
 
-        public WebSocketImpl(IVTSLogger logger) {
+        public WebSocketImpl(IVTSLogger logger)
+        {
             _intakeQueue = new ConcurrentQueue<string>();
             _responseQueue = new ConcurrentQueue<Action>();
             _tokenSource = new CancellationTokenSource();
@@ -30,20 +33,24 @@ namespace VTS.Core {
             _logger = logger;
         }
 
-        public string GetNextResponse() {
+        public string GetNextResponse()
+        {
             _intakeQueue.TryDequeue(out var response);
             return response;
         }
 
-        public bool IsConnecting() {
+        public bool IsConnecting()
+        {
             return _socket?.State == WebSocketState.Connecting;
         }
 
-        public bool IsConnectionOpen() {
+        public bool IsConnectionOpen()
+        {
             return _socket?.State == WebSocketState.Open;
         }
 
-        public void Send(string message) {
+        public void Send(string message)
+        {
             var buffer = Encoder.GetBytes(message);
             var arraySegment = new ArraySegment<byte>(buffer);
             _socket?.SendAsync(arraySegment, WebSocketMessageType.Text, true, default)
@@ -52,11 +59,12 @@ namespace VTS.Core {
                 .GetResult();
         }
 
-        public void Start(string url, Action onConnect, Action onDisconnect, Action<Exception> onError) {
+        public void Start(string url, Action onConnect, Action onDisconnect, Action<Exception> onError)
+        {
             Stop();
             _attemptReconnect = true;
             _tokenSource = new CancellationTokenSource();
-            _url = new(url);
+            _url = new Uri(url);
             _socket = new ClientWebSocket();
             _logger.Log($"Attempting to connect to {_url.Host}");
             _socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(10);
@@ -67,24 +75,33 @@ namespace VTS.Core {
 
         }
 
-        private void Process(CancellationToken token) {
-            Task.Run<Task>(async () => {
-                try {
+        private void Process(CancellationToken token)
+        {
+            Task.Run<Task>(async () =>
+            {
+                try
+                {
                     // try to connect
                     await _socket.ConnectAsync(_url, token);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     // can't make initial connection
-                    _responseQueue.Enqueue(async () => {
+                    _responseQueue.Enqueue(async () =>
+                    {
                         _logger.LogError($"[{_url.Host}] - Socket error...");
                         _logger.LogError($"'{e.Message}', {e}");
                         _onError(e);
-                        // TODO: try to connect again in x seconds
-                        try {
+                        try
+                        {
                             await Task.Delay(5000, token);
-                            if (_attemptReconnect) {
+                            if (_attemptReconnect)
+                            {
                                 Reconnect();
                             }
-                        } catch (TaskCanceledException) {
+                        }
+                        catch (OperationCanceledException)
+                        {
                             // swallow this, it's fine
                         }
                     });
@@ -92,54 +109,76 @@ namespace VTS.Core {
                 }
 
                 // we have successfully connected
-                _responseQueue.Enqueue(() => {
+                _responseQueue.Enqueue(() =>
+                {
                     _onConnect();
                     _logger.Log($"[{_url.Host}] - Socket open!");
                     _attemptReconnect = true;
                 });
 
                 // begin getting socket data
-                while (!token.IsCancellationRequested) {
-                    try {
-                        if (_socket.State == WebSocketState.Open) {
+                while (!token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        if (_socket.State == WebSocketState.Open)
+                        {
                             var result = await _socket.ReceiveAsync(token);
                             if (result.closeStatus == null || result.closeStatus == WebSocketCloseStatus.Empty)
-                                _responseQueue.Enqueue(() => {
-                                    if (result.buffer != null && result.messageType == WebSocketMessageType.Text) {
+                                _responseQueue.Enqueue(() =>
+                                {
+                                    if (result.buffer != null && result.messageType == WebSocketMessageType.Text)
+                                    {
                                         _intakeQueue.Enqueue(Encoder.GetString(result.buffer));
                                     }
                                 });
-                            else if (result.closeStatus == WebSocketCloseStatus.NormalClosure) {
-                                _responseQueue.Enqueue(async () => {
+                            else if (result.closeStatus == WebSocketCloseStatus.NormalClosure)
+                            {
+                                _responseQueue.Enqueue(async () =>
+                                {
                                     _onDisconnect();
-                                    try {
+                                    try
+                                    {
                                         await Task.Delay(5000, token);
-                                        if (_attemptReconnect) {
+                                        if (_attemptReconnect)
+                                        {
                                             Reconnect();
                                         }
-                                    } catch (OperationCanceledException) {
+                                    }
+                                    catch (OperationCanceledException)
+                                    {
                                         // swallow this, it's fine
                                     }
                                 });
                                 return;
-                            } else {
+                            }
+                            else
+                            {
                                 throw new Exception("WebSocket Error, close status: " + result.closeStatus);
                             }
                         }
-                    } catch (OperationCanceledException) {
+                    }
+                    catch (OperationCanceledException)
+                    {
                         // this is fine!
-                    } catch (Exception e) {
-                        _responseQueue.Enqueue(async () => {
+                    }
+                    catch (Exception e)
+                    {
+                        _responseQueue.Enqueue(async () =>
+                        {
                             _logger.LogError($"[{_url.Host}] - Socket error...");
                             _logger.LogError($"'{e.Message}', {e}");
                             _onError(e);
-                            // TODO: try to connect again in x seconds
-                            try {
+                            try
+                            {
                                 await Task.Delay(5000, token);
-                                if (_attemptReconnect) {
+                                if (_attemptReconnect)
+                                {
                                     Reconnect();
                                 }
-                            } catch (OperationCanceledException) {
+                            }
+                            catch (OperationCanceledException)
+                            {
                                 // swallow this, it's fine
                             }
                         });
@@ -151,30 +190,39 @@ namespace VTS.Core {
             }, token);
         }
 
-        public void Stop() {
+        public void Stop()
+        {
             _attemptReconnect = false;
-            if (_tokenSource != null) {
+            if (_tokenSource != null)
+            {
                 _tokenSource.Cancel();
                 _tokenSource.Dispose();
                 _tokenSource = null;
             }
-            if (_socket != null && _socket.State == WebSocketState.Open) {
+            if (_socket != null && _socket.State == WebSocketState.Open)
+            {
                 _socket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
             }
         }
 
-        private void Reconnect() {
+        private void Reconnect()
+        {
             Start(_url.ToString(), _onConnect, _onDisconnect, _onError);
         }
 
-        public void Tick(float timeDelta) {
-            do {
+        public void Tick(float timeDelta)
+        {
+            do
+            {
                 if (_responseQueue.IsEmpty || !_responseQueue.TryDequeue(out var action))
                     continue;
 
-                try {
+                try
+                {
                     action();
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     _logger.LogError($"Socket error: {e.StackTrace}");
                 }
             } while (!_responseQueue.IsEmpty);
@@ -182,29 +230,34 @@ namespace VTS.Core {
     }
 
 
-    internal static class WebSocketExtensions {
+    internal static class WebSocketExtensions
+    {
         public static async Task<(
             byte[] buffer,
             WebSocketMessageType messageType,
             WebSocketCloseStatus? closeStatus,
             string closeStatusDescription
-            )> ReceiveAsync(this ClientWebSocket client, CancellationToken cancellationToken) {
+            )> ReceiveAsync(this ClientWebSocket client, CancellationToken cancellationToken)
+        {
             const int maxFrameSize = 1024 * 1024 * 10; // 10 MB
             const int bufferSize = 1024; // 1 KB
             var buffer = new byte[bufferSize];
             var offset = 0;
             var free = buffer.Length;
 
-            while (true) {
+            while (true)
+            {
                 var result = await client.ReceiveAsync(new ArraySegment<byte>(buffer, offset, free), cancellationToken);
                 offset += result.Count;
                 free -= result.Count;
 
-                if (result.EndOfMessage || result.CloseStatus != null) {
+                if (result.EndOfMessage || result.CloseStatus != null)
+                {
                     return (buffer, result.MessageType, result.CloseStatus, result.CloseStatusDescription);
                 }
 
-                if (free == 0) {
+                if (free == 0)
+                {
                     // No free space
                     // Resize the outgoing buffer
                     var newSize = buffer.Length + bufferSize;
@@ -212,7 +265,8 @@ namespace VTS.Core {
                     // Check if the new size exceeds a limit
                     // It should suit the data it receives
                     // This limit however has a max value of 2 billion bytes (2 GB)
-                    if (newSize > maxFrameSize) {
+                    if (newSize > maxFrameSize)
+                    {
                         throw new Exception("Maximum size exceeded");
                     }
 

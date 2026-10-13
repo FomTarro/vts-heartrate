@@ -29,7 +29,6 @@ namespace VTS.Unity {
 		/// </summary>
 		protected virtual VTSPluginDependencies DependencyImplementations {
 			get {
-				Debug.Log("Getting dependencies...");
 				IVTSLogger logger = new UnityVTSLoggerImpl();
 				return new() {
 					socket = new WebSocketImpl(logger),
@@ -51,7 +50,7 @@ namespace VTS.Unity {
 						deps.jsonUtility,
 						deps.tokenStorage,
 						deps.logger,
-						(int)(1000f / Application.targetFrameRate),
+						(int)(1000f / Math.Max(30, Application.targetFrameRate)),
 						this.PluginName,
 						this.PluginAuthor,
 						EncodeIcon(this._pluginIcon, deps.logger)
@@ -412,12 +411,12 @@ namespace VTS.Unity {
 		}
 
 		public void SubscribeToArtMeshOutlineTrackingEvent(VTSArtMeshOutlineTrackingEventConfigOptions config, Action<VTSArtMeshOutlineTrackingEventData> onEvent, Action<VTSEventSubscriptionResponseData> onSubscribe, Action<VTSErrorData> onError) {
-            this.Plugin.SubscribeToArtMeshOutlineTrackingEvent(config, onEvent, onSubscribe, onError);
-        }
+			this.Plugin.SubscribeToArtMeshOutlineTrackingEvent(config, onEvent, onSubscribe, onError);
+		}
 
-        public void UnsubscribeFromArtMeshOutlineTrackingEvent(Action<VTSEventSubscriptionResponseData> onUnsubscribe, Action<VTSErrorData> onError) {
+		public void UnsubscribeFromArtMeshOutlineTrackingEvent(Action<VTSEventSubscriptionResponseData> onUnsubscribe, Action<VTSErrorData> onError) {
 			this.Plugin.UnsubscribeFromArtMeshOutlineTrackingEvent(onUnsubscribe, onError);
-        }
+		}
 
 		#endregion
 
@@ -707,13 +706,13 @@ namespace VTS.Unity {
 			return this.Plugin.UnsubscribeFromArtMeshPointTrackingEvent();
 		}
 
-        public Task<VTSEventSubscriptionResponseData> SubscribeToArtMeshOutlineTrackingEvent(VTSArtMeshOutlineTrackingEventConfigOptions config, Action<VTSArtMeshOutlineTrackingEventData> onEvent) {
-            return this.Plugin.SubscribeToArtMeshOutlineTrackingEvent(config, onEvent);
-        }
+		public Task<VTSEventSubscriptionResponseData> SubscribeToArtMeshOutlineTrackingEvent(VTSArtMeshOutlineTrackingEventConfigOptions config, Action<VTSArtMeshOutlineTrackingEventData> onEvent) {
+			return this.Plugin.SubscribeToArtMeshOutlineTrackingEvent(config, onEvent);
+		}
 
 		public Task<VTSEventSubscriptionResponseData> UnsubscribeFromArtMeshOutlineTrackingEvent() {
-            return this.Plugin.UnsubscribeFromArtMeshOutlineTrackingEvent();
-        }
+			return this.Plugin.UnsubscribeFromArtMeshOutlineTrackingEvent();
+		}
 
 		#endregion
 
@@ -759,7 +758,7 @@ namespace VTS.Unity {
 		}
 
 		/// <summary>
-		/// Converts the VTS Color struct to a Unity Color32 struct.
+		/// Converts the VTS ColorTint struct to a Unity Color32 struct.
 		/// </summary>
 		/// <param name="color">The color to convert</param>
 		/// <returns></returns>
@@ -786,9 +785,9 @@ namespace VTS.Unity {
 			};
 		}
 
-        #endregion
+		#endregion
 
-    }
+	}
 }
 
 #endif
