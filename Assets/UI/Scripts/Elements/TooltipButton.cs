@@ -100,11 +100,11 @@ public class TooltipButton : MonoBehaviour
             case Tooltips.OUTPUT_COLOR:
                 UIManager.Instance.ShowPopUp(
                     "output_artmesh_title",
-                    "output_artmesh_tooltip",
-                    new PopUp.PopUpOption(
-                        "output_artmesh_button",
-                        ColorUtils.ColorPreset.BLUE,
-                        () => { Application.OpenURL("https://hawk.bar/VTubeStudioTagger/"); })
+                    "output_artmesh_tooltip"
+                    // new PopUp.PopUpOption(
+                    //     "output_artmesh_button",
+                    //     ColorUtils.ColorPreset.BLUE,
+                    //     () => { Application.OpenURL("https://hawk.bar/VTubeStudioTagger/"); })
                 );
                 break;
             case Tooltips.OUTPUT_PARAMS:
