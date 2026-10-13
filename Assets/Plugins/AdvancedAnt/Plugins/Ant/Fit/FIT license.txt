@@ -1,0 +1,48 @@
+PLEASE READ THIS PROTOCOL LICENSE AGREEMENT ("AGREEMENT") CAREFULLY BEFORE USING THE FLEXIBLE AND INTEROPERABLE DATA TRANSFER (FIT) PROTOCOL.  BY USING THE FIT PROTOCOL, YOU ARE AGREEING TO BE BOUND BY THE TERMS OF THIS AGREEMENT. IF YOU DO NOT AGREE TO THE TERMS OF THIS AGREEMENT, DO NOT USE THE FIT PROTOCOL.
+
+Flexible and Interoperable Data Transfer (FIT) Protocol License
+
+The FIT Protocol License permits the Licensee:
+* Use of the FIT Software Development Kit (SDK).
+* Access to the source code that creates and decodes the FIT file structure.
+* Use of the FIT protocol, FIT source code files, and file structures in any software created by the licensee as long as interoperability and compatibility with the FIT protocol is maintained.
+
+These items are available free of charge for use by the Licensee on the terms and conditions set forth herein, provided that the Licensee complies with the terms and conditions of this Agreement.
+
+Flexible and Interoperable Data Transfer (FIT) Protocol License Terms and Conditions
+
+The Licensee represents that it has the legal and corporate authority to enter into this Agreement and is legally bound to the terms and conditions of this agreement.  The Licensee further agrees that if the person signing this Agreement on behalf of the Licensee does not have legal and corporate authority to act on behalf of the Licensee, then this Agreement is null and void and the Licensee will immediately stop product development of devices using the FIT protocol, and will delete all copies of the FIT SDK and source code files.
+
+The Licensee agrees to maintain the features within the FIT protocol that provide for interoperability between systems and compatibility with previous and future release versions of the FIT protocol.  Any modifications or extensions made to the source code provided in the FIT SDK and source code files are permissible provided that the interoperability is maintained.
+
+The Licensee agrees that it will not distribute, transfer, or otherwise provide the FIT SDK and source code files to any person or entity other than employees of Licensee who have a need to have access to such information.  The FIT SDK and source code files and any other information provided by Dynastream to Licensee hereunder are confidential and proprietary information of Dynastream, and Licensee agrees that it will not use or disclose any of such information other than as expressly permitted under this Agreement.
+
+The Licensee agrees that it will comply with all definitions and provisions in the FIT protocol and will not deviate from the standards as defined in the FIT protocol and related documentation.
+
+The Licensee agrees that the use of the FIT protocol, source code, and related documentation are provided “as is” and without technical support from Dynastream Innovations Inc..
+
+The Licensee agrees not to claim any intellectual ownership of or rights in or to the FIT protocol as provided, or any associated documentation and that these remain the exclusive property of Dynastream.  The Licensee also agrees that any information and ideas it places in the FIT protocol will be accessible to and may be freely used by all licensees of the FIT protocol.  Accordingly, the Licensee agrees that it will not threaten to bring litigation against or actually bring litigation against any other licensee of the FIT protocol related to that licensee’s use or disclosure of any information or ideas the Licensee places in the FIT protocol. 
+
+The Licensee agrees that if any part of this Agreement is found to be invalid or unenforceable, the remaining terms will remain in effect for the Licensee and for Dynastream.
+
+If the Licensee fails to comply with any of the terms of this Agreement, Dynastream may immediately terminate this Agreement.  Upon such a termination, all rights and obligations for both parties under this Agreement shall cease and the Licensee must immediately stop product development of devices containing the FIT protocol, and delete all copies of the FIT SDK and source code files.
+
+The Licensee may terminate this Agreement with or without cause upon delivery of written notice to Dynastream.  Upon such a termination, the Licensee must immediately stop product development of devices containing the FIT protocol, and delete all copies of the FIT SDK and source code files.
+
+DYNASTREAM MAKES NO CONDITIONS, WARRANTIES OR REPRESENTATIONS ABOUT THE SUITABILITY, RELIABILITY, USABILITY, SECURITY, QUALITY, CAPACITY, PERFORMANCE, AVAILABILITY, TIMELINESS OR ACCURACY OF THE FIT PROTOCOL AND OR ANY OTHER PRODUCTS OR SERVICES OR INFORMATION SUPPLIED UNDER THIS AGREEMENT. DYNASTREAM EXPRESSLY DISCLAIMS ALL CONDITIONS, WARRANTIES AND REPRESENTATIONS, EXPRESS, IMPLIED OR STATUTORY INCLUDING, BUT NOT LIMITED TO, IMPLIED CONDITIONS OR WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, DURABILITY, TITLE AND NON-INFRINGEMENT, WHETHER ARISING BY USAGE OF TRADE, COURSE OF DEALING, COURSE OF PERFORMANCE OR OTHERWISE.
+
+This Agreement shall be governed by the laws of the Province of Alberta, Canada, without regarding to any conflicts of laws principles.  The parties agree that any dispute arising out of this Agreement shall be litigated in the federal or provincial courts in the Province of Alberta.  The parties hereby agree to the exclusive jurisdiction and venue of such courts.
+
+Licensee agrees to indemnify and hold harmless Dynastream for claims, whether arising in tort or contract, against Dynastream, including legal fees, expenses, settlement amounts, and costs, arising out of the application, use or sale of Licensee’s designs and/or products that are related to the Licensee’s use of the FIT protocol, FIT SDK, FIT source code files and related documents.
+
+These terms and conditions may NOT be altered or amended by the use of any other previous or contemporaneous document(s). Any attempt to alter or amend these terms and conditions will be null and void, unless otherwise agreed to in a written agreement signed by both Licensee and Dynastream.
+
+
+Glossary of Terms
+
+Flexible and Interoperable Data Transfer Protocol – Called “FIT” for short is an interoperable binary data transfer protocol designed to be compact and extensible.
+
+FIT Software Development Kit (SDK) – A downloadable package that contains documentation describing the FIT Protocol and FIT Source Code Files.
+
+FIT Source Code Files – Code files that show the implementation of the FIT Protocol for both encoding and decoding data.
+

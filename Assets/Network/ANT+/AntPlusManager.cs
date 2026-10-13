@@ -16,7 +16,7 @@ service channel at a time.
 public class AntPlusManager : Singleton<AntPlusManager> {
 
 	[SerializeField]
-	private List<AntDevice> _scanResult = new List<AntDevice>();
+	private List<AntDevice> _scanResult = new();
 	public List<AntDevice> Devices { get { return this._scanResult; } }
 
 	//the sensor values we receive fron the onReceiveData event
@@ -25,7 +25,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 	public int Heartrate { get { return this._heartRate; } }
 
 	private AntChannel _backgroundScanChannel;
-	private ConnectionData _connectedDevice = new ConnectionData(null, null, null);
+	private ConnectionData _connectedDevice = new(null, null, null);
 
 	private float _timeout = 0f;
 	private const float TIMEOUT_SECONDS = 5f;
@@ -44,7 +44,7 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 		}
 		catch (Exception e) {
 			Debug.LogError(string.Format("Error scanning for ANT+ Devices: {0}", e));
-			HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
+			HttpUtils.ConnectionStatus errorStatus = new();
 			if (e.GetType() == typeof(ANT_Exception)) {
 				errorStatus.message = "Unable to initialize USB:0";
 			}
@@ -70,13 +70,15 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 
 			Debug.Log("Heart rate sensor found " + deviceNumber);
 
-			AntDevice foundDevice = new AntDevice();
-			foundDevice.deviceType = deviceType;
-			foundDevice.deviceNumber = deviceNumber;
-			foundDevice.transType = transType;
-			foundDevice.period = 8070;
-			foundDevice.radiofreq = 57;
-			foundDevice.name = "HRM (" + foundDevice.deviceNumber + ")";
+            AntDevice foundDevice = new()
+            {
+                deviceType = deviceType,
+                deviceNumber = deviceNumber,
+                transType = transType,
+                period = 8070,
+                radiofreq = 57
+            };
+            foundDevice.name = "HRM (" + foundDevice.deviceNumber + ")";
 			this._scanResult.Add(foundDevice);
 			this._scanResult.Sort();
 		}
@@ -99,37 +101,45 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 					(byte)device.radiofreq,
 					(ushort)device.period,
 					false);
-				HttpUtils.ConnectionStatus connectingStatus = new HttpUtils.ConnectionStatus();
-				connectingStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTING;
-				onStatus.Invoke(connectingStatus);
+                HttpUtils.ConnectionStatus connectingStatus = new()
+                {
+                    status = HttpUtils.ConnectionStatus.Status.CONNECTING
+                };
+                onStatus.Invoke(connectingStatus);
 				deviceChannel.onChannelResponse += OnChannelResponse;
 				deviceChannel.hideRXFAIL = true;
 				deviceChannel.onReceiveData += OnData;
 				deviceChannel.onReceiveData += (d) => {
 					this._connectedDevice = new ConnectionData(device, deviceChannel, onStatus);
-					HttpUtils.ConnectionStatus connectedStatus = new HttpUtils.ConnectionStatus();
-					connectedStatus.status = HttpUtils.ConnectionStatus.Status.CONNECTED;
-					onStatus.Invoke(connectedStatus);
+                    HttpUtils.ConnectionStatus connectedStatus = new()
+                    {
+                        status = HttpUtils.ConnectionStatus.Status.CONNECTED
+                    };
+                    onStatus.Invoke(connectedStatus);
 				};
 				this._timeout = TIMEOUT_SECONDS;
 			}
 			catch (Exception e) {
-				HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
-				errorStatus.message = e.Message;
-				errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
-				onStatus.Invoke(errorStatus);
+                HttpUtils.ConnectionStatus errorStatus = new()
+                {
+                    message = e.Message,
+                    status = HttpUtils.ConnectionStatus.Status.ERROR
+                };
+                onStatus.Invoke(errorStatus);
 			}
 		}
 		else {
-			HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
-			errorStatus.message = "No device selected";
-			errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
-			onStatus.Invoke(errorStatus);
+            HttpUtils.ConnectionStatus errorStatus = new()
+            {
+                message = "No device selected",
+                status = HttpUtils.ConnectionStatus.Status.ERROR
+            };
+            onStatus.Invoke(errorStatus);
 		}
 	}
 
 	public void DisconnectFromDevice(Action<HttpUtils.ConnectionStatus> onStatus, bool isTimeout = false) {
-		HttpUtils.ConnectionStatus disconnectStatus = new HttpUtils.ConnectionStatus();
+		HttpUtils.ConnectionStatus disconnectStatus = new();
 		this._timeout = 0;
 		if (!isTimeout) {
 			if (this._connectedDevice.channel != null) {
@@ -159,12 +169,10 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 
 	private void Update() {
 		if (this._timeout > 0) {
-			this._timeout = this._timeout - Time.deltaTime;
+			this._timeout -= Time.deltaTime;
 			if (this._timeout <= 0) {
 				DisconnectFromDevice(
-					this._connectedDevice.onTimeout != null
-					? this._connectedDevice.onTimeout
-					: (s) => { },
+                    _connectedDevice.onTimeout ?? ((s) => { }),
 				true);
 			}
 		}
@@ -183,10 +191,12 @@ public class AntPlusManager : Singleton<AntPlusManager> {
 		if (this._connectedDevice.onTimeout != null) {
 			Action<HttpUtils.ConnectionStatus> onError = this._connectedDevice.onTimeout;
 			DisconnectFromDevice(onError);
-			HttpUtils.ConnectionStatus errorStatus = new HttpUtils.ConnectionStatus();
-			errorStatus.message = "Serial error: " + error.error;
-			errorStatus.status = HttpUtils.ConnectionStatus.Status.ERROR;
-			onError.Invoke(errorStatus);
+            HttpUtils.ConnectionStatus errorStatus = new()
+            {
+                message = "Serial error: " + error.error,
+                status = HttpUtils.ConnectionStatus.Status.ERROR
+            };
+            onError.Invoke(errorStatus);
 		}
 	}
 
